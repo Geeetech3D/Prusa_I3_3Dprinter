@@ -46,13 +46,13 @@
 // The following define selects which electronics board you have.
 // Please choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
-  #if(MACHINE_NAME==MECREATOR2)
+   
   #define MOTHERBOARD BOARD_ULTIMAKER
-  #endif
+   
 #endif
 
 // Define this to set a custom name for your generic Mendel,
-#define CUSTOM_MENDEL_NAME "A10D"
+//#define CUSTOM_MENDEL_NAME "A10D"
 
 // Define this to set a unique identifier for this printer, (Used by some programs to differentiate between machines)
 // You can use an online service to generate a random UUID. (eg http://www.uuidgenerator.net/version4)
@@ -487,7 +487,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 // default settings
 
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,400,93}  // MXL, Z M8=1.25, MK8
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,400,93,93}  // MXL, Z M8=1.25, MK8
 #define DEFAULT_MAX_FEEDRATE          {400, 400, 400, 45}    // (mm/sec)
 #define DEFAULT_MAX_ACCELERATION      {5000,5000,50,5000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
 
