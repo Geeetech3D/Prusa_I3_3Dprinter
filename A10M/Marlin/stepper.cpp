@@ -320,12 +320,10 @@ void Mixer_Init(void)
 {
   mixer.max =100;// Setting.mixer_ofp_max;
   mixer.min =0;// Setting.mixer_ofp_min;
-
   mixer.rate[NOZZLE0] = mixer.max;   
   mixer.rate[NOZZLE1] = mixer.min;
-  
-
-  
+  mixer.start_z=0.1;
+  mixer.end_z=0.1+10;  
   mixer.counts = 0;
 
 }
@@ -376,7 +374,7 @@ void color_control(void)
 {
   unsigned char start_p,end_p;
   float start_h,end_h;
-  start_h =0.1;// basic_axis_position[Z_AXIS];
+/*  start_h =0.1;// basic_axis_position[Z_AXIS];
   switch(color_change_flag)
     {
       case 0:return;
@@ -431,6 +429,9 @@ void color_control(void)
       
     default: return;
     }
+*/
+    start_h=10;//mixer.start_z;
+	end_h=20;//mixer.end_z;
     Color_change(start_p, end_p, start_h, end_h);
 }
 
@@ -869,8 +870,6 @@ ISR(TIMER1_COMPA_vect)
 	 // enable_e1();
 	  WRITE(E0_ENABLE_PIN, E_ENABLE_ON);
 	  WRITE(E1_ENABLE_PIN, E_ENABLE_ON);
-	  mixer.rate[NOZZLE0] =60;   
-  	  mixer.rate[NOZZLE1] = 40;
 	  ////////////
 	  color_control();
       current_block->active_extruder=Nozzle_Select();
@@ -1016,6 +1015,8 @@ ISR(TIMER1_COMPA_vect)
 
 void st_init()
 {
+  Mixer_Init();
+
   digipot_init(); //Initialize Digipot Motor Current
   microstep_init(); //Initialize Microstepping Pins
 

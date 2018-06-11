@@ -103,7 +103,9 @@ typedef struct
   unsigned char rate_buf[EXT_NUM];  //use as buffer when use T code
   int counts;
   unsigned char min,max;
-  bool ofp;   //over fusion protect
+  //bool ofp;   //over fusion protect
+  float start_z;
+  float end_z;
 }mixer_t;
 
 

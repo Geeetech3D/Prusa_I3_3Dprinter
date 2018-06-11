@@ -65,6 +65,8 @@ static void lcd_control_temperature_preheat_pla_settings_menu();
 static void lcd_control_temperature_preheat_abs_settings_menu();
 static void lcd_control_motion_menu();
 static void lcd_control_volumetric_menu();
+static void lcd_mixer_menu();
+static void lcd_mixer_template0_menu();
 #ifdef DOGLCD
 static void lcd_set_contrast();
 #endif
@@ -335,6 +337,175 @@ static void lcd_sdcard_stop()
 
 	lcd_setstatus(MSG_PRINT_ABORTED);
 }
+extern mixer_t mixer;
+#define NOZZLE0  0
+#define NOZZLE1  1
+
+static void lcd_mixer_fialment0_menu()
+{
+   if (encoderPosition != 0)
+    {
+        mixer.rate[NOZZLE0]  +=  (int)encoderPosition ;
+        encoderPosition = 0;
+        if ( mixer.rate[NOZZLE0] <=0)
+         mixer.rate[NOZZLE0] = 0;
+      else if ( mixer.rate[NOZZLE0] > 100)
+           mixer.rate[NOZZLE0] = 100;
+      mixer.rate[NOZZLE1]=100-mixer.rate[NOZZLE0];     
+
+    }
+      char tmp[32];
+      sprintf(tmp,"filament0  %d %%  ", mixer.rate[NOZZLE0] );
+      
+      lcd.setCursor(2,1);
+      lcd.print(tmp);
+    
+    if (LCD_CLICKED)
+    {
+      lcd_goto_menu(lcd_mixer_menu);
+    }
+    
+   // END_MENU();
+}
+static void lcd_mixer_fialment1_menu()
+{
+	if (encoderPosition != 0)
+	   {
+		   mixer.rate[NOZZLE1]	+=	(int)encoderPosition ;
+		   encoderPosition = 0;
+		   if ( mixer.rate[NOZZLE1] <=0)
+			mixer.rate[NOZZLE1] = 0;
+		 else if ( mixer.rate[NOZZLE1] > 100)
+			  mixer.rate[NOZZLE1] = 100;
+		 mixer.rate[NOZZLE0]=100-mixer.rate[NOZZLE1];	  
+	
+	   }
+		 char tmp[32];
+		 sprintf(tmp,"filament1  %d %%   ", mixer.rate[NOZZLE1] );
+		 
+		 lcd.setCursor(2,1);
+		 lcd.print(tmp);
+	   
+	   if (LCD_CLICKED)
+	   {
+		 lcd_goto_menu(lcd_mixer_menu);
+	   }
+
+}
+
+static void lcd_mixer_template00_menu()
+{
+	if (encoderPosition != 0)
+	   {
+		   mixer.start_z	+=	float((int)encoderPosition) * 0.1;
+		   encoderPosition = 0;
+		   if ( mixer.start_z <=0)
+			mixer.start_z = 0;
+		  else if ( mixer.start_z > Z_MAX_POS)
+			  mixer.start_z = Z_MAX_POS;
+		  if(mixer.start_z>mixer.end_z)
+		  	mixer.end_z=mixer.start_z+1;
+	
+	   }
+		 char tmp[32];
+		 int x=mixer.start_z;
+		 int y=mixer.start_z*10;
+		 sprintf(tmp,"start Z  %d.%d mm   ", x,y%10);
+		 
+		 lcd.setCursor(2,1);
+		 lcd.print(tmp);
+	   
+	   if (LCD_CLICKED)
+	   {
+		 lcd_goto_menu(lcd_mixer_template0_menu);
+	   }
+
+}
+static void lcd_mixer_template01_menu()
+{
+	if (encoderPosition != 0)
+	   {
+		   mixer.end_z	+=	float((int)encoderPosition) * 0.1;
+		   
+		   encoderPosition = 0;
+		   if ( mixer.end_z <=0)
+			mixer.end_z = 0;
+		 else if ( mixer.end_z > Z_MAX_POS)
+			  mixer.end_z = Z_MAX_POS;
+		 
+		  if(mixer.start_z>mixer.end_z)
+		  	mixer.start_z=mixer.end_z-1;
+                  if(mixer.start_z<=0)
+                    mixer.start_z=0;
+	
+	   }
+		 char tmp[32];
+		  
+		 int x=mixer.end_z;
+		 int y=mixer.end_z*10;
+		 sprintf(tmp,"end Z  %d.%d mm   ", x,y%10);
+		 lcd.setCursor(2,1);
+		 lcd.print(tmp);
+	   
+	   if (LCD_CLICKED)
+	   {
+		 lcd_goto_menu(lcd_mixer_template0_menu);
+	   }
+
+}
+
+static void lcd_mixer_template0_menu()
+{
+  START_MENU();
+    MENU_ITEM(back, MSG_MAIN, lcd_main_menu);
+    MENU_ITEM(submenu, "", lcd_mixer_template00_menu);
+    MENU_ITEM(submenu, "", lcd_mixer_template01_menu);
+    char tmp[32];
+    int x=mixer.start_z;
+    int y=mixer.start_z*10;
+    sprintf(tmp,"start Z  %d.%d mm    ", x,y%10);
+    lcd.setCursor(2,1);
+    lcd.print(tmp);
+    x=mixer.end_z;
+    y=mixer.end_z*10;
+    sprintf(tmp,"end   Z  %d.%d mm    ", x,y%10);
+     
+    lcd.setCursor(2,2);
+    lcd.print(tmp);
+    
+    
+
+  END_MENU();
+}
+
+static void lcd_mixer_menu()
+{
+    START_MENU();
+    MENU_ITEM(back, MSG_MAIN, lcd_main_menu);
+  //  MENU_ITEM(submenu, MACHINE_NAME, NULL);
+   // MENU_ITEM(submenu, VERSION_STRING, NULL);
+  //  MENU_ITEM(submenu, VERSION_STRING, NULL);
+	
+  ////////////
+	//lcd.print( MACHINE_NAME);ff
+    
+    MENU_ITEM(submenu, "", lcd_mixer_fialment1_menu);
+    MENU_ITEM(submenu, "", lcd_mixer_fialment1_menu);
+    char tmp[32];
+    sprintf(tmp,"filament0   %d%%",mixer.rate[NOZZLE0]);
+    lcd.setCursor(1,1);
+    lcd.print(tmp);
+	
+    sprintf(tmp,"filament1   %d%%",mixer.rate[NOZZLE1]);
+    lcd.setCursor(1,2);
+    lcd.print(tmp);
+  //////////////	
+    
+    MENU_ITEM(submenu, "template0", lcd_mixer_template0_menu);
+    
+	
+    END_MENU();
+}
 
 static void lcd_about_menu()
 {
@@ -429,9 +600,9 @@ static void lcd_main_menu()
 	  light_level = 0;
 	}
 #endif
-
+    MENU_ITEM(submenu, "Mixer", lcd_mixer_menu );
 	MENU_ITEM(submenu, "About", lcd_about_menu );
-
+    
     END_MENU();
 }
 
