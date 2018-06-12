@@ -332,17 +332,18 @@ void Color_change(unsigned char start_p,unsigned char end_p,float start_h, float
   float thickness;
   thickness = end_h - start_h;
   
-
+ 
   
-  if(count_position[Z_AXIS] >= start_h)
+  if((current_position[Z_AXIS] >= start_h)&&(current_position[Z_AXIS] < end_h))
   {
+    mixer.rate[NOZZLE0]=mixer.rate[NOZZLE1]=0;
     if(end_p > start_p)  
     {
-      mixer.rate[NOZZLE0] = start_p + (end_p - start_p)*((count_position[Z_AXIS] - start_h)/thickness);    
+      mixer.rate[NOZZLE0] = start_p + (end_p - start_p)*((current_position[Z_AXIS] - start_h)/thickness);    
     }
     else if(end_p < start_p)
     {
-      mixer.rate[NOZZLE0] = start_p - (start_p - end_p)*((count_position[Z_AXIS] - start_h)/thickness);
+      mixer.rate[NOZZLE0] = start_p - (start_p - end_p)*((current_position[Z_AXIS] - start_h)/thickness);
     }
                               
     if(mixer.rate[NOZZLE0] >= mixer.max) mixer.rate[NOZZLE0] = mixer.max;
@@ -350,7 +351,7 @@ void Color_change(unsigned char start_p,unsigned char end_p,float start_h, float
     mixer.rate[NOZZLE1] = 100 - mixer.rate[NOZZLE0];  
   }
   
-  if(count_position[Z_AXIS] > end_h)
+  if(current_position[Z_AXIS] > end_h)
   {
     color_change_flag = 0; 
     return;
@@ -430,8 +431,10 @@ void color_control(void)
     default: return;
     }
 */
-    start_h=10;//mixer.start_z;
-	end_h=20;//mixer.end_z;
+    start_h=mixer.start_z;
+	end_h=mixer.end_z;
+	start_p = (unsigned char)mixer.min;
+    end_p = (unsigned char)mixer.max;
     Color_change(start_p, end_p, start_h, end_h);
 }
 
