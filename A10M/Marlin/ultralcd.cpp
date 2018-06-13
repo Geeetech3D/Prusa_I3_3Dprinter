@@ -340,7 +340,8 @@ static void lcd_sdcard_stop()
 extern mixer_t mixer;
 #define NOZZLE0  0
 #define NOZZLE1  1
-
+static void lcd_mixer_endPrecent_menu();
+static void lcd_mixer_Precent_menu();
 static void lcd_mixer_fialment0_menu()
 {
    if (encoderPosition != 0)
@@ -454,25 +455,95 @@ static void lcd_mixer_template01_menu()
 
 }
 
-static void lcd_mixer_template0_menu()
+static void lcd_mixer_startPrecent_menu()
+{
+	if (encoderPosition != 0)
+	   {
+		   mixer.min	+=	(int)encoderPosition ;
+		   encoderPosition = 0;
+		   if ( mixer.min <=0)
+			mixer.min = 0;
+		 else if ( mixer.min > 100)
+			  mixer.min= 100;
+		 mixer.max=100-mixer.min;	  
+	
+	   }
+		 char tmp[32];
+		 sprintf(tmp,"start precent %d%%   ", mixer.min );
+		 
+		 lcd.setCursor(2,1);
+		 lcd.print(tmp);
+	   
+	   if (LCD_CLICKED)
+	   {
+		 lcd_goto_menu(lcd_mixer_Precent_menu);
+	   }
+
+}
+static void lcd_mixer_endPrecent_menu()
+{
+	if (encoderPosition != 0)
+	   {
+		   mixer.max	+=	(int)encoderPosition ;
+		   encoderPosition = 0;
+		   if ( mixer.max <=0)
+			mixer.max = 0;
+		 else if ( mixer.max > 100)
+			  mixer.max= 100;
+		 mixer.min=100-mixer.max;	  
+	
+	   }
+		 char tmp[32];
+		 sprintf(tmp,"end precent %d%%   ", mixer.max);
+		 
+		 lcd.setCursor(2,1);
+		 lcd.print(tmp);
+	   
+	   if (LCD_CLICKED)
+	   {
+		 lcd_goto_menu(lcd_mixer_Precent_menu);
+	   }
+
+}
+
+static void lcd_mixer_Precent_menu()
 {
   START_MENU();
-    MENU_ITEM(back, MSG_MAIN, lcd_main_menu);
+  MENU_ITEM(back, MSG_MAIN, lcd_mixer_menu);    
+  char tmp[32];
+//////////
+  MENU_ITEM(submenu, "", lcd_mixer_startPrecent_menu);
+  sprintf(tmp,"start precent %d%% ", mixer.min); 	
+  lcd.setCursor(1,1);
+  lcd.print(tmp);
+  MENU_ITEM(submenu, "", lcd_mixer_endPrecent_menu);
+  sprintf(tmp,"end precent %d%% ", mixer.max); 	
+  lcd.setCursor(1,2);
+  lcd.print(tmp);
+  END_MENU();
+}
+
+static void lcd_mixer_template0_menu()
+{
+    START_MENU();
+    MENU_ITEM(back, MSG_MAIN, lcd_mixer_menu);
     MENU_ITEM(submenu, "", lcd_mixer_template00_menu);
-    MENU_ITEM(submenu, "", lcd_mixer_template01_menu);
+    
     char tmp[32];
     int x=mixer.start_z;
     int y=mixer.start_z*10;
-    sprintf(tmp,"start Z  %d.%d mm    ", x,y%10);
-    lcd.setCursor(2,1);
+    sprintf(tmp,"start Z  %d.%d mm", x,y%10);
+    lcd.setCursor(1,1);
     lcd.print(tmp);
+    MENU_ITEM(submenu, "", lcd_mixer_template01_menu);
     x=mixer.end_z;
     y=mixer.end_z*10;
-    sprintf(tmp,"end   Z  %d.%d mm    ", x,y%10);
-     
-    lcd.setCursor(2,2);
+    sprintf(tmp,"end   Z  %d.%d mm", x,y%10);     
+    lcd.setCursor(1,2);
     lcd.print(tmp);
-    
+//////////
+  MENU_ITEM(submenu, "mix precent", lcd_mixer_Precent_menu);
+
     
 
   END_MENU();
@@ -489,7 +560,7 @@ static void lcd_mixer_menu()
   ////////////
 	//lcd.print( MACHINE_NAME);ff
     
-    MENU_ITEM(submenu, "", lcd_mixer_fialment1_menu);
+    MENU_ITEM(submenu, "", lcd_mixer_fialment0_menu);
     MENU_ITEM(submenu, "", lcd_mixer_fialment1_menu);
     char tmp[32];
     sprintf(tmp,"filament0   %d%%",mixer.rate[NOZZLE0]);
@@ -501,7 +572,7 @@ static void lcd_mixer_menu()
     lcd.print(tmp);
   //////////////	
     
-    MENU_ITEM(submenu, "template0", lcd_mixer_template0_menu);
+    MENU_ITEM(submenu, "template", lcd_mixer_template0_menu);
     
 	
     END_MENU();

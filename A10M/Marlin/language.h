@@ -35,7 +35,7 @@
 
 
 #if MB(ULTIMAKER)|| MB(ULTIMAKER_OLD)|| MB(ULTIMAIN_2)
-  #define MACHINE_NAME "Geeetech A10D"
+  #define MACHINE_NAME "Geeetech A10M"
   #define FIRMWARE_URL " "
 #elif MB(RUMBA)
   #define MACHINE_NAME "Rumba"

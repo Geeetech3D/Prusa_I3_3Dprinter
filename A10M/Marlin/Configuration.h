@@ -30,7 +30,7 @@
 //#define STRING_VERSION "1.0.2"
 
 #define STRING_VERSION_CONFIG_H __DATE__ " " __TIME__ // build date and time
-#define STRING_CONFIG_H_AUTHOR "(geeetech, A10D)" // Who made the changes.
+#define STRING_CONFIG_H_AUTHOR "(geeetech, A10M)" // Who made the changes.
 
 // SERIAL_PORT selects which serial port should be used for communication with the host.
 // This allows the connection of wireless adapters (for instance) to non-default port pins.
@@ -52,7 +52,7 @@
 #endif
 
 // Define this to set a custom name for your generic Mendel,
-//#define CUSTOM_MENDEL_NAME "A10D"
+//#define CUSTOM_MENDEL_NAME "A10M"
 
 // Define this to set a unique identifier for this printer, (Used by some programs to differentiate between machines)
 // You can use an online service to generate a random UUID. (eg http://www.uuidgenerator.net/version4)
