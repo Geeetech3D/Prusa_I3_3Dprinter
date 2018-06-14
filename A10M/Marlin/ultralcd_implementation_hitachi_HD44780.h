@@ -425,6 +425,7 @@ static void lcd_printPGM(const char* str)
         lcd.write(c);
     }
 }
+extern mixer_t mixer;
 /*
 Possible status screens:
 16x2   |0123456789012345|
@@ -497,19 +498,23 @@ static void lcd_implementation_status_screen()
 #  if EXTRUDERS > 1
     tHotend = int(degHotend(1) + 0.5);
     tTarget = int(degTargetHotend(1) + 0.5);
-    lcd.print(LCD_STR_THERMOMETER[0]);
+    //lcd.print(LCD_STR_THERMOMETER[0]);
+    lcd.print("Mx ");
 #  else//Heated bed
     tHotend=int(degBed() + 0.5);
     tTarget=int(degTargetBed() + 0.5);
     lcd.print(LCD_STR_BEDTEMP[0]);
 #  endif
-    lcd.print(itostr3(tHotend));
+    lcd.print(itostr3(mixer.rate[0]));
     lcd.print('/');
-    lcd.print(itostr3left(tTarget));
-    lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
+    lcd.print(itostr3left(mixer.rate[1]));
+    lcd.print(" %%");
+   // lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
     if (tTarget < 10)
         lcd.print(' ');
 # endif//EXTRUDERS > 1 || TEMP_SENSOR_BED != 0
+
+
 #endif//LCD_WIDTH > 19
 
 #if LCD_HEIGHT > 2

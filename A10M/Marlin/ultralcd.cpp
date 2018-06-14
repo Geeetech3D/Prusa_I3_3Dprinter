@@ -572,7 +572,7 @@ static void lcd_mixer_menu()
     lcd.print(tmp);
   //////////////	
     
-    MENU_ITEM(submenu, "template", lcd_mixer_template0_menu);
+    MENU_ITEM(submenu, "auto mix", lcd_mixer_template0_menu);
     
 	
     END_MENU();
