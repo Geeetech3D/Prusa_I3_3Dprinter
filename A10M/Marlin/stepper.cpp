@@ -318,8 +318,8 @@ unsigned char color_change_flag = 0;
 
 void Mixer_Init(void)
 {
-  mixer.max =100;// Setting.mixer_ofp_max;
-  mixer.min =0;// Setting.mixer_ofp_min;
+  mixer.max =99;// Setting.mixer_ofp_max;
+  mixer.min =1;// Setting.mixer_ofp_min;
   mixer.rate[NOZZLE0] = mixer.max;   
   mixer.rate[NOZZLE1] = mixer.min;
   mixer.start_z=0.1;
@@ -431,11 +431,14 @@ void color_control(void)
     default: return;
     }
 */
+if(color_change_flag==1)
+{
     start_h=mixer.start_z;
 	end_h=mixer.end_z;
 	start_p = (unsigned char)mixer.min;
     end_p = (unsigned char)mixer.max;
     Color_change(start_p, end_p, start_h, end_h);
+}
 }
 
 unsigned char Max_Divisor(unsigned char a, unsigned char b)
@@ -1018,7 +1021,7 @@ ISR(TIMER1_COMPA_vect)
 
 void st_init()
 {
-  Mixer_Init();
+   Mixer_Init();
 
   digipot_init(); //Initialize Digipot Motor Current
   microstep_init(); //Initialize Microstepping Pins

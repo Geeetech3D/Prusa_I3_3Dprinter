@@ -9,6 +9,7 @@
 #include "ConfigurationStore.h"
 
 int8_t encoderDiff; /* encoderDiff is updated from interrupt context and added to encoderPosition every LCD update */
+extern unsigned char color_change_flag;
 
 /* Configuration settings */
 int plaPreheatHotendTemp;
@@ -347,6 +348,8 @@ static void lcd_mixer_fialment0_menu()
    if (encoderPosition != 0)
     {
         mixer.rate[NOZZLE0]  +=  (int)encoderPosition ;
+	 if(mixer.rate[NOZZLE0] >112)
+	 	mixer.rate[NOZZLE0] =0;
         encoderPosition = 0;
         if ( mixer.rate[NOZZLE0] <=0)
          mixer.rate[NOZZLE0] = 0;
@@ -357,13 +360,13 @@ static void lcd_mixer_fialment0_menu()
     }
       char tmp[32];
       sprintf(tmp,"filament0  %d %%  ", mixer.rate[NOZZLE0] );
-      
+      color_change_flag =0;
       lcd.setCursor(2,1);
       lcd.print(tmp);
     
     if (LCD_CLICKED)
     {
-      lcd_goto_menu(lcd_mixer_menu);
+      lcd_goto_menu(lcd_mixer_menu);  
     }
     
    // END_MENU();
@@ -373,6 +376,8 @@ static void lcd_mixer_fialment1_menu()
 	if (encoderPosition != 0)
 	   {
 		   mixer.rate[NOZZLE1]	+=	(int)encoderPosition ;
+		   if(mixer.rate[NOZZLE1] >112)
+	 		mixer.rate[NOZZLE1] =0;
 		   encoderPosition = 0;
 		   if ( mixer.rate[NOZZLE1] <=0)
 			mixer.rate[NOZZLE1] = 0;
@@ -383,7 +388,7 @@ static void lcd_mixer_fialment1_menu()
 	   }
 		 char tmp[32];
 		 sprintf(tmp,"filament1  %d %%   ", mixer.rate[NOZZLE1] );
-		 
+		 color_change_flag =0;
 		 lcd.setCursor(2,1);
 		 lcd.print(tmp);
 	   
@@ -512,6 +517,7 @@ static void lcd_mixer_Precent_menu()
   MENU_ITEM(back, MSG_MAIN, lcd_mixer_menu);    
   char tmp[32];
 //////////
+  color_change_flag =1;
   MENU_ITEM(submenu, "", lcd_mixer_startPrecent_menu);
   sprintf(tmp,"start precent %d%% ", mixer.min); 	
   lcd.setCursor(1,1);
@@ -1484,13 +1490,13 @@ void lcd_update()
 {
     static unsigned long timeoutToStatus = 0;
 
-    #ifdef LCD_HAS_SLOW_BUTTONS
+    #ifdef LCD_HAS_SLOW_BUTTONS    //读取按键值
     slow_buttons = lcd_implementation_read_slow_buttons(); // buttons which take too long to read in interrupt context
     #endif
 
-    lcd_buttons_update();
+    lcd_buttons_update();//按键处理函数
 
-    #if (SDCARDDETECT > 0)
+    #if (SDCARDDETECT > 0)//sd卡检测
     if((IS_SD_INSERTED != lcd_oldcardstatus && lcd_detected()))
     {
         lcdDrawUpdate = 2;
@@ -1514,7 +1520,7 @@ void lcd_update()
     }
     #endif//CARDINSERTED
 
-    if (lcd_next_update_millis < millis())
+    if (lcd_next_update_millis < millis())  
     {
 #ifdef ULTIPANEL
 		#ifdef REPRAPWORLD_KEYPAD
@@ -1552,7 +1558,7 @@ void lcd_update()
 #endif//ULTIPANEL
 
 #ifdef DOGLCD        // Changes due to different driver architecture of the DOGM display
-        blink++;     // Variable for fan animation and alive dot
+        blink++;         // Variable for fan animation and alive dot
         u8g.firstPage();
         do
         {

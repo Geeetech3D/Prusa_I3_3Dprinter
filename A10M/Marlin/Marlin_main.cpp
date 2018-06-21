@@ -386,7 +386,7 @@ unsigned long stoptime=0;
 
 static uint8_t tmp_extruder;
 
-
+extern mixer_t mixer;
 bool Stopped=false;
 
 #ifdef LIGHT_SUPPORT
@@ -3828,8 +3828,18 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
 
   else if(code_seen('T'))
   {
-    tmp_extruder = code_value();
-    if(tmp_extruder >= EXTRUDERS) {
+     	tmp_extruder = code_value();
+     	if(tmp_extruder == 1)
+     	{
+		mixer.rate[0] = 1;
+		mixer.rate[1] = 99;
+     	}
+	 else
+	 {
+		mixer.rate[0] = 99;
+		mixer.rate[1] = 1;
+	 }
+   /*  if(tmp_extruder >= EXTRUDERS) {
       SERIAL_ECHO_START;
       SERIAL_ECHO("T");
       SERIAL_ECHO(tmp_extruder);
@@ -3928,7 +3938,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
       SERIAL_ECHO_START;
       SERIAL_ECHO(MSG_ACTIVE_EXTRUDER);
       SERIAL_PROTOCOLLN((int)active_extruder);
-    }
+    }*/
   }
 
   else

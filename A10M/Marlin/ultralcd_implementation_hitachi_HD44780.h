@@ -1,11 +1,11 @@
 #ifndef ULTRA_LCD_IMPLEMENTATION_HITACHI_HD44780_H
 #define ULTRA_LCD_IMPLEMENTATION_HITACHI_HD44780_H
-
+#include "stepper.h"
 /**
 * Implementation of the LCD display routines for a Hitachi HD44780 display. These are common LCD character displays.
 * When selecting the Russian language, a slightly different LCD implementation is used to handle UTF8 characters.
 **/
-
+extern mixer_t mixer;
 #ifndef REPRAPWORLD_KEYPAD
 extern volatile uint8_t buttons;  //the last checked buttons in a bit array.
 #else
@@ -545,10 +545,12 @@ static void lcd_implementation_status_screen()
         lcd.print(' ');
 #  else
     lcd.setCursor(0,1);
-    lcd.print('X');
-    lcd.print(ftostr3(current_position[X_AXIS]));
-    lcd_printPGM(PSTR(" Y"));
-    lcd.print(ftostr3(current_position[Y_AXIS]));
+    lcd.print('M');
+    lcd.print('x');
+    lcd.print(itostr3left(mixer.rate[0]));
+    lcd.print('/');
+    lcd.print(itostr3left(mixer.rate[1]));
+
 #  endif//EXTRUDERS > 1 || TEMP_SENSOR_BED != 0
 # endif//LCD_WIDTH > 19
     lcd.setCursor(LCD_WIDTH - 8, 1);
