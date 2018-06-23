@@ -61,7 +61,7 @@
 // This defines the number of extruders
 #define EXTRUDERS 1
 
-#define LIGHT_SUPPORT
+//#define LIGHT_SUPPORT
 #ifdef LIGHT_SUPPORT
   #define LIGHT_LEVEL 255
 #endif

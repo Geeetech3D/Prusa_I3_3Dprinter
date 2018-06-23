@@ -334,7 +334,7 @@ void Color_change(unsigned char start_p,unsigned char end_p,float start_h, float
   
  
   
-  if((current_position[Z_AXIS] >= start_h))
+  if((current_position[Z_AXIS] >= start_h)&&(current_position[Z_AXIS] < end_h))
   {
     mixer.rate[NOZZLE0]=mixer.rate[NOZZLE1]=0;
     if(end_p > start_p)  
