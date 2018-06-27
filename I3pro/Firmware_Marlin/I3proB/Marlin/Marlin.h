@@ -67,7 +67,7 @@
 #define SERIAL_PROTOCOLPGM(x) (serialprintPGM(PSTR(x)))
 #define SERIAL_PROTOCOLLN(x) (MYSERIAL.print(x),MYSERIAL.write('\n'))
 #define SERIAL_PROTOCOLLNPGM(x) (serialprintPGM(PSTR(x)),MYSERIAL.write('\n'))
-#define VERSION_STRING  "1.0.04"
+#define VERSION_STRING  "1.0.05"
 
 
 extern const char errormagic[] PROGMEM;
