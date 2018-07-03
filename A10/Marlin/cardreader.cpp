@@ -246,7 +246,7 @@ void CardReader::getAbsFilename(char *t)
   else
     t[0]=0;
 }
-
+extern   char P_file_name[13];
 void CardReader::openFile(char* name,bool read, bool replace_current/*=true*/)
 {
   if(!cardOK)
@@ -348,6 +348,8 @@ void CardReader::openFile(char* name,bool read, bool replace_current/*=true*/)
   {
     if (file.open(curDir, fname, O_READ)) 
     {
+      strcpy(P_file_name,  fname);
+      SERIAL_ECHOLN(P_file_name);
       filesize = file.fileSize();
       SERIAL_PROTOCOLPGM(MSG_SD_FILE_OPENED);
       SERIAL_PROTOCOL(fname);
@@ -456,17 +458,21 @@ void CardReader::removeFile(char* name)
   
 }
 
-void CardReader::getStatus()
+uint32_t CardReader::getStatus()
 {
+  uint32_t ret=0;
   if(cardOK){
     SERIAL_PROTOCOLPGM(MSG_SD_PRINTING_BYTE);
     SERIAL_PROTOCOL(sdpos);
     SERIAL_PROTOCOLPGM("/");
     SERIAL_PROTOCOLLN(filesize);
+    ret=sdpos;
   }
   else{
     SERIAL_PROTOCOLLNPGM(MSG_SD_NOT_PRINTING);
+    
   }
+  return ret;
 }
 void CardReader::write_command(char *buf)
 {
@@ -529,7 +535,8 @@ void CardReader::checkautostart(bool force)
     if(strncmp((char*)p.name,autoname,5)==0)
     {
       char cmd[30];
-
+      SERIAL_ECHOLN("00000000000");
+SERIAL_ECHOLN(autoname);
       sprintf_P(cmd, PSTR("M23 %s"), autoname);
       enquecommand(cmd);
       enquecommand_P(PSTR("M24"));

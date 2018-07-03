@@ -18,7 +18,11 @@ int plaPreheatFanSpeed;
 int absPreheatHotendTemp;
 int absPreheatHPBTemp;
 int absPreheatFanSpeed;
+extern unsigned int Z_t,T0_t,B_t;
+extern uint32_t pos_t,E_t;
 
+
+extern   char P_file_name[15],recovery;
 #ifdef FILAMENT_LCD_DISPLAY
   unsigned long message_millis = 0;
 #endif
@@ -192,8 +196,7 @@ menuFunc_t callbackFunc;
 
 // place-holders for Ki and Kd edits
 float raw_Ki, raw_Kd;
-
-static void lcd_goto_menu(menuFunc_t menu, const uint32_t encoder=0, const bool feedback=true) {
+  void lcd_goto_menu(menuFunc_t menu, const uint32_t encoder=0, const bool feedback=true) {
   if (currentMenu != menu) {
     currentMenu = menu;
     encoderPosition = encoder;
@@ -206,9 +209,70 @@ static void lcd_goto_menu(menuFunc_t menu, const uint32_t encoder=0, const bool 
   }
 }
 
+void lcd_resume_menu_ok(void) 
+{
+  char tmp_n[64+10];
+  recovery=0;
+//  Config_StoreSettings();
+  //Config_RetrieveSettings();
+  lcd_goto_menu(lcd_status_screen);
+ // enquecommand("M930"); 
+  SERIAL_ECHOLN(P_file_name);
+  recovery=1;
+  
+  sprintf_P(tmp_n,PSTR("G92 Z%u.%u"),Z_t/10,Z_t%10);
+  SERIAL_ECHOLN(tmp_n);
+  enquecommand(tmp_n);
+  //////////////////
+  sprintf_P(tmp_n,PSTR("G92 E%lu"),E_t);
+  SERIAL_ECHOLN(tmp_n);
+  enquecommand(tmp_n);
+  //////////////
+  //////////////////
+  sprintf_P(tmp_n,PSTR("M104 S%u"),T0_t);
+  SERIAL_ECHOLN(tmp_n);
+  enquecommand(tmp_n);
+  //////////////
+}
+void lcd_resume_menu_cancel(void) 
+{
+   recovery=0;
+   //Config_StoreSettings();
+   //Config_RetrieveSettings();
+   lcd_goto_menu(lcd_status_screen, 0, false);
+   
+ 
+}
+void lcd_resume_menu0(void) 
+{
+  START_MENU();
+  //////////
+   MENU_ITEM(submenu, "", lcd_resume_menu0);
+  lcd.setCursor(0,0);
+  lcd.print("Resume print ?  ");
+  
+  MENU_ITEM(submenu, "", lcd_resume_menu_ok);
+  lcd.setCursor(1,1);
+  lcd.print("Yes  ");
+  MENU_ITEM(submenu, "", lcd_resume_menu_cancel);
+  lcd.setCursor(1,2);
+  lcd.print("No  ");
+  END_MENU();
+
+}
+
+
+
+
+void lcd_resume_menu(void) 
+{
+   
+ lcd_goto_menu(lcd_resume_menu0);
+}
 /* Main status screen. It's up to the implementation specific part to show what is needed. As this is very display dependent */
 static void lcd_status_screen()
 {
+ 
   #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
     uint16_t mil = millis();
     #ifndef PROGRESS_MSG_ONCE
@@ -1157,11 +1221,19 @@ static void menu_action_back(menuFunc_t data) { lcd_goto_menu(data); }
 static void menu_action_submenu(menuFunc_t data) { lcd_goto_menu(data); }
 static void menu_action_gcode(const char* pgcode) { enquecommand_P(pgcode); }
 static void menu_action_function(menuFunc_t data) { (*data)(); }
+
+
+
 static void menu_action_sdfile(const char* filename, char* longFilename)
 {
     char cmd[30];
     char* c;
     sprintf_P(cmd, PSTR("M23 %s"), filename);
+	  strcpy(P_file_name,  filename);
+   // SERIAL_ECHOLN(filename);
+   //  SERIAL_ECHOLN(" pppppppppp ");
+    SERIAL_ECHOLN(P_file_name);
+	recovery=0;
     for(c = &cmd[4]; *c; c++)
         *c = tolower(*c);
     enquecommand(cmd);
@@ -1331,7 +1403,7 @@ void lcd_update()
 #endif
 
 #ifdef ULTIPANEL
-        if(timeoutToStatus < millis() && currentMenu != lcd_status_screen)
+        if(timeoutToStatus < millis() && currentMenu != lcd_status_screen&&recovery!=3)
         {
             lcd_return_to_status();
             lcdDrawUpdate = 2;

@@ -3,9 +3,17 @@
 #include "temperature.h"
 #include "ultralcd.h"
 #include "ConfigurationStore.h"
+#include "cardreader.h"
 extern char uuid_sn[17];
 extern char uuid_hw[6];
 
+ 	 
+extern unsigned int Z_t,T0_t,B_t;
+extern uint32_t pos_t,E_t;
+
+
+
+extern 	char P_file_name[13],recovery;
 void _EEPROM_writeData(int &pos, uint8_t* value, uint8_t size)
 {
     do
@@ -41,6 +49,7 @@ void _EEPROM_readData(int &pos, uint8_t* value, uint8_t size)
 // ALSO:  always make sure the variables in the Store and retrieve sections are in the same order.
 
 #define EEPROM_VERSION "V13"
+
 
 #ifdef EEPROM_SETTINGS
 void Config_StoreSettings() 
@@ -119,8 +128,23 @@ void Config_StoreSettings()
   EEPROM_WRITE_VAR(i, filament_size[2]);
   #endif
   #endif
-  EEPROM_WRITE_VAR(i,uuid_sn);
-  EEPROM_WRITE_VAR(i,uuid_hw);
+ // EEPROM_WRITE_VAR(i,uuid_sn);
+ // EEPROM_WRITE_VAR(i,uuid_hw);
+ //  char  tmp_d[20];
+ // tmp_d=(char *)(&Recover_print);
+ // memcpy(tmp_d,&Recover_print,28);
+ // tmp_d[0]=uuid_sn[0];
+ // sprintf_P(tmp_n,PSTR("==Z%d,Z%d=="),Recover_print.Z_t,uuid_sn[0]);
+ // SERIAL_ECHOLN(tmp_d);
+  
+  EEPROM_WRITE_VAR(i,Z_t);
+  EEPROM_WRITE_VAR(i,E_t);
+  EEPROM_WRITE_VAR(i,pos_t);
+  EEPROM_WRITE_VAR(i,T0_t);
+  EEPROM_WRITE_VAR(i,B_t);
+  EEPROM_WRITE_VAR(i,recovery);
+  EEPROM_WRITE_VAR(i,P_file_name);
+
   char ver2[4]=EEPROM_VERSION;
   i=EEPROM_OFFSET;
   EEPROM_WRITE_VAR(i,ver2); // validate data
@@ -355,9 +379,21 @@ void Config_RetrieveSettings()
 		EEPROM_READ_VAR(i, filament_size[2]);
 #endif
 #endif
-        EEPROM_READ_VAR(i,uuid_sn);
-		EEPROM_READ_VAR(i,uuid_hw);
-
+      //  EEPROM_READ_VAR(i,uuid_sn);
+		//EEPROM_READ_VAR(i,uuid_hw);
+		//char *tmp_d;
+	   // tmp_d=(char *)(&Recover_print);
+		
+		 
+		EEPROM_READ_VAR(i,Z_t);
+		EEPROM_READ_VAR(i,E_t);
+		EEPROM_READ_VAR(i,pos_t);
+		EEPROM_READ_VAR(i,T0_t);
+		EEPROM_READ_VAR(i,B_t);
+		EEPROM_READ_VAR(i,recovery);
+		EEPROM_READ_VAR(i,P_file_name);
+		 
+		
 		calculate_volumetric_multipliers();
 		// Call updatePID (similar to when we have processed M301)
 		updatePID();

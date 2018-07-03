@@ -76,6 +76,16 @@ float mintravelfeedrate;
 unsigned long axis_steps_per_sqr_second[NUM_AXIS];
 char uuid_sn[17]="0123456789abcdef";
 char uuid_hw[6]="v1.05";
+struct recovery_data
+{
+	unsigned char bed_T;
+	unsigned char ext_T;
+	unsigned char Z;
+	unsigned int pos;
+	unsigned int E;
+};
+
+
 
 #ifdef ENABLE_AUTO_BED_LEVELING
 // this holds the required transform to compensate for bed level

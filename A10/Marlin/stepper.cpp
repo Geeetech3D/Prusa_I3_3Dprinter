@@ -29,10 +29,14 @@
 #include "language.h"
 #include "cardreader.h"
 #include "speed_lookuptable.h"
+#include "ConfigurationStore.h"
 #if defined(DIGIPOTSS_PIN) && DIGIPOTSS_PIN > -1
 #include <SPI.h>
 #endif
+extern unsigned int Z_t,T0_t,B_t;
+extern uint32_t pos_t,E_t;
 
+extern char P_file_name[13],recovery;
 
 //===========================================================================
 //=============================public variables  ============================
@@ -314,6 +318,28 @@ FORCE_INLINE void trapezoid_generator_reset() {
 // It pops blocks from the block_buffer and executes them by pulsing the stepper pins appropriately.
 ISR(TIMER1_COMPA_vect)
 {
+  
+    if((digitalRead(A0)==0)&&(P_file_name[0])&&(recovery==0))
+    {
+       SERIAL_ECHOLN("Down");
+      // enquecommand("M929");
+      char tmp_d[32];
+    
+     Z_t=current_position[Z_AXIS]*10;
+     E_t=current_position[E_AXIS];
+     pos_t=card.getStatus();
+	 
+     T0_t=degTargetHotend(0);
+     B_t=degTargetBed();
+     recovery=3;
+     Config_StoreSettings();
+     Config_RetrieveSettings();
+     sprintf_P(tmp_d,PSTR("Z%u,E%lu,P%lu,T%u,B%u,"),Z_t,E_t,pos_t,T0_t,B_t);
+     SERIAL_ECHOLN(tmp_d);
+     sprintf_P(tmp_d,PSTR("%s,"),P_file_name);
+     SERIAL_ECHOLN(tmp_d);
+     
+    }
   // If there is no current block, attempt to pop one from the buffer
   if (current_block == NULL) {
     // Anything in the buffer?
@@ -766,6 +792,10 @@ ISR(TIMER1_COMPA_vect)
   // Timer 0 is shared with millies
   ISR(TIMER0_COMPA_vect)
   {
+    if(READ(A0)==0)
+    {
+		 SERIAL_ECHOLN("Down");
+	}
     old_OCR0A += 52; // ~10kHz interrupt (250000 / 26 = 9615kHz)
     OCR0A = old_OCR0A;
     // Set E direction (Depends on E direction + advance)

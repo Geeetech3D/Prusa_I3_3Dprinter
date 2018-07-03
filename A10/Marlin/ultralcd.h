@@ -3,7 +3,9 @@
 
 #include "Marlin.h"
 
+
 #ifdef ULTRA_LCD
+  void lcd_resume_menu(void) ;
 
   void lcd_update();
   void lcd_init();

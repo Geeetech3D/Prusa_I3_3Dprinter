@@ -60,7 +60,11 @@
 #if defined(DIGIPOTSS_PIN) && DIGIPOTSS_PIN > -1
 #include <SPI.h>
 #endif
+unsigned int Z_t=0,T0_t=0,B_t=0;
+uint32_t pos_t=0,E_t=0;
 
+
+char P_file_name[13],recovery=0;//=0 idle,=1~2 recoverying,=3 power down
 
 extern char uuid_sn[17];
 extern char uuid_hw[6];
@@ -244,6 +248,12 @@ float min_pos[3] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS };
 float max_pos[3] = { X_MAX_POS, Y_MAX_POS, Z_MAX_POS };
 bool axis_known_position[3] = {false, false, false};
 float zprobe_zoffset;
+//int Z_t,E_t,pos_t,T0_t,B_t,recovery=0;
+
+///////////////////////////////////////////////////////////////////////////////////////////
+
+
+
 
 // Extruder offset
 #if EXTRUDERS > 1
@@ -565,8 +575,17 @@ void light_ctrl(){
   analogWrite(LIGHT_PIN,light_level);
 }
 #endif
+/*
+char * print_int(uint32_t data_t)
+{
+	char tmp_t[12];
+	if(data_t/1000000000)
+		tmp_t[]='0'+data_t/1000000000;
+	sprintf(tmp_t,"%u");
+}
+*/
 
-
+char tmp_y[32];
 void setup()
 {
   setup_killpin();
@@ -633,11 +652,26 @@ void setup()
   digitalWrite(SERVO0_PIN, LOW); // turn it off
 #endif // Z_PROBE_SLED
   setup_homepin();
+  /////////////
+  pinMode(A0, INPUT);
+ if(recovery==3)
+  {
+     lcd_resume_menu() ;
+   
+
+    //return;
+  }
+  //    uint32_t tmpd=197267;
+ //      sprintf(tmp_y,"recoverytmpd:%lu",tmpd);
+        
+   //   SERIAL_ECHOLN(tmp_y);
 }
 
-
+ 
 void loop()
-{
+{ 
+  
+  
   if(buflen < (BUFSIZE-1))
     get_command();
   #ifdef SDSUPPORT
@@ -675,8 +709,50 @@ void loop()
     #endif //SDSUPPORT
     buflen = (buflen-1);
     bufindr = (bufindr + 1)%BUFSIZE;
+
   }
-  //check heater every n milliseconds
+  	//check heater every n milliseconds
+  	if((buflen==0)&&(recovery==1))
+	{
+	 //////////////////
+	 
+	  sprintf_P(tmp_y,PSTR("M190 S%u"),B_t);
+	  SERIAL_ECHOLN(tmp_y);
+	  enquecommand(tmp_y);
+	  //////////////
+	 //////////////////
+	  sprintf_P(tmp_y,PSTR("M109 T0 S%u"),T0_t);
+	  SERIAL_ECHOLN(tmp_y);
+	  enquecommand(tmp_y);
+	  //////////////
+      //////////////////
+      sprintf_P(tmp_y,PSTR("G28 X"));
+      SERIAL_ECHOLN(tmp_y);
+      enquecommand(tmp_y);
+      //////////////
+      //////////////////
+      sprintf_P(tmp_y,PSTR("G28 Y"));
+      SERIAL_ECHOLN(tmp_y);
+      enquecommand(tmp_y);
+      //////////////
+      recovery=2;
+	}
+  if((buflen==0)&&(recovery==2))
+  {
+     //////////////////
+       
+      sprintf(tmp_y,"M32 S%lu !%s",pos_t,P_file_name);
+      
+      enquecommand(tmp_y);
+	  SERIAL_ECHOLN(tmp_y);
+      //////////////
+     //////////////////
+     /* sprintf_P(tmp_y,PSTR("M109 T0 S%d"),T0_t);
+      SERIAL_ECHOLN(tmp_y);
+      enquecommand(tmp_y);*/
+      //////////////
+      recovery=0;
+  }		
   manage_heater();
   manage_inactivity();
   checkHitEndstops();
@@ -1366,6 +1442,7 @@ static void dock_sled(bool dock, int offset=0) {
  }
 }
 #endif
+
 
 void process_commands()
 {
@@ -2062,7 +2139,106 @@ void process_commands()
       }
       card.openLogFile(strchr_pointer+5);
       break;
-
+	  case 929: //M928 - Start SD write
+		 
+		
+		 
+    
+		 Z_t=current_position[Z_AXIS]*10;
+		 E_t=current_position[E_AXIS];
+		 pos_t=card.getStatus();
+		 T0_t=degTargetHotend(tmp_extruder);
+		 B_t=degTargetBed();
+		  sprintf_P(tmp_y,PSTR("Z%u,E%lu,P%lu,%s"),Z_t,E_t,pos_t,P_file_name);
+    SERIAL_ECHOLN(tmp_y);
+         sprintf_P(tmp_y,PSTR("T%u,B%u,"),T0_t,B_t);
+     SERIAL_ECHOLN(tmp_y);
+      recovery=3;
+		 Config_StoreSettings();
+         Config_RetrieveSettings();
+	/*	 SERIAL_ECHOLN("++");
+    card.openFile("reco.txt",false);
+		sprintf_P(tmp_d,PSTR("%d,%d,%d,%d,%d,"),Z_t,E_t,card.sdpos,T0_t,B_t);
+		card.write_command(tmp_d);
+    SERIAL_ECHOLN(tmp_d);
+		sprintf_P(tmp_d,PSTR("%s,"),card.file_name_t);
+    card.write_command(tmp_d);
+		card.closefile(false);
+		SERIAL_ECHOLN(tmp_d);*/
+		
+		break;
+ case 930: //M928 - Start SD write
+ 	char tmp_n[64+10];
+  /*  
+    card.openFile("recovery.txt",true);
+    
+	char *st_start,*st_end;
+    int16_t n; 
+    char i;
+    for(i=0;i<64+10;i++)
+    {
+      n=card.get();
+      tmp_n[i]=n;
+    //  if(tmp_n[i]=='\n') 
+      //  break;
+    }
+    
+    card.closefile(false);
+    SERIAL_ECHOLN(tmp_n);
+	st_start=tmp_n;
+	st_end = strchr(tmp_n, ',');//int Z_t,E_t,pos_t,T0_t,B_t;
+	//st_end='\0';
+	Z_t=atoi(st_start);
+	/////////////
+	st_start=st_end;
+	st_end = strchr(st_start+1, ',');	
+	//st_end='\0';
+ //SERIAL_ECHOLN(st_start+3);
+	E_t=atoi(st_start+1);
+	////
+	st_start=st_end;
+	st_end = strchr(st_start+1, ',');	
+	pos_t=atoi(st_start+1);
+	////
+    ////
+  st_start=st_end;
+  st_end = strchr(st_start+1, ','); 
+  T0_t=atoi(st_start+1);
+  ////
+    ////
+  st_start=st_end;
+  st_end = strchr(st_start+1, ','); 
+  B_t=atoi(st_start+1);
+  ////
+    ////
+  st_start=st_end;
+  st_end = strchr(st_start+3, ','); 
+  *st_end='\0';
+  sprintf_P(card.file_name_t,PSTR("%s"),st_start+3);
+  ////
+  */
+	//sprintf_P(tmp_n,PSTR("ppppp Z%d,E%d,P%d,T%d,B%d, =="),Z_t,E_t,pos_t,T0_t,B_t);
+	//////////////////
+  SERIAL_ECHOLN("=e==");
+  SERIAL_ECHOLN(P_file_name);
+  recovery=1;
+  
+  sprintf_P(tmp_n,PSTR("G92 Z%d.%d"),Z_t/10,Z_t%10);
+  SERIAL_ECHOLN(tmp_n);
+  enquecommand(tmp_n);
+  //////////////////
+  sprintf_P(tmp_n,PSTR("G92 E%lu"),E_t);
+  SERIAL_ECHOLN(tmp_n);
+  enquecommand(tmp_n);
+  //////////////
+  //////////////////
+  sprintf_P(tmp_n,PSTR("M104 S%d"),T0_t);
+  SERIAL_ECHOLN(tmp_n);
+  enquecommand(tmp_n);
+  //////////////
+ 
+  
+    break; 
 #endif //SDSUPPORT
 
     case 31: //M31 take time since the start of the SD print or an M109 command
@@ -2399,6 +2575,7 @@ Sigma_Exit:
       if (code_seen('S')) setTargetBed(code_value());
       break;
     case 105 : // M105
+    //SERIAL_ECHOLN(P_file_name);
       if(setTargetedHotend(105)){
         break;
         }
@@ -2749,8 +2926,8 @@ Sigma_Exit:
     case 115: // M115
       SERIAL_PROTOCOLPGM(MSG_M115_REPORT);
       SERIAL_PROTOCOL(uuid_sn);
-      SERIAL_PROTOCOLPGM("\n hardware:");
-      SERIAL_PROTOCOL(uuid_hw);
+     // SERIAL_PROTOCOLPGM("\n hardware:");
+     // SERIAL_PROTOCOL(uuid_hw);
       SERIAL_PROTOCOLPGM("\n");
       break;
     case 117: // M117 display message
@@ -3519,9 +3696,9 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
     }
     case 2009: // M2009 set Hardware version and save
     {
-        memcpy(uuid_hw,cmdbuffer[bufindr]+6,sizeof(uuid_hw));
-		Config_StoreSettings();
-        Config_RetrieveSettings();
+        //memcpy(uuid_hw,cmdbuffer[bufindr]+6,sizeof(uuid_hw));
+		//Config_StoreSettings();
+       // Config_RetrieveSettings();
     }
     break;
     
