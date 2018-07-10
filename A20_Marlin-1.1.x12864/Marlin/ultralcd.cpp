@@ -34,7 +34,7 @@
 #include "configuration_store.h"
 #include "utility.h"
 #include "gcode.h"
-#include "pins_GT2560_REV_A.h"
+
 extern unsigned int Z_t,T0_t,B_t;
 extern uint32_t pos_t,E_t;
 extern  char P_file_name[13],recovery;
@@ -4549,9 +4549,9 @@ void lcd_init() {
 
   #if ENABLED(NEWPANEL)
 
-  // SET_INPUT(BTN_EN1);
-    // SET_INPUT(BTN_EN2);
-     //SET_INPUT(BTN_ENC);
+    SET_INPUT(BTN_EN1);
+       SET_INPUT(BTN_EN2);
+       SET_INPUT(BTN_ENC);
     #if BUTTON_EXISTS(EN1)
       
       SET_INPUT_PULLUP(BTN_EN1);

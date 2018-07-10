@@ -107,7 +107,7 @@
     #else
      
       #define LCD_PINS_RS  5//20//rs
-      #define LCD_PINS_ENABLE 6//17 //enable
+      #define LCD_PINS_ENABLE 36//6//17 //enable
       #define LCD_PINS_D4  21//16 //
       #define LCD_PINS_D5  21
       #define LCD_PINS_D6   5
