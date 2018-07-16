@@ -633,9 +633,14 @@ void lcd_resume_menu_ok(void)
 }
 void lcd_resume_menu_cancel(void) 
 {
-   recovery=0;
+   char tmp_n[64+10];
    //Config_StoreSettings();
    //Config_RetrieveSettings();
+  recovery=0;
+  P_file_name[0]=0;  
+  sprintf_P(tmp_n,PSTR("M500"));
+  SERIAL_ECHOLN(tmp_n);
+  enqueue_and_echo_command(tmp_n);
   lcd_goto_screen(lcd_status_screen);
    
  
@@ -677,8 +682,8 @@ void lcd_resume_menu(void)
  */
 
 void lcd_status_screen() {
-	if(recovery==3)
-		return;
+	//if(recovery==3)
+		//return;
   #if ENABLED(ULTIPANEL)
     ENCODER_DIRECTION_NORMAL();
     ENCODER_RATE_MULTIPLY(false);

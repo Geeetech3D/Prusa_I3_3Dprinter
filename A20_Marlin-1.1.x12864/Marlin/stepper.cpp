@@ -373,12 +373,18 @@ extern MarlinSettings settings;
  *  4000   500  Hz - init rate
  */
 ISR(TIMER1_COMPA_vect) {
- 
-     if((digitalRead(A0)==0)&&(P_file_name[0])&&(recovery==0))
+      char tmp_d[32];
+     if((digitalRead(A12)==1)&&(P_file_name[0])&&(recovery==0)&&(print_job_timer.isRunning()==true))// filament out
+     {
+        
+        recovery=4;
+      
+     }
+     if((digitalRead(A15)==0)&&(P_file_name[0])&&(recovery==0)&&(print_job_timer.isRunning()==true))// power off
 	  {
 		 SERIAL_ECHOLN("Down");
 		// enquecommand("M929");
-		char tmp_d[32];
+		
 	  
 	   Z_t=current_position[Z_AXIS]*10;
 	   E_t=current_position[E_AXIS];

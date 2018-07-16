@@ -11812,49 +11812,7 @@ void process_parsed_command() {
         case 928: // M928: Start SD write
           gcode_M928(); break;
 
-	  case 929: //M928 - Start SD write
-			  
-			 
-			  
-		 
-			  Z_t=current_position[Z_AXIS]*10;
-			  E_t=current_position[E_AXIS];
-			  pos_t=card.getStatus();
-			  T0_t=thermalManager.degHotend(0);
-	          B_t=thermalManager.degBed();
-			  sprintf_P(tmp_y,PSTR("Z%d,E%lu,P%lu,T%u,B%u,"),Z_t,E_t,pos_t,T0_t,B_t);
-			  SERIAL_ECHOLN(tmp_y);
-			  sprintf_P(tmp_y,PSTR("%s,"),P_file_name);
-			  SERIAL_ECHOLN(tmp_y);
-			  recovery=3;
-			  settings.save();
-	          settings.load();
-		 
-			 break;
-	  case 930: //M928 - Start SD write
-		 char tmp_n[64+10];
 	 
-		 //sprintf_P(tmp_n,PSTR("ppppp Z%d,E%d,P%d,T%d,B%d, =="),Z_t,E_t,pos_t,T0_t,B_t);
-		 //////////////////
-	   SERIAL_ECHOLN("=e==");
-	   SERIAL_ECHOLN(P_file_name);
-	   recovery=1;
-	   
-	   sprintf_P(tmp_n,PSTR("G92 Z%u.%u"),Z_t/10,Z_t%10);
-	   SERIAL_ECHOLN(tmp_n);
-	   enqueue_and_echo_commands_P(tmp_n);
-	   //////////////////
-	   sprintf_P(tmp_n,PSTR("G92 E%u"),E_t);
-	   SERIAL_ECHOLN(tmp_n);
-	   enqueue_and_echo_commands_P(tmp_n);
-	   //////////////
-	   //////////////////
-	   sprintf_P(tmp_n,PSTR("M104 S%u"),T0_t);
-	   SERIAL_ECHOLN(tmp_n);
-	   enqueue_and_echo_commands_P(tmp_n);
-	   //////////////
-	   
-		 break; 
 
 		  
       #endif // SDSUPPORT
@@ -14595,12 +14553,12 @@ void setup() {
 
   
    /////////////
-  pinMode(A0, INPUT);
-  recovery=3;
+  pinMode(A15, INPUT);
+  pinMode(A12, INPUT);
   if(recovery==3)
    {
 	   lcd_resume_menu() ;
-	  SERIAL_ECHOLN("recovery==3");
+	   SERIAL_ECHOLN("recovery==3");
   
 	 //return;
    }
@@ -14671,7 +14629,7 @@ void loop() {
       if (++cmd_queue_index_r >= BUFSIZE) cmd_queue_index_r = 0;
     }
   }
-
+ 
  if((commands_in_queue==0)&&(recovery==1))
 	  {
 		   //////////////////
@@ -14701,21 +14659,37 @@ void loop() {
 	{
 	   //////////////////
 		sprintf_P(tmp_y,PSTR("G92 Z%u.%u"),Z_t/10,Z_t%10);
-    SERIAL_ECHOLN(tmp_y);
-    enqueue_and_echo_command(tmp_y);
- 
+	    SERIAL_ECHOLN(tmp_y);
+	    enqueue_and_echo_command(tmp_y);
+	    recovery=0;
+	    settings.save();
+	    settings.load();
 		sprintf(tmp_y,"M32 S%lu !%s",pos_t,P_file_name);
 		
 		enqueue_and_echo_command(tmp_y);
 		SERIAL_ECHOLN(tmp_y);
+   
 		//////////////
 	   //////////////////
 	   /* sprintf_P(tmp_y,PSTR("M109 T0 S%d"),T0_t);
 		SERIAL_ECHOLN(tmp_y);
 		enquecommand(tmp_y);*/
 		//////////////
-		recovery=0;
+		 
 	}   
+  if((recovery==4))
+  {
+       SERIAL_ECHOLN("filament out");
+       gcode_M25();
+       // sprintf_P(tmp_y,PSTR("M25"));
+      //  SERIAL_ECHOLN(tmp_y);
+      //  enqueue_and_echo_command(tmp_y);
+        ///////
+        sprintf_P(tmp_y,PSTR("G28 X"));
+        SERIAL_ECHOLN(tmp_y);
+        enqueue_and_echo_command(tmp_y);
+       recovery=0;
+  }
   endstops.report_state();
   idle();
 }
