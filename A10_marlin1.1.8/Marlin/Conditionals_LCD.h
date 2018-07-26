@@ -136,14 +136,14 @@
 
   #endif
 
-  #if ENABLED(MAKRPANEL) || ENABLED(MINIPANEL)
+  #if ENABLED(MAKRPANEL) || ENABLED(MINIPANEL)//нч
     #define DOGLCD
     #define ULTIPANEL
     #define DEFAULT_LCD_CONTRAST 17
   #endif
 
   // Generic support for SSD1306 / SH1106 OLED based LCDs.
-  #if ENABLED(U8GLIB_SSD1306) || ENABLED(U8GLIB_SH1106)
+  #if ENABLED(U8GLIB_SSD1306) || ENABLED(U8GLIB_SH1106)//нч
     #define ULTRA_LCD  //general LCD support, also 16x2
     #define DOGLCD  // Support for I2C LCD 128x64 (Controller SSD1306 / SH1106 graphic Display Family)
   #endif

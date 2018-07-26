@@ -33,19 +33,21 @@
  #error Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu.
  #endif
 #endif
-
+#ifndef BOARD_NAME
+  #define BOARD_NAME "GT2560 Rev.A"
+#endif
 #define LARGE_FLASH true
 
 #define X_STEP_PIN 37 
 #define X_DIR_PIN 39
-#define X_MIN_PIN 22
-#define X_MAX_PIN 24
+#define X_MIN_PIN 24//22
+#define X_MAX_PIN 22//24
 #define X_ENABLE_PIN 35
 
 #define Y_STEP_PIN 31
 #define Y_DIR_PIN 33
-#define Y_MIN_PIN 26
-#define Y_MAX_PIN 28
+#define Y_MIN_PIN 28//26
+#define Y_MAX_PIN 26//28
 #define Y_ENABLE_PIN 29
 
 #define Z_STEP_PIN 25
@@ -81,7 +83,7 @@
 #define PS_ON_PIN          12
 #define KILL_PIN           -1
 #define SUICIDE_PIN        54  //PIN that has to be turned on right after start, to keep power flowing.
-#define SERVO0_PIN         13  // untested
+#define SERVO0_PIN         11  //13 untested  3Dtouch
 
 #ifdef LIGHT_SUPPORT
 //  #define LIGHT_SWITCH_PIN	21

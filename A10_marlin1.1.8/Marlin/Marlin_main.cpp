@@ -641,7 +641,7 @@ uint8_t target_extruder;
 #endif
 
 float cartes[XYZ] = { 0 };
-
+ bool filament_switch = false;   
 #if ENABLED(FILAMENT_WIDTH_SENSOR)
   bool filament_sensor = false;                                 // M405 turns on filament sensor control. M406 turns it off.
   float filament_width_nominal = DEFAULT_NOMINAL_FILAMENT_DIA,  // Nominal filament width. Change with M404.
@@ -830,7 +830,7 @@ extern "C" {
  * Inject the next "immediate" command, when possible, onto the front of the queue.
  * Return true if any immediate commands remain to inject.
  */
-static bool drain_injected_commands_P() {
+static bool drain_injected_commands_P() {//判断立即命令
   if (injected_commands_P != NULL) {
     size_t i = 0;
     char c, cmd[30];
@@ -849,7 +849,7 @@ static bool drain_injected_commands_P() {
  * Aborts the current queue, if any.
  * Note: drain_injected_commands_P() must be called repeatedly to drain the commands afterwards
  */
-void enqueue_and_echo_commands_P(const char * const pgcode) {
+void enqueue_and_echo_commands_P(const char * const pgcode) {//添加立即命令
   injected_commands_P = pgcode;
   drain_injected_commands_P(); // first command executed asap (when possible)
 }
@@ -1223,7 +1223,7 @@ inline void get_serial_commands() {
 void get_available_commands() {
 
   // if any immediate commands remain, don't get other commands yet
-  if (drain_injected_commands_P()) return;
+  if (drain_injected_commands_P()) return;//判断有无立即命令
 
   get_serial_commands();
 
@@ -9614,6 +9614,15 @@ void quickstop_stepper() {
   SYNC_PLAN_POSITION_KINEMATIC();
 }
 
+inline void gcode_M408() {//打开耗材检测
+SERIAL_ECHOLN("liu......filament_switch = true");
+	filament_switch = true;
+	}
+inline void gcode_M409() {//关闭耗材检测
+SERIAL_ECHOLN("liu......filament_switch = false");
+	filament_switch = false;
+	}
+
 #if HAS_LEVELING
   /**
    * M420: Enable/Disable Bed Leveling and/or set the Z fade height.
@@ -12232,7 +12241,12 @@ void process_parsed_command() {
           gcode_M407();
           break;
       #endif // FILAMENT_WIDTH_SENSOR
-
+        case 408:  //
+          gcode_M408();
+          break;
+        case 409:   //
+          gcode_M409();
+          break;
       #if HAS_LEVELING
         case 420: // M420: Enable/Disable Bed Leveling
           gcode_M420();
@@ -14194,7 +14208,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
 /**
  * Standard idle routine keeps the machine alive
  */
-void idle(
+void idle(           //保持机器活力
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     bool no_stepper_sleep/*=false*/
   #endif
@@ -14203,21 +14217,21 @@ void idle(
     Max7219_idle_tasks();
   #endif  // MAX7219_DEBUG
 
-  lcd_update();
+  lcd_update();   //刷新LCD显示
 
-  host_keepalive();
+  host_keepalive();  //定时输出忙信息，机器不接受命令
 
   #if ENABLED(AUTO_REPORT_TEMPERATURES) && (HAS_TEMP_HOTEND || HAS_TEMP_BED)
-    thermalManager.auto_report_temperatures();
+    thermalManager.auto_report_temperatures();//自动上传温度信息
   #endif
 
-  manage_inactivity(
+  manage_inactivity(  //处理打印辅助功能
     #if ENABLED(ADVANCED_PAUSE_FEATURE)
       no_stepper_sleep
     #endif
   );
 
-  thermalManager.manage_heater();
+  thermalManager.manage_heater();  //加热处理
 
   #if ENABLED(PRINTCOUNTER)
     print_job_timer.tick();
@@ -14577,7 +14591,7 @@ void setup() {
  *  - Call LCD update
  */
 void loop() {
-  if (commands_in_queue < BUFSIZE) get_available_commands();
+  if (commands_in_queue < BUFSIZE) get_available_commands();//获取命令1
 
   #if ENABLED(SDSUPPORT)
     card.checkautostart(false);

@@ -85,12 +85,12 @@ void GCodeParser::reset() {
 // 58 bytes of SRAM are used to speed up seen/value
 void GCodeParser::parse(char *p) {
 
-  reset(); // No codes to report
+  reset(); //     No codes to report    清楚命令解析参数
 
   // Skip spaces
-  while (*p == ' ') ++p;
+  while (*p == ' ') ++p;  //跳过空格
 
-  // Skip N[-0-9] if included in the command line
+  // Skip N[-0-9] if included in the command line   N-(+)
   if (*p == 'N' && NUMERIC_SIGNED(p[1])) {
     #if ENABLED(FASTER_GCODE_PARSER)
       //set('N', p + 1);     // (optional) Set the 'N' parameter value
@@ -101,13 +101,13 @@ void GCodeParser::parse(char *p) {
   }
 
   // *p now points to the current command, which should be G, M, or T
-  command_ptr = p;
+  command_ptr = p;//指向当前命令
 
   // Get the command letter, which must be G, M, or T
-  const char letter = *p++;
+  const char letter = *p++;  //得到命令第一个字母
 
   // Nullify asterisk and trailing whitespace
-  char *starpos = strchr(p, '*');
+  char *starpos = strchr(p, '*');  //去除命令后的*和空格
   if (starpos) {
     --starpos;                          // *
     while (*starpos == ' ') --starpos;  // spaces...
@@ -115,26 +115,26 @@ void GCodeParser::parse(char *p) {
   }
 
   // Bail if the letter is not G, M, or T
-  switch (letter) { case 'G': case 'M': case 'T': break; default: return; }
+  switch (letter) { case 'G': case 'M': case 'T': break; default: return; }//判断是否为G，M，T命令
 
   // Skip spaces to get the numeric part
-  while (*p == ' ') p++;
+  while (*p == ' ') p++;//去除G,M,T后面的空格
 
   // Bail if there's no command code number
-  if (!NUMERIC(*p)) return;
+  if (!NUMERIC(*p)) return;//G,M,T后面不是数字就释放命令
 
   // Save the command letter at this point
   // A '?' signifies an unknown command
-  command_letter = letter;
+  command_letter = letter;//保存命令字母
 
   // Get the code number - integer digits only
-  codenum = 0;
+  codenum = 0;//获取命令编码
   do {
     codenum *= 10, codenum += *p++ - '0';
   } while (NUMERIC(*p));
 
   // Allow for decimal point in command
-  #if USE_GCODE_SUBCODES
+  #if USE_GCODE_SUBCODES   //命令中允许小数位
     if (*p == '.') {
       p++;
       while (NUMERIC(*p))
@@ -143,15 +143,15 @@ void GCodeParser::parse(char *p) {
   #endif
 
   // Skip all spaces to get to the first argument, or nul
-  while (*p == ' ') p++;
+  while (*p == ' ') p++;//跳过第一个参数前的空格
 
   // The command parameters (if any) start here, for sure!
 
-  #if DISABLED(FASTER_GCODE_PARSER)
+  #if DISABLED(FASTER_GCODE_PARSER)  //命令参数
     command_args = p; // Scan for parameters in seen()
   #endif
 
-  // Only use string_arg for these M codes
+  // Only use string_arg for these M codes   //字符串参数
   if (letter == 'M') switch (codenum) { case 23: case 28: case 30: case 117: case 928: string_arg = p; return; default: break; }
 
   #if ENABLED(DEBUG_GCODE_PARSER)
@@ -166,15 +166,15 @@ void GCodeParser::parse(char *p) {
    * This allows M0/M1 with expire time to work: "M0 S5 You Win!"
    * For 'M118' you must use 'E1' and 'A1' rather than just 'E' or 'A'
    */
-  string_arg = NULL;
+  string_arg = NULL;//字符串参数
   while (const char code = *p++) {                    // Get the next parameter. A NUL ends the loop
 
     // Special handling for M32 [P] !/path/to/file.g#
     // The path must be the last parameter
     if (code == '!' && letter == 'M' && codenum == 32) {
       string_arg = p;                           // Name starts after '!'
-      char * const lb = strchr(p, '#');         // Already seen '#' as SD char (to pause buffering)
-      if (lb) *lb = '\0';                       // Safe to mark the end of the filename
+      char * const lb = strchr(p, '#');         // Already seen '#' as SD char (to pause buffering) #为注释
+      if (lb) *lb = '\0';                       // Safe to mark the end of the filename  
       return;
     }
 
@@ -187,7 +187,7 @@ void GCodeParser::parse(char *p) {
 
     if (PARAM_TEST) {
 
-      while (*p == ' ') p++;                    // Skip spaces between parameters & values
+      while (*p == ' ') p++;                    // Skip spaces between parameters & values  跳转空格
 
       const bool has_num = NUMERIC(p[0])                            // [0-9]
                         || (p[0] == '.' && NUMERIC(p[1]))           // .[0-9]

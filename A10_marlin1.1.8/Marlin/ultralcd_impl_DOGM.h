@@ -483,7 +483,7 @@ inline void lcd_implementation_status_message(const bool blink) {
 
 //#define DOGM_SD_PERCENT
 
-static void lcd_implementation_status_screen() {
+static void lcd_implementation_status_screen() {//нч
 
   const bool blink = lcd_blink();
 

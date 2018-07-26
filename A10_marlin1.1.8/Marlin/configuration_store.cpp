@@ -202,7 +202,7 @@ MarlinSettings settings;
 extern unsigned int Z_t,T0_t,B_t;
 extern uint32_t pos_t,E_t;
 extern 	char P_file_name[13],recovery;
-
+extern bool filament_switch;
 
 #if ENABLED(MESH_BED_LEVELING)
   #include "mesh_bed_leveling.h"
@@ -736,6 +736,7 @@ void MarlinSettings::postprocess() {
 	  EEPROM_WRITE(B_t);
 	  EEPROM_WRITE(recovery);
 	  EEPROM_WRITE(P_file_name);
+	  EEPROM_WRITE(filament_switch);
 
     if (!eeprom_error) {
       const int eeprom_size = eeprom_index;
@@ -1226,6 +1227,7 @@ void MarlinSettings::postprocess() {
 	  EEPROM_READ(B_t);
 	  EEPROM_READ(recovery);
 	  EEPROM_READ(P_file_name);
+	  EEPROM_READ(filament_switch);
 
       if (working_crc == stored_crc) {
         postprocess();

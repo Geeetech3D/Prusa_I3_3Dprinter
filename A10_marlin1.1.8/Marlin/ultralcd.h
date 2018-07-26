@@ -154,7 +154,7 @@
     #define REPRAPWORLD_KEYPAD_MOVE_HOME    (buttons_reprapworld_keypad & KEYPAD_HOME)
     #define REPRAPWORLD_KEYPAD_MOVE_MENU    (buttons_reprapworld_keypad & KEYPAD_EN_C)
 
-    #if BUTTON_EXISTS(ENC)
+    #if BUTTON_EXISTS(ENC) 
       #define LCD_CLICKED ((buttons & EN_C) || REPRAPWORLD_KEYPAD_MOVE_MENU)
     #else
       #define LCD_CLICKED REPRAPWORLD_KEYPAD_MOVE_MENU

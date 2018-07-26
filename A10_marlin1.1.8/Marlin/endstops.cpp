@@ -165,7 +165,7 @@ void Endstops::init() {
 
 } // Endstops::init
 
-void Endstops::report_state() {
+void Endstops::report_state() {//限位开关获取状态
   if (endstop_hit_bits) {
     #if ENABLED(ULTRA_LCD)
       char chrX = ' ', chrY = ' ', chrZ = ' ', chrP = ' ';

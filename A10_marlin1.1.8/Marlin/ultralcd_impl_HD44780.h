@@ -448,23 +448,23 @@ static void lcd_implementation_init(
   #endif
 ) {
 
-  #if ENABLED(LCD_I2C_TYPE_PCF8575)
+  #if ENABLED(LCD_I2C_TYPE_PCF8575)//无
     lcd.begin(LCD_WIDTH, LCD_HEIGHT);
     #ifdef LCD_I2C_PIN_BL
       lcd.setBacklightPin(LCD_I2C_PIN_BL, POSITIVE);
       lcd.setBacklight(HIGH);
     #endif
 
-  #elif ENABLED(LCD_I2C_TYPE_MCP23017)
+  #elif ENABLED(LCD_I2C_TYPE_MCP23017)//无
     lcd.setMCPType(LTI_TYPE_MCP23017);
     lcd.begin(LCD_WIDTH, LCD_HEIGHT);
     lcd_implementation_update_indicators();
 
-  #elif ENABLED(LCD_I2C_TYPE_MCP23008)
+  #elif ENABLED(LCD_I2C_TYPE_MCP23008)//无
     lcd.setMCPType(LTI_TYPE_MCP23008);
     lcd.begin(LCD_WIDTH, LCD_HEIGHT);
 
-  #elif ENABLED(LCD_I2C_TYPE_PCA8574)
+  #elif ENABLED(LCD_I2C_TYPE_PCA8574)//无
     lcd.init();
     lcd.backlight();
 
@@ -720,9 +720,9 @@ static void lcd_implementation_status_screen() {
   // Line 1
   //
 
-  lcd.setCursor(0, 0);
+  lcd.setCursor(0, 0);//设置显示屏位置
 
-  #if LCD_WIDTH < 20
+  #if LCD_WIDTH < 20//无
 
     //
     // Hotend 0 Temperature
@@ -745,12 +745,12 @@ static void lcd_implementation_status_screen() {
 
     #endif // HOTENDS > 1 || TEMP_SENSOR_BED != 0
 
-  #else // LCD_WIDTH >= 20
+  #else // LCD_WIDTH >= 20     //有
 
     //
     // Hotend 0 Temperature
     //
-    _draw_heater_status(0, LCD_STR_THERMOMETER[0], blink);
+    _draw_heater_status(0, LCD_STR_THERMOMETER[0], blink);//有
 
     //
     // Hotend 1 or Bed Temperature
@@ -760,7 +760,7 @@ static void lcd_implementation_status_screen() {
       #if HOTENDS > 1
         _draw_heater_status(1, LCD_STR_THERMOMETER[0], blink);
       #else
-        _draw_heater_status(-1, LCD_BEDTEMP_CHAR, blink);
+        _draw_heater_status(-1, LCD_BEDTEMP_CHAR, blink);  //有
       #endif
 
     #endif // HOTENDS > 1 || TEMP_SENSOR_BED != 0
@@ -773,7 +773,7 @@ static void lcd_implementation_status_screen() {
 
   #if LCD_HEIGHT > 2
 
-    #if LCD_WIDTH < 20
+    #if LCD_WIDTH < 20//无
 
       #if ENABLED(SDSUPPORT)
         lcd.setCursor(0, 2);
@@ -785,7 +785,7 @@ static void lcd_implementation_status_screen() {
           lcd.write('%');
       #endif // SDSUPPORT
 
-    #else // LCD_WIDTH >= 20
+    #else // LCD_WIDTH >= 20  //有
 
       lcd.setCursor(0, 1);
 
@@ -801,21 +801,21 @@ static void lcd_implementation_status_screen() {
         // When axis is homed but axis_known_position is false the axis letters are blinking 'X' <-> ' '.
         // When everything is ok you see a constant 'X'.
 
-        _draw_axis_label(X_AXIS, PSTR(MSG_X), blink);
-        lcd.print(ftostr4sign(LOGICAL_X_POSITION(current_position[X_AXIS])));
+        _draw_axis_label(X_AXIS, PSTR(MSG_X), blink);//显示X图标
+        lcd.print(ftostr4sign(LOGICAL_X_POSITION(current_position[X_AXIS])));//显示当前X坐标
 
-        lcd.write(' ');
+        lcd.write(' ');//显示空格
 
-        _draw_axis_label(Y_AXIS, PSTR(MSG_Y), blink);
-        lcd.print(ftostr4sign(LOGICAL_Y_POSITION(current_position[Y_AXIS])));
+        _draw_axis_label(Y_AXIS, PSTR(MSG_Y), blink);//显示Y图标
+        lcd.print(ftostr4sign(LOGICAL_Y_POSITION(current_position[Y_AXIS])));//显示当前Y坐标
 
       #endif // HOTENDS > 1 || TEMP_SENSOR_BED != 0
 
     #endif // LCD_WIDTH >= 20
 
-    lcd.setCursor(LCD_WIDTH - 8, 1);
-    _draw_axis_label(Z_AXIS, PSTR(MSG_Z), blink);
-    lcd.print(ftostr52sp(FIXFLOAT(current_position[Z_AXIS])));
+    lcd.setCursor(LCD_WIDTH - 8, 1);//设置Z图标位置
+    _draw_axis_label(Z_AXIS, PSTR(MSG_Z), blink);//显示Z图标
+    lcd.print(ftostr52sp(FIXFLOAT(current_position[Z_AXIS])));//显示Z坐标位置
 
     #if HAS_LEVELING
       lcd.write(planner.leveling_active || blink ? '_' : ' ');
@@ -863,7 +863,7 @@ static void lcd_implementation_status_screen() {
 
   lcd.setCursor(0, LCD_HEIGHT - 1);
 
-  #if ENABLED(LCD_PROGRESS_BAR)
+  #if ENABLED(LCD_PROGRESS_BAR)//无
 
     // Draw the progress bar if the message has shown long enough
     // or if there is no message set.
@@ -873,7 +873,7 @@ static void lcd_implementation_status_screen() {
     if (progress_bar_percent > 2 && (ELAPSED(millis(), progress_bar_ms + PROGRESS_BAR_MSG_TIME) || !lcd_status_message[0]))
       return lcd_draw_progress_bar(progress_bar_percent);
 
-  #elif ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)
+  #elif ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)//无
 
     // Show Filament Diameter and Volumetric Multiplier %
     // After allowing lcd_status_message to show for 5 seconds
@@ -893,7 +893,7 @@ static void lcd_implementation_status_screen() {
 
   #endif // FILAMENT_LCD_DISPLAY && SDSUPPORT
 
-  #if ENABLED(STATUS_MESSAGE_SCROLLING)
+  #if ENABLED(STATUS_MESSAGE_SCROLLING)//无
     static bool last_blink = false;
     const uint8_t slen = lcd_strlen(lcd_status_message);
     const char *stat = lcd_status_message + status_scroll_pos;
@@ -922,7 +922,7 @@ static void lcd_implementation_status_screen() {
         if (++status_scroll_pos >= slen + 2) status_scroll_pos = 0;
       }
     }
-  #else
+  #else//有
     lcd_print_utf(lcd_status_message);
   #endif
 }
