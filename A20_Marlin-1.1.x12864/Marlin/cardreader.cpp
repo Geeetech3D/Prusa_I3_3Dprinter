@@ -30,7 +30,7 @@
 #include "stepper.h"
 #include "language.h"
 extern   char P_file_name[13];
-
+extern   char print_dir[13];
 #define LONGEST_FILENAME (longFilename[0] ? longFilename : filename)
 
 CardReader::CardReader() {
@@ -889,6 +889,7 @@ uint16_t CardReader::get_num_Files() {
 void CardReader::printingHasFinished() {
   stepper.synchronize();
   file.close();
+  enqueue_and_echo_commands_P(PSTR("G28 XY"));
   if (file_subcall_ctr > 0) { // Heading up to a parent file that called current as a procedure.
     file_subcall_ctr--;
     openFile(proc_filenames[file_subcall_ctr], true, true);

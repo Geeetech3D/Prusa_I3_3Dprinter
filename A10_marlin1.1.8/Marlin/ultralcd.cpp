@@ -39,6 +39,7 @@ extern unsigned int Z_t,T0_t,B_t;
 extern uint32_t pos_t,E_t;
 extern  char P_file_name[13],recovery;
 extern bool filament_switch;
+extern char print_dir[13];
 #if HAS_BUZZER && DISABLED(LCD_USE_I2C_BUZZER)
   #include "buzzer.h"
 #endif
@@ -493,12 +494,12 @@ uint16_t max_display_update_time = 0;
   #endif
 
   /**
-   * General function to go directly to a screen  一般功能直接进入屏幕
+   * General function to go directly to a screen
    */
   void lcd_goto_screen(screenFunc_t screen, const uint32_t encoder = 0) {
     if (currentScreen != screen) {
 
-      #if ENABLED(DOUBLECLICK_FOR_Z_BABYSTEPPING) && ENABLED(BABYSTEPPING)//无
+      #if ENABLED(DOUBLECLICK_FOR_Z_BABYSTEPPING) && ENABLED(BABYSTEPPING)
         static millis_t doubleclick_expire_ms = 0;
         // Going to lcd_main_menu from status screen? Remember first click time.
         // Going back to status screen within a very short time? Go to Z babystepping.
@@ -527,7 +528,7 @@ uint16_t max_display_update_time = 0;
       }
       lcd_implementation_clear();
       // Re-initialize custom characters that may be re-used
-      #if DISABLED(DOGLCD) && ENABLED(AUTO_BED_LEVELING_UBL)//无
+      #if DISABLED(DOGLCD) && ENABLED(AUTO_BED_LEVELING_UBL)
         if (!ubl.lcd_map_control) {
           lcd_set_custom_characters(
             #if ENABLED(LCD_PROGRESS_BAR)
@@ -535,7 +536,7 @@ uint16_t max_display_update_time = 0;
             #endif
           );
         }
-      #elif ENABLED(LCD_PROGRESS_BAR)//无
+      #elif ENABLED(LCD_PROGRESS_BAR)
         lcd_set_custom_characters(screen == lcd_status_screen ? CHARSET_INFO : CHARSET_MENU);
       #endif
       lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
@@ -638,6 +639,8 @@ void lcd_resume_menu_cancel(void)
    //Config_RetrieveSettings();
   recovery=0;
   P_file_name[0]=0;  
+  memset(print_dir,0,sizeof(print_dir));
+ // (void)settings.poweroff_save();
   sprintf_P(tmp_n,PSTR("M500"));
   SERIAL_ECHOLN(tmp_n);
   enqueue_and_echo_command(tmp_n);
@@ -689,7 +692,7 @@ void lcd_status_screen() {
     ENCODER_RATE_MULTIPLY(false);
   #endif
 
-  #if ENABLED(LCD_PROGRESS_BAR)//无
+  #if ENABLED(LCD_PROGRESS_BAR)
 
     //
     // HD44780 implements the following message blinking and
@@ -736,12 +739,12 @@ void lcd_status_screen() {
 
     #endif // PROGRESS_MSG_EXPIRE
 
-  #endif // LCD_PROGRESS_BAR无
+  #endif // LCD_PROGRESS_BAR
 
   #if ENABLED(ULTIPANEL)
 
-    if (lcd_clicked) {//按键按下进入主菜单界面
-      #if ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)//无
+    if (lcd_clicked) {
+      #if ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)
         previous_lcd_status_ms = millis();  // get status message to show up for a while
       #endif
       lcd_implementation_init( // to maybe revive the LCD if static electricity killed it.
@@ -780,7 +783,7 @@ void lcd_status_screen() {
 
   #endif // ULTIPANEL
 
-  lcd_implementation_status_screen();//刷新显示数据
+  lcd_implementation_status_screen();
 }
 
 void lcd_reset_status() { lcd_setstatusPGM(PSTR(""), -1); }
@@ -804,9 +807,9 @@ void kill_screen(const char* lcd_msg) {
    *
    */
   void lcd_buzz(const long duration, const uint16_t freq) {
-    #if ENABLED(LCD_USE_I2C_BUZZER)//无
+    #if ENABLED(LCD_USE_I2C_BUZZER)
       lcd.buzz(duration, freq);
-    #elif PIN_EXISTS(BEEPER)//有
+    #elif PIN_EXISTS(BEEPER)
       buzzer.tone(duration, freq);
     #else
       UNUSED(duration); UNUSED(freq);
@@ -820,7 +823,7 @@ void kill_screen(const char* lcd_msg) {
 
     // Buzz and wait. The delay is needed for buttons to settle!
     lcd_buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
-    #if ENABLED(LCD_USE_I2C_BUZZER)//无
+    #if ENABLED(LCD_USE_I2C_BUZZER)
       delay(10);
     #elif PIN_EXISTS(BEEPER)
       for (int8_t i = 5; i--;) { buzzer.tick(); delay(2); }
@@ -1027,23 +1030,23 @@ void kill_screen(const char* lcd_msg) {
 
   void lcd_main_menu() {
     START_MENU();
-    MENU_BACK(MSG_WATCH);// 1
+    MENU_BACK(MSG_WATCH);
 
-    #if ENABLED(CUSTOM_USER_MENUS)//无
+    #if ENABLED(CUSTOM_USER_MENUS)
       MENU_ITEM(submenu, MSG_USER_MENU, _lcd_user_menu);
     #endif
 
     //
     // Debug Menu when certain options are enabled
     //
-    #if HAS_DEBUG_MENU//无
+    #if HAS_DEBUG_MENU
       MENU_ITEM(submenu, MSG_DEBUG_MENU, lcd_debug_menu);
     #endif
 
     //
     // Set Case light on/off/brightness
     //
-    #if ENABLED(MENU_ITEM_CASE_LIGHT)//无
+    #if ENABLED(MENU_ITEM_CASE_LIGHT)
       if (USEABLE_HARDWARE_PWM(CASE_LIGHT_PIN)) {
         MENU_ITEM(submenu, MSG_CASE_LIGHT, case_light_menu);
       }
@@ -1052,14 +1055,14 @@ void kill_screen(const char* lcd_msg) {
     #endif
 
     if (planner.movesplanned() || IS_SD_PRINTING) {
-      MENU_ITEM(submenu, MSG_TUNE, lcd_tune_menu); // 2
+      MENU_ITEM(submenu, MSG_TUNE, lcd_tune_menu);
     }
     else {
-      MENU_ITEM(submenu, MSG_PREPARE, lcd_prepare_menu);// 2
+      MENU_ITEM(submenu, MSG_PREPARE, lcd_prepare_menu);
     }
-    MENU_ITEM(submenu, MSG_CONTROL, lcd_control_menu); // 3
+    MENU_ITEM(submenu, MSG_CONTROL, lcd_control_menu);
 
-    #if ENABLED(SDSUPPORT) // 4
+    #if ENABLED(SDSUPPORT)
       if (card.cardOK) {
         if (card.isFileOpen()) {
           if (card.sdprinting)
@@ -1083,7 +1086,7 @@ void kill_screen(const char* lcd_msg) {
       }
     #endif // SDSUPPORT
 
-    #if ENABLED(LCD_INFO_MENU)  // 5
+    #if ENABLED(LCD_INFO_MENU)
       MENU_ITEM(submenu, MSG_INFO_MENU, lcd_info_menu);
     #endif
 
@@ -2827,7 +2830,6 @@ void kill_screen(const char* lcd_msg) {
   /**
    * If the most recent manual move hasn't been fed to the planner yet,
    * and the planner can accept one, send immediately
-   
    */
   inline void manage_manual_move() {
 
@@ -3835,6 +3837,7 @@ void Switch_Filament_OFF(){
       START_MENU();
       MENU_BACK(MSG_MAIN);
       card.getWorkDirName();
+      strcpy(print_dir,card.getWorkDirName());
       if (card.filename[0] == '/') {
         #if !PIN_EXISTS(SD_DETECT)
           MENU_ITEM(function, LCD_STR_REFRESH MSG_REFRESH, lcd_sd_refresh);
@@ -4705,23 +4708,18 @@ bool lcd_blink() {
  *
  * No worries. This function is only called from the main thread.
  */
- /* 更新液晶屏 ，读取编码器按钮
-    读取按键状态
-    检查邋SD卡槽状态
-    
-*/
 void lcd_update() {
 
   #if ENABLED(ULTIPANEL)
     static millis_t return_to_status_ms = 0;
 
     // Handle any queued Move Axis motion
-    manage_manual_move();//处理轴移动
+    manage_manual_move();
 
     // Update button states for LCD_CLICKED, etc.
     // After state changes the next button update
     // may be delayed 300-500ms.
-    lcd_buttons_update();//读取按键值
+    lcd_buttons_update();
 
     #if ENABLED(AUTO_BED_LEVELING_UBL)
       // Don't run the debouncer if UBL owns the display
@@ -4730,35 +4728,35 @@ void lcd_update() {
       #define UBL_CONDITION true
     #endif
 
-    // If the action button is pressed...按键处理
-    if (UBL_CONDITION && LCD_CLICKED) {//you
-      if (!wait_for_unclick) {           // If not waiting for a debounce release:不等待
-        wait_for_unclick = true;         //  Set debounce flag to ignore continous clicks  去抖
-        lcd_clicked = !wait_for_user;    //  Keep the click if not waiting for a user-click  
-        wait_for_user = false;           //  Any click clears wait for user  清除
-        lcd_quick_feedback();            //  Always make a click sound  按键声音
+    // If the action button is pressed...
+    if (UBL_CONDITION && LCD_CLICKED) {
+      if (!wait_for_unclick) {           // If not waiting for a debounce release:
+        wait_for_unclick = true;         //  Set debounce flag to ignore continous clicks
+        lcd_clicked = !wait_for_user;    //  Keep the click if not waiting for a user-click
+        wait_for_user = false;           //  Any click clears wait for user
+        lcd_quick_feedback();            //  Always make a click sound
       }
     }
     else wait_for_unclick = false;
   #endif
 
-  #if ENABLED(SDSUPPORT) && PIN_EXISTS(SD_DETECT)//SD卡处理
+  #if ENABLED(SDSUPPORT) && PIN_EXISTS(SD_DETECT)
 
     const bool sd_status = IS_SD_INSERTED;
-    if (sd_status != lcd_sd_status && lcd_detected()) {//检测到SD 卡变化
+    if (sd_status != lcd_sd_status && lcd_detected()) {
 
-      if (sd_status) {//有卡
+      if (sd_status) {
         card.initsd();
         if (lcd_sd_status != 2) LCD_MESSAGEPGM(MSG_SD_INSERTED);
       }
-      else {//拔卡
+      else {
         card.release();
         if (lcd_sd_status != 2) LCD_MESSAGEPGM(MSG_SD_REMOVED);
       }
 
       lcd_sd_status = sd_status;
       lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW;
-      lcd_implementation_init( // to maybe revive the LCD if static electricity killed it. 重新初始化LCD 
+      lcd_implementation_init( // to maybe revive the LCD if static electricity killed it.
         #if ENABLED(LCD_PROGRESS_BAR)
           currentScreen == lcd_status_screen ? CHARSET_INFO : CHARSET_MENU
         #endif
@@ -4768,30 +4766,30 @@ void lcd_update() {
   #endif // SDSUPPORT && SD_DETECT_PIN
 
   const millis_t ms = millis();
-  if (ELAPSED(ms, next_lcd_update_ms)//ms>next_lcd_update_ms
-    #if ENABLED(DOGLCD)//无
+  if (ELAPSED(ms, next_lcd_update_ms)
+    #if ENABLED(DOGLCD)
       || drawing_screen
     #endif
     ) {
 
-    next_lcd_update_ms = ms + LCD_UPDATE_INTERVAL;//100
+    next_lcd_update_ms = ms + LCD_UPDATE_INTERVAL;
 
-    #if ENABLED(LCD_HAS_STATUS_INDICATORS)//......无
-      lcd_implementation_update_indicators();//指示灯显示
+    #if ENABLED(LCD_HAS_STATUS_INDICATORS)
+      lcd_implementation_update_indicators();
     #endif
 
     #if ENABLED(ULTIPANEL)
 
-      #if ENABLED(LCD_HAS_SLOW_BUTTONS)//......无
-        slow_buttons = lcd_implementation_read_slow_buttons(); // buttons which take too long to read in interrupt context 读取按键值
+      #if ENABLED(LCD_HAS_SLOW_BUTTONS)
+        slow_buttons = lcd_implementation_read_slow_buttons(); // buttons which take too long to read in interrupt context
       #endif
 
-      #if ENABLED(ADC_KEYPAD)//......无
+      #if ENABLED(ADC_KEYPAD)
 
         if (handle_adc_keypad())
           return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;
 
-      #elif ENABLED(REPRAPWORLD_KEYPAD)//......无
+      #elif ENABLED(REPRAPWORLD_KEYPAD)
 
         handle_reprapworld_keypad();
 
@@ -4854,7 +4852,7 @@ void lcd_update() {
       lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
     }
 
-    #if ENABLED(SCROLL_LONG_FILENAMES)//无
+    #if ENABLED(SCROLL_LONG_FILENAMES)
       // If scrolling of long file names is enabled and we are in the sd card menu,
       // cause a refresh to occur until all the text has scrolled into view.
       if (currentScreen == lcd_sdcard_menu && filename_scroll_pos < filename_scroll_max && !lcd_status_update_delay--) {
@@ -4888,7 +4886,7 @@ void lcd_update() {
           break;
       } // switch
 
-      #if ENABLED(ADC_KEYPAD)//无
+      #if ENABLED(ADC_KEYPAD)
         buttons_reprapworld_keypad = 0;
       #endif
 
@@ -4898,7 +4896,7 @@ void lcd_update() {
         #define CURRENTSCREEN() lcd_status_screen()
       #endif
 
-      #if ENABLED(DOGLCD)//无
+      #if ENABLED(DOGLCD)
         if (!drawing_screen) {                        // If not already drawing pages
           u8g.firstPage();                            // Start the first page
           drawing_screen = 1;                         // Flag as drawing pages
@@ -4914,7 +4912,7 @@ void lcd_update() {
           NOLESS(max_display_update_time, millis() - ms);
           return;
         }
-      #else//有
+      #else
         CURRENTSCREEN();
       #endif
 
@@ -4924,7 +4922,7 @@ void lcd_update() {
     }
 
     #if ENABLED(ULTIPANEL)
-//超时返回状态页
+
       // Return to Status Screen after a timeout
       if (currentScreen == lcd_status_screen || defer_return_to_status)
         return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;
@@ -5074,13 +5072,13 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
    */
   void lcd_buttons_update() {
     static uint8_t lastEncoderBits;
-    const millis_t now = millis();//获取当前时间
-    if (ELAPSED(now, next_button_update_ms)) {//now>next_button_update_ms
+    const millis_t now = millis();
+    if (ELAPSED(now, next_button_update_ms)) {
 
       #if ENABLED(NEWPANEL)
         uint8_t newbutton = 0;
 
-        #if BUTTON_EXISTS(EN1)  //读取按键值
+        #if BUTTON_EXISTS(EN1)
           if (BUTTON_PRESSED(EN1)) newbutton |= EN_A;
         #endif
 
@@ -5092,7 +5090,7 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
           if (BUTTON_PRESSED(ENC)) newbutton |= EN_C;
         #endif
 
-        #if LCD_HAS_DIRECTIONAL_BUTTONS //定向按键无
+        #if LCD_HAS_DIRECTIONAL_BUTTONS
 
           // Manage directional buttons
           #if ENABLED(REVERSE_MENU_DIRECTION)
@@ -5100,7 +5098,7 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
           #else
             #define _ENCODER_UD_STEPS ENCODER_STEPS_PER_MENU_ITEM
           #endif
-          #if ENABLED(REVERSE_ENCODER_DIRECTION)//无
+          #if ENABLED(REVERSE_ENCODER_DIRECTION)
             #define ENCODER_UD_STEPS _ENCODER_UD_STEPS
             #define ENCODER_LR_PULSES ENCODER_PULSES_PER_STEP
           #else
@@ -5139,11 +5137,11 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
         #endif // LCD_HAS_DIRECTIONAL_BUTTONS
 
         buttons = newbutton;
-        #if ENABLED(LCD_HAS_SLOW_BUTTONS)//无
+        #if ENABLED(LCD_HAS_SLOW_BUTTONS)
           buttons |= slow_buttons;
         #endif
 
-        #if ENABLED(ADC_KEYPAD)//无
+        #if ENABLED(ADC_KEYPAD)
 
           uint8_t newbutton_reprapworld_keypad = 0;
           buttons = 0;
@@ -5153,13 +5151,13 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
               buttons_reprapworld_keypad = _BV(newbutton_reprapworld_keypad - 1);
           }
 
-        #elif ENABLED(REPRAPWORLD_KEYPAD)//无
+        #elif ENABLED(REPRAPWORLD_KEYPAD)
 
           GET_SHIFT_BUTTON_STATES(buttons_reprapworld_keypad);
 
         #endif
 
-      #else // !NEWPANEL无
+      #else // !NEWPANEL
 
         GET_SHIFT_BUTTON_STATES(buttons);
 
@@ -5168,16 +5166,16 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
     } // next_button_update_ms
 
     // Manage encoder rotation
-    #if ENABLED(REVERSE_MENU_DIRECTION) && ENABLED(REVERSE_ENCODER_DIRECTION)//无
+    #if ENABLED(REVERSE_MENU_DIRECTION) && ENABLED(REVERSE_ENCODER_DIRECTION)
       #define ENCODER_DIFF_CW  (encoderDiff -= encoderDirection)
       #define ENCODER_DIFF_CCW (encoderDiff += encoderDirection)
-    #elif ENABLED(REVERSE_MENU_DIRECTION)//无
+    #elif ENABLED(REVERSE_MENU_DIRECTION)
       #define ENCODER_DIFF_CW  (encoderDiff += encoderDirection)
       #define ENCODER_DIFF_CCW (encoderDiff -= encoderDirection)
-    #elif ENABLED(REVERSE_ENCODER_DIRECTION)//无
+    #elif ENABLED(REVERSE_ENCODER_DIRECTION)
       #define ENCODER_DIFF_CW  (encoderDiff--)
       #define ENCODER_DIFF_CCW (encoderDiff++)
-    #else //有
+    #else
       #define ENCODER_DIFF_CW  (encoderDiff++)
       #define ENCODER_DIFF_CCW (encoderDiff--)
     #endif
@@ -5193,7 +5191,7 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
         case encrot2: ENCODER_SPIN(encrot1, encrot3); break;
         case encrot3: ENCODER_SPIN(encrot2, encrot0); break;
       }
-      #if ENABLED(AUTO_BED_LEVELING_UBL)//无
+      #if ENABLED(AUTO_BED_LEVELING_UBL)
         if (lcd_external_control) {
           ubl.encoder_diff = encoderDiff;   // Make the encoder's rotation available to G29's Mesh Editor
           encoderDiff = 0;                  // We are going to lie to the LCD Panel and claim the encoder

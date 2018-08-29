@@ -54,9 +54,11 @@
 #include "cardreader.h"
 #include "speed_lookuptable.h"
 #include "configuration_store.h"
+#include "Buzzer.h"
 extern char P_file_name[13],recovery;
 extern unsigned int Z_t,T0_t,B_t;
 extern uint32_t pos_t,E_t;
+extern Buzzer buzzer;
 
 #if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(ULTIPANEL)
   #include "ubl.h"
@@ -358,6 +360,7 @@ void Stepper::set_directions() {
   extern volatile uint8_t e_hit;
 #endif
 extern MarlinSettings settings;
+extern bool filament_switch;
 /**
  * Stepper Driver Interrupt
  *
@@ -374,12 +377,29 @@ extern MarlinSettings settings;
  */
 ISR(TIMER1_COMPA_vect) {
       char tmp_d[32];
-     if((digitalRead(A12)==1)&&(P_file_name[0])&&(recovery==0)&&(print_job_timer.isRunning()==true))// filament out
-     {
-        
-        recovery=4;
-      
-     }
+      static char  test=0;
+     //if((digitalRead(A12)==1)&&(P_file_name[0])&&(recovery==0)&&(print_job_timer.isRunning()==true))// filament out
+     if(filament_switch == true){
+		if((digitalRead(A12)==1)&&(((P_file_name[0])&&(recovery==0)&&(print_job_timer.isRunning()==true))||(test!=1)))
+		{
+			test=1;
+			//buzzer.tone(400, 5000);
+			//SERIAL_ECHOLN("filament out");
+			LCD_MESSAGEPGM(MSG_FILAMENT_ERROE);
+			if(print_job_timer.isRunning()==true)
+			  recovery=4;
+
+		}
+		if(test==1)
+		{
+			if(digitalRead(A12)==0)
+			{
+				//SERIAL_ECHOLN("filament ok");
+				LCD_MESSAGEPGM(WELCOME_MSG);
+				test=0;
+			}
+		}
+     	}
      if((digitalRead(A15)==0)&&(P_file_name[0])&&(recovery==0)&&(print_job_timer.isRunning()==true))// power off
 	  {
 		 SERIAL_ECHOLN("Down");
@@ -389,10 +409,14 @@ ISR(TIMER1_COMPA_vect) {
 	   Z_t=current_position[Z_AXIS]*10;
 	   E_t=current_position[E_AXIS];
 	   pos_t=card.getStatus();
-	   T0_t=thermalManager.degHotend(0);
-	   B_t=thermalManager.degBed();
+	   T0_t=thermalManager.degTargetHotend(0)+0.5;
+	   B_t=thermalManager.degTargetBed()+0.5;
 	   recovery=3;
-	   settings.save();
+#ifdef BLTOUCH
+	  recovery=0;
+#endif
+	   //settings.save();
+	     (void)settings.poweroff_save();
 	   settings.load();
 	   
 	   sprintf_P(tmp_d,PSTR("Z%u,E%lu,P%lu,T%u,B%u,"),Z_t,E_t,pos_t,T0_t,B_t);

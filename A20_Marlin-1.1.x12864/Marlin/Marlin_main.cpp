@@ -263,10 +263,11 @@
 
 
 char P_file_name[13],recovery=0;//=0 idle,=1~2 recoverying,=3 power down
+char print_dir[13];
 unsigned int Z_t=0,T0_t=0,B_t=0;
 uint32_t pos_t=0,E_t=0;
-char tmp_y[32];
-
+char tmp_y[96];
+extern char lcd_status_message[];
 #if HAS_ABL
   #include "vector_3.h"
   #if ENABLED(AUTO_BED_LEVELING_LINEAR)
@@ -641,7 +642,7 @@ uint8_t target_extruder;
 #endif
 
 float cartes[XYZ] = { 0 };
-
+ bool filament_switch = false;   
 #if ENABLED(FILAMENT_WIDTH_SENSOR)
   bool filament_sensor = false;                                 // M405 turns on filament sensor control. M406 turns it off.
   float filament_width_nominal = DEFAULT_NOMINAL_FILAMENT_DIA,  // Nominal filament width. Change with M404.
@@ -9614,6 +9615,15 @@ void quickstop_stepper() {
   SYNC_PLAN_POSITION_KINEMATIC();
 }
 
+inline void gcode_M408() {//liu
+SERIAL_ECHOLN("liu......filament_switch = true");
+	filament_switch = true;
+	}
+inline void gcode_M409() {//liu
+SERIAL_ECHOLN("liu......filament_switch = false");
+	filament_switch = false;
+	}
+
 #if HAS_LEVELING
   /**
    * M420: Enable/Disable Bed Leveling and/or set the Z fade height.
@@ -12232,7 +12242,12 @@ void process_parsed_command() {
           gcode_M407();
           break;
       #endif // FILAMENT_WIDTH_SENSOR
-
+        case 408:  //
+          gcode_M408();
+          break;
+        case 409:   //
+          gcode_M409();
+          break;
       #if HAS_LEVELING
         case 420: // M420: Enable/Disable Bed Leveling
           gcode_M420();
@@ -14652,30 +14667,27 @@ void loop() {
 			sprintf_P(tmp_y,PSTR("G28 Y"));
 			SERIAL_ECHOLN(tmp_y);
 			enqueue_and_echo_command(tmp_y);
+			axis_homed[Z_AXIS] = true;
+			axis_known_position[Z_AXIS]= true;
 			//////////////
 			recovery=2;
 	  }
 	if((commands_in_queue==0)&&(recovery==2))
 	{
-	   //////////////////
-		sprintf_P(tmp_y,PSTR("G92 Z%u.%u"),Z_t/10,Z_t%10);
-	    SERIAL_ECHOLN(tmp_y);
-	    enqueue_and_echo_command(tmp_y);
-	    recovery=0;
-	    settings.save();
-	    settings.load();
-		sprintf(tmp_y,"M32 S%lu !%s",pos_t,P_file_name);
+		if(strlen(print_dir)>1)
+			sprintf(tmp_y,"M32 S%lu !/%s/%s",pos_t,print_dir,P_file_name);
+		else
+			sprintf(tmp_y,"M32 S%lu !%s",pos_t,P_file_name);
+		SERIAL_ECHOLNPAIR("Gco : ", tmp_y);
+			
+
+	      //memset(print_dir,0,sizeof(print_dir));
+	      recovery=0;
+	     (void)settings.poweroff_save();
 		
 		enqueue_and_echo_command(tmp_y);
 		SERIAL_ECHOLN(tmp_y);
-   
-		//////////////
-	   //////////////////
-	   /* sprintf_P(tmp_y,PSTR("M109 T0 S%d"),T0_t);
-		SERIAL_ECHOLN(tmp_y);
-		enquecommand(tmp_y);*/
-		//////////////
-		 
+	 
 	}   
   if((recovery==4))
   {

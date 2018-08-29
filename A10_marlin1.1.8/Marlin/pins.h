@@ -129,6 +129,8 @@
   #include "pins_ULTIMAIN_2.h"        // ATmega2560
 #elif MB(MECREATOR2)
   #include "pins_MECREATOR2.h"
+#elif MB(GT2560_V3_0)
+  #include "pins_GT2560_V3.0.h"
 #elif MB(RUMBA)
   #include "pins_RUMBA.h"             // ATmega2560
 #elif MB(BQ_ZUM_MEGA_3D)

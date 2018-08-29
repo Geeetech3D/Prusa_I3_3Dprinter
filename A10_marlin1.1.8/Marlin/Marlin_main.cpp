@@ -173,7 +173,7 @@
  * M250 - Set LCD contrast: "M250 C<contrast>" (0-63). (Requires LCD support)
  * M260 - i2c Send Data (Requires EXPERIMENTAL_I2CBUS)
  * M261 - i2c Request Data (Requires EXPERIMENTAL_I2CBUS)
- * M280 - Set servo position absolute: "M280 P<index> S<angle|¬µs>". (Requires servos)
+ * M280 - Set servo position absolute: "M280 P<index> S<angle|µs>". (Requires servos)
  * M290 - Babystepping (Requires BABYSTEPPING)
  * M300 - Play beep sound S<frequency Hz> P<duration ms>
  * M301 - Set PID parameters P I and D. (Requires PIDTEMP)
@@ -263,10 +263,11 @@
 
 
 char P_file_name[13],recovery=0;//=0 idle,=1~2 recoverying,=3 power down
+char print_dir[13];
 unsigned int Z_t=0,T0_t=0,B_t=0;
 uint32_t pos_t=0,E_t=0;
-char tmp_y[32];
-
+char tmp_y[50];
+extern char lcd_status_message[];
 #if HAS_ABL
   #include "vector_3.h"
   #if ENABLED(AUTO_BED_LEVELING_LINEAR)
@@ -830,7 +831,7 @@ extern "C" {
  * Inject the next "immediate" command, when possible, onto the front of the queue.
  * Return true if any immediate commands remain to inject.
  */
-static bool drain_injected_commands_P() {//≈–∂œ¡¢º¥√¸¡Ó
+static bool drain_injected_commands_P() {
   if (injected_commands_P != NULL) {
     size_t i = 0;
     char c, cmd[30];
@@ -849,7 +850,7 @@ static bool drain_injected_commands_P() {//≈–∂œ¡¢º¥√¸¡Ó
  * Aborts the current queue, if any.
  * Note: drain_injected_commands_P() must be called repeatedly to drain the commands afterwards
  */
-void enqueue_and_echo_commands_P(const char * const pgcode) {//ÃÌº”¡¢º¥√¸¡Ó
+void enqueue_and_echo_commands_P(const char * const pgcode) {
   injected_commands_P = pgcode;
   drain_injected_commands_P(); // first command executed asap (when possible)
 }
@@ -1223,7 +1224,7 @@ inline void get_serial_commands() {
 void get_available_commands() {
 
   // if any immediate commands remain, don't get other commands yet
-  if (drain_injected_commands_P()) return;//≈–∂œ”–Œﬁ¡¢º¥√¸¡Ó
+  if (drain_injected_commands_P()) return;
 
   get_serial_commands();
 
@@ -2650,7 +2651,7 @@ static void clean_up_after_endstop_or_probe_move() {
     //                                : ((c < b) ? b : (a < c) ? a : c);
   }
 
-  //Enable this if your SCARA uses 180¬∞ of total area
+  //Enable this if your SCARA uses 180∞ of total area
   //#define EXTRAPOLATE_FROM_EDGE
 
   #if ENABLED(EXTRAPOLATE_FROM_EDGE)
@@ -7863,7 +7864,8 @@ inline void gcode_M109() {
   } while (wait_for_heatup && TEMP_CONDITIONS);
 
   if (wait_for_heatup) {
-    LCD_MESSAGEPGM(MSG_HEATING_COMPLETE);
+    LCD_MESSAGEPGM(MSG_HEATING_COMPLETE);//liu....
+    //strcpy(lcd_status_message,  P_file_name);
     #if ENABLED(PRINTER_EVENT_LEDS)
       leds.set_white();
     #endif
@@ -8775,7 +8777,7 @@ inline void gcode_M204() {
  *
  *    S = Min Feed Rate (units/s)
  *    T = Min Travel Feed Rate (units/s)
- *    B = Min Segment Time (¬µs)
+ *    B = Min Segment Time (µs)
  *    X = Max X Jerk (units/sec^2)
  *    Y = Max Y Jerk (units/sec^2)
  *    Z = Max Z Jerk (units/sec^2)
@@ -9878,6 +9880,7 @@ SERIAL_ECHOLN("liu......filament_switch = false");
  */
 inline void gcode_M500() {
   (void)settings.save();
+  //(void)settings.poweroff_save();
 }
 
 /**
@@ -9885,6 +9888,7 @@ inline void gcode_M500() {
  */
 inline void gcode_M501() {
   (void)settings.load();
+  //(void)settings.poweroff_load();
 }
 
 /**
@@ -14208,7 +14212,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
 /**
  * Standard idle routine keeps the machine alive
  */
-void idle(           //±£≥÷ª˙∆˜ªÓ¡¶
+void idle(
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     bool no_stepper_sleep/*=false*/
   #endif
@@ -14217,21 +14221,21 @@ void idle(           //±£≥÷ª˙∆˜ªÓ¡¶
     Max7219_idle_tasks();
   #endif  // MAX7219_DEBUG
 
-  lcd_update();   //À¢–¬LCDœ‘ æ
+  lcd_update();
 
-  host_keepalive();  //∂® ± ‰≥ˆ√¶–≈œ¢£¨ª˙∆˜≤ªΩ” ‹√¸¡Ó
+  host_keepalive();
 
   #if ENABLED(AUTO_REPORT_TEMPERATURES) && (HAS_TEMP_HOTEND || HAS_TEMP_BED)
-    thermalManager.auto_report_temperatures();//◊‘∂Ø…œ¥´Œ¬∂»–≈œ¢
+    thermalManager.auto_report_temperatures();
   #endif
 
-  manage_inactivity(  //¥¶¿Ì¥Ú”°∏®÷˙π¶ƒ‹
+  manage_inactivity(
     #if ENABLED(ADVANCED_PAUSE_FEATURE)
       no_stepper_sleep
     #endif
   );
 
-  thermalManager.manage_heater();  //º”»»¥¶¿Ì
+  thermalManager.manage_heater();
 
   #if ENABLED(PRINTCOUNTER)
     print_job_timer.tick();
@@ -14321,16 +14325,16 @@ void stop() {
  *  - Print startup messages and diagnostics
  *  - Get EEPROM or default settings
  *  - Initialize managers for:
- *    ‚Ä¢ temperature
- *    ‚Ä¢ planner
- *    ‚Ä¢ watchdog
- *    ‚Ä¢ stepper
- *    ‚Ä¢ photo pin
- *    ‚Ä¢ servos
- *    ‚Ä¢ LCD controller
- *    ‚Ä¢ Digipot I2C
- *    ‚Ä¢ Z probe sled
- *    ‚Ä¢ status LEDs
+ *    ï temperature
+ *    ï planner
+ *    ï watchdog
+ *    ï stepper
+ *    ï photo pin
+ *    ï servos
+ *    ï LCD controller
+ *    ï Digipot I2C
+ *    ï Z probe sled
+ *    ï status LEDs
  */
 void setup() {
 
@@ -14377,6 +14381,8 @@ void setup() {
   SERIAL_CHAR(' ');
   SERIAL_ECHOLNPGM(SHORT_BUILD_VERSION);
   SERIAL_EOL();
+  //SERIAL_ECHOLNPGM(MOTHERBOARD);//liu
+ // SERIAL_EOL();
 
   #if defined(STRING_DISTRIBUTION_DATE) && defined(STRING_CONFIG_H_AUTHOR)
     SERIAL_ECHO_START();
@@ -14591,7 +14597,7 @@ void setup() {
  *  - Call LCD update
  */
 void loop() {
-  if (commands_in_queue < BUFSIZE) get_available_commands();//ªÒ»°√¸¡Ó1
+  if (commands_in_queue < BUFSIZE) get_available_commands();
 
   #if ENABLED(SDSUPPORT)
     card.checkautostart(false);
@@ -14667,29 +14673,26 @@ void loop() {
 			SERIAL_ECHOLN(tmp_y);
 			enqueue_and_echo_command(tmp_y);
 			//////////////
+			axis_homed[Z_AXIS] = true;
+			axis_known_position[Z_AXIS]= true;
 			recovery=2;
 	  }
 	if((commands_in_queue==0)&&(recovery==2))
 	{
-	   //////////////////
-		sprintf_P(tmp_y,PSTR("G92 Z%u.%u"),Z_t/10,Z_t%10);
-	    SERIAL_ECHOLN(tmp_y);
-	    enqueue_and_echo_command(tmp_y);
-	    recovery=0;
-	    settings.save();
-	    settings.load();
-		sprintf(tmp_y,"M32 S%lu !%s",pos_t,P_file_name);
+		if(strlen(print_dir)>1)
+			sprintf(tmp_y,"M32 S%lu !/%s/%s",pos_t,print_dir,P_file_name);
+		else
+			sprintf(tmp_y,"M32 S%lu !%s",pos_t,P_file_name);
+		SERIAL_ECHOLNPAIR("Gco : ", tmp_y);
+			
+
+	      //memset(print_dir,0,sizeof(print_dir));
+	      recovery=0;
+	     (void)settings.poweroff_save();
 		
 		enqueue_and_echo_command(tmp_y);
 		SERIAL_ECHOLN(tmp_y);
-   
-		//////////////
-	   //////////////////
-	   /* sprintf_P(tmp_y,PSTR("M109 T0 S%d"),T0_t);
-		SERIAL_ECHOLN(tmp_y);
-		enquecommand(tmp_y);*/
-		//////////////
-		 
+	 
 	}   
   if((recovery==4))
   {
