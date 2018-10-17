@@ -181,7 +181,7 @@ uint16_t max_display_update_time = 0;
   void lcd_control_filament_menu();
 
   void lcd_mixer_menu();
-  void lcd_mixer_gradient0_menu();
+  void lcd_mixer_edit_gradient_menu();
 
   #if ENABLED(LCD_INFO_MENU)
     #if ENABLED(PRINTCOUNTER)
@@ -879,210 +879,219 @@ void kill_screen(const char* lcd_msg) {
 
   #endif // SDSUPPORT
 
-/********************************************************liu...*****************************/
+  #if ENABLED(GRADIENT_MIX)
 
-  mixer_t mixer = {
-    { 0, 0},
-    { 0, 0},
-    0,
-    0, 0,
-    0.0, 0.0,
-    false
-  };
-  #define NOZZLE0  0
-  #define NOZZLE1  1
-  void lcd_mixer_endPercent_edit();
-  void lcd_mixer_percent_menu();
-
-  void lcd_mixer_filament0_edit() {
-    if (encoderPosition != 0) {
-      mixer.rate[NOZZLE0] += (int)encoderPosition;
-      encoderPosition = 0;
-      if (mixer.rate[NOZZLE0] > 112) mixer.rate[NOZZLE0] = 0;
-      NOLESS(mixer.rate[NOZZLE0], 0);
-      NOMORE(mixer.rate[NOZZLE0], 100);
-      mixer.rate[NOZZLE1] = 100 - mixer.rate[NOZZLE0];
+    inline void _lcd_mixer_commit_gradient() {
+      mixer.gradient_flag = (mixer.start_pct != mixer.end_pct && mixer.start_z < mixer.end_z);
     }
-    char tmp[32];
-    sprintf(tmp, "Filament 1: %3d %%", mixer.rate[NOZZLE0]);
-    //mixer.gradient_flag = false;
-    lcd.setCursor(2,1);
-    lcd.print(tmp);
 
-    if (lcd_clicked) {
-      mixer.gradient_flag = false;
+    void lcd_mixer_gradient_z_start_edit() {
+      ENCODER_DIRECTION_NORMAL();
+      ENCODER_RATE_MULTIPLY(true);
+      if (encoderPosition != 0) {
+        mixer.start_z += float((int)encoderPosition) * 0.1;
+        encoderPosition = 0;
+        NOLESS(mixer.start_z, 0);
+        NOMORE(mixer.start_z, Z_MAX_POS);
+        if (mixer.start_z > mixer.end_z)
+          mixer.end_z = mixer.start_z + 1;
+      }
+      char tmp[32];
+      sprintf_P(tmp, PSTR(MSG_START_Z ": %4d.%d mm"), int(mixer.start_z), int(mixer.start_z * 10) % 10);
+      lcd.setCursor(2,1);
+      lcd.print(tmp);
+
+      if (lcd_clicked) {
+        _lcd_mixer_commit_gradient();
+        lcd_goto_previous_menu();
+      }
+    }
+
+    void lcd_mixer_gradient_z_end_edit() {
+      ENCODER_DIRECTION_NORMAL();
+      ENCODER_RATE_MULTIPLY(true);
+      if (encoderPosition != 0) {
+        mixer.end_z += float((int)encoderPosition) * 0.1;
+        encoderPosition = 0;
+
+        NOLESS(mixer.end_z, 0);
+        NOMORE(mixer.end_z, Z_MAX_POS);
+        NOMORE(mixer.start_z, mixer.end_z - 1);
+        NOLESS(mixer.start_z, 0);
+      }
+
+      char tmp[32];
+      sprintf_P(tmp, PSTR(MSG_END_Z ": %4d.%d mm"), int(mixer.end_z), int(mixer.end_z * 10) % 10);
+      lcd.setCursor(2,1);
+      lcd.print(tmp);
+
+      if (lcd_clicked) {
+        _lcd_mixer_commit_gradient();
+        lcd_goto_previous_menu();
+      }
+    }
+
+    void lcd_mixer_mix_start_edit() {
+      ENCODER_DIRECTION_NORMAL();
+      if (encoderPosition != 0) {
+        mixer.start_pct += (int)encoderPosition;
+        encoderPosition = 0;
+        if (mixer.start_pct < 0) mixer.start_pct += 100;
+        if (mixer.start_pct > 100) mixer.start_pct -= 100;
+      }
+      if (lcdDrawUpdate) {
+        char tmp[32];
+        sprintf_P(tmp, PSTR(MSG_START_MIX ": %3d%% %3d%%"), mixer.start_pct, 100 - mixer.start_pct);
+        lcd.setCursor(0, 1);
+        lcd.print(tmp);
+
+        sprintf_P(tmp, PSTR("(Z <= %d.%d)"), int(mixer.start_z), int(mixer.start_z * 10) % 10);
+        lcd.setCursor(LCD_WIDTH - strlen(tmp), 3);
+        lcd.print(tmp);
+      }
+
+      if (lcd_clicked) {
+        _lcd_mixer_commit_gradient();
+        lcd_goto_previous_menu();
+      }
+    }
+
+    void lcd_mixer_mix_end_edit() {
+      ENCODER_DIRECTION_NORMAL();
+      if (encoderPosition != 0) {
+        mixer.end_pct += (int)encoderPosition;
+        encoderPosition = 0;
+        if (mixer.end_pct < 0) mixer.end_pct += 100;
+        if (mixer.end_pct > 100) mixer.end_pct -= 100;
+      }
+      if (lcdDrawUpdate) {
+        char tmp[32];
+        sprintf_P(tmp, PSTR(MSG_END_MIX ": %3d%% %3d%%"), mixer.end_pct, 100 - mixer.end_pct);
+        lcd.setCursor(0, 1);
+        lcd.print(tmp);
+
+        sprintf_P(tmp, PSTR("(Z >= %d.%d)"), int(mixer.end_z), int(mixer.end_z * 10) % 10);
+        lcd.setCursor(LCD_WIDTH - strlen(tmp), 3);
+        lcd.print(tmp);
+      }
+
+      if (lcd_clicked) {
+        _lcd_mixer_commit_gradient();
+        lcd_goto_previous_menu();
+      }
+    }
+
+    inline void _lcd_mixer_full_gradient() {
+      mixer.start_pct = mixer.start_pct ? 0 : 100;
+      mixer.end_pct = 100 - mixer.start_pct;
+      _lcd_mixer_commit_gradient();
+    }
+
+    void lcd_mixer_gradient_mix_menu() {
+      START_MENU();
+      //MENU_ITEM(back, MSG_MAIN, lcd_mixer_menu);
+      MENU_BACK(MSG_GRADIENT);
+
+      char tmp[32];
+
+      MENU_ITEM(submenu, MSG_START_MIX ":", lcd_mixer_mix_start_edit);
+      if (lcdDrawUpdate) {
+        sprintf_P(tmp, PSTR("%3d;%3d%%"), mixer.start_pct, 100 - mixer.start_pct);
+        lcd.setCursor(12, 1);
+        lcd.print(tmp);
+      }
+
+      MENU_ITEM(submenu, MSG_END_MIX ":", lcd_mixer_mix_end_edit);
+      if (lcdDrawUpdate) {
+        sprintf_P(tmp, PSTR("%3d;%3d%%"), mixer.end_pct, 100 - mixer.end_pct);
+        lcd.setCursor(12, 2);
+        lcd.print(tmp);
+      }
+
+      MENU_ITEM(function, MSG_FULL_GRADIENT, _lcd_mixer_full_gradient);
+
+      END_MENU();
+    }
+
+    void lcd_mixer_edit_gradient_menu() {
+      START_MENU();
+      MENU_BACK(MSG_MIXER);
+
+      MENU_ITEM(submenu, MSG_MIX_START_END, lcd_mixer_gradient_mix_menu);
+
+      char tmp[32];
+
+      MENU_ITEM(submenu, MSG_START_Z ":", lcd_mixer_gradient_z_start_edit);
+      sprintf_P(tmp, PSTR("%4d.%d mm"), int(mixer.start_z), int(mixer.start_z * 10) % 10);
+      lcd.setCursor(9, 2);
+      lcd.print(tmp);
+
+      MENU_ITEM(submenu, MSG_END_Z ":", lcd_mixer_gradient_z_end_edit);
+      sprintf_P(tmp, PSTR("%4d.%d mm"), int(mixer.end_z), int(mixer.end_z * 10) % 10);
+      lcd.setCursor(9, 3);
+      lcd.print(tmp);
+
+      END_MENU();
+    }
+
+  #endif // GRADIENT_MIX
+
+  #if ENABLED(MIXING_EXTRUDER)
+
+    inline void _lcd_mixer_update_mix() {
       mixing_factor[NOZZLE0] = RECIPROCAL(mixer.rate[NOZZLE0] * 0.01);
       mixing_factor[NOZZLE1] = RECIPROCAL(mixer.rate[NOZZLE1] * 0.01);
-      lcd_goto_previous_menu();
     }
-    // END_MENU();
-  }
 
-  void lcd_mixer_filament1_edit() {
-    if (encoderPosition != 0) {
-      mixer.rate[NOZZLE1] += (int)encoderPosition;
-      encoderPosition = 0;
-      if (mixer.rate[NOZZLE1] > 112) mixer.rate[NOZZLE1] = 0;
-      NOLESS(mixer.rate[NOZZLE1], 0);
-      NOMORE(mixer.rate[NOZZLE1], 100);
+    inline void _lcd_mixer_toggle_mix() {
+      mixer.rate[NOZZLE1] = mixer.rate[NOZZLE1] ? 0 : 100;
       mixer.rate[NOZZLE0] = 100 - mixer.rate[NOZZLE1];
-    }
-    char tmp[32];
-    sprintf(tmp, "Filament 2: %3d %%", mixer.rate[NOZZLE1]);
-    lcd.setCursor(2,1);
-    lcd.print(tmp);
-
-    if (lcd_clicked) {
-      mixer.gradient_flag = false;
-      mixing_factor[NOZZLE0] = RECIPROCAL(mixer.rate[NOZZLE0] * 0.01);
-      mixing_factor[NOZZLE1] = RECIPROCAL(mixer.rate[NOZZLE1] * 0.01);
-      lcd_goto_previous_menu();
-    }
-  }
-
-/******************************************************************************************/
-
-  void lcd_mixer_gradient00_edit() {
-    if (encoderPosition != 0) {
-      mixer.start_z += float((int)encoderPosition) * 0.1;
-      encoderPosition = 0;
-      NOLESS(mixer.start_z, 0);
-      NOMORE(mixer.start_z, Z_MAX_POS);
-      if (mixer.start_z > mixer.end_z)
-        mixer.end_z = mixer.start_z + 1;
-     }
-     char tmp[32];
-     int x = mixer.start_z, y = mixer.start_z * 10;
-     sprintf(tmp, "Start Z: %3d.%d mm", x, y % 10);
-     lcd.setCursor(2,1);
-     lcd.print(tmp);
-
-     if (lcd_clicked) lcd_goto_previous_menu();
-  }
-
-  void lcd_mixer_gradient01_edit() {
-    if (encoderPosition != 0) {
-      mixer.end_z += float((int)encoderPosition) * 0.1;
-      encoderPosition = 0;
-
-      NOLESS(mixer.end_z, 0);
-      NOMORE(mixer.end_z, Z_MAX_POS);
-      NOMORE(mixer.start_z, mixer.end_z - 1);
-      NOLESS(mixer.start_z, 0);
+      _lcd_mixer_update_mix();
     }
 
-    char tmp[32];
-    sprintf(tmp, "  End Z: %3d.%d mm", int(mixer.end_z), int(mixer.end_z * 10) % 10);
-    lcd.setCursor(2,1);
-    lcd.print(tmp);
+    void lcd_mixer_mix_edit() {
+      if (encoderPosition != 0) {
+        mixer.rate[NOZZLE0] += (int)encoderPosition;
+        encoderPosition = 0;
+        if (mixer.rate[NOZZLE0] < 0) mixer.rate[NOZZLE0] += 100;
+        if (mixer.rate[NOZZLE0] > 100) mixer.rate[NOZZLE0] -= 100;
+        mixer.rate[NOZZLE1] = 100 - mixer.rate[NOZZLE0];
+      }
+      char tmp[32];
+      sprintf_P(tmp, PSTR(MSG_MIX ":    %3d%%;%3d%%"), mixer.rate[NOZZLE0], mixer.rate[NOZZLE1]);
+      lcd.setCursor(2,1);
+      lcd.print(tmp);
 
-    if (lcd_clicked) lcd_goto_previous_menu();
-  }
-
-  void lcd_mixer_startPercent_edit() {
-    if (encoderPosition != 0) {
-      mixer.min += (int)encoderPosition;
-      encoderPosition = 0;
-      NOLESS(mixer.min, 0);
-      NOMORE(mixer.min, 100);
-      mixer.max = 100 - mixer.min;
+      if (lcd_clicked) {
+        mixer.gradient_flag = false;
+        _lcd_mixer_update_mix();
+        lcd_goto_previous_menu();
+      }
     }
-    char tmp[32];
-    sprintf(tmp, "Start percent: %3d%%", mixer.min);
 
-    lcd.setCursor(2,1);
-    lcd.print(tmp);
+    void lcd_mixer_menu() {
+      START_MENU();
+      MENU_BACK(MSG_MAIN);
 
-    if (lcd_clicked) {
-      mixer.gradient_flag = true;
-      lcd_goto_previous_menu();
+      mixer.rate[NOZZLE0] = int16_t(RECIPROCAL(mixing_factor[NOZZLE0]) * 100.0);
+      mixer.rate[NOZZLE1] = 100 - mixer.rate[NOZZLE0];
+
+      char tmp[32];
+      MENU_ITEM(submenu, MSG_MIX, lcd_mixer_mix_edit);
+      lcd.setCursor(10, 1);
+      sprintf_P(tmp, PSTR("%3d;%3d%%"), mixer.rate[NOZZLE0], mixer.rate[NOZZLE1]);
+      lcd.print(tmp);
+
+      MENU_ITEM(function, MSG_TOGGLE_MIX, _lcd_mixer_toggle_mix);
+
+      #if ENABLED(GRADIENT_MIX)
+        MENU_ITEM(submenu, MSG_GRADIENT, lcd_mixer_edit_gradient_menu);
+      #endif
+
+      END_MENU();
     }
-  }
 
-  void lcd_mixer_endPercent_edit() {
-    if (encoderPosition != 0) {
-      mixer.max += (int)encoderPosition;
-      encoderPosition = 0;
-      NOLESS(mixer.max, 0);
-      NOMORE(mixer.max, 100);
-      mixer.min = 100 - mixer.max;
-    }
-    char tmp[32];
-    sprintf(tmp, "  End percent: %3d%%", mixer.max);
-    lcd.setCursor(2,1);
-    lcd.print(tmp);
-
-    if (lcd_clicked) {
-      mixer.gradient_flag = true;
-      lcd_goto_previous_menu();
-    }
-  }
-
-  void lcd_mixer_percent_menu() {
-    START_MENU();
-    //MENU_ITEM(back, MSG_MAIN, lcd_mixer_menu);
-    MENU_BACK(MSG_GRADIENT_FILAMENT);
-    char tmp[32];
-
-    MENU_ITEM(submenu, "", lcd_mixer_startPercent_edit);
-    sprintf(tmp, "Start percent: %3d%%", mixer.min);
-    lcd.setCursor(1, 1);
-    lcd.print(tmp);
-
-    MENU_ITEM(submenu, "", lcd_mixer_endPercent_edit);
-    sprintf(tmp, "End percent: %3d%%", mixer.max);
-    lcd.setCursor(3, 2);
-    lcd.print(tmp);
-
-    END_MENU();
-  }
-
-  void lcd_mixer_gradient0_menu() {
-    START_MENU();
-    MENU_BACK(MSG_MIXER_FILAMENT);
-
-    MENU_ITEM(submenu, "", lcd_mixer_gradient00_edit);
-    char tmp[32];
-    sprintf(tmp, "Start Z:  %d.%d mm", int(mixer.start_z), int(mixer.start_z * 10) % 10);
-    lcd.setCursor(1, 1);
-    lcd.print(tmp);
-
-    MENU_ITEM(submenu, "", lcd_mixer_gradient01_edit);
-    sprintf(tmp, "  End Z:  %d.%d mm", int(mixer.end_z), int(mixer.end_z * 10) % 10);
-    lcd.setCursor(1, 2);
-    lcd.print(tmp);
-
-    MENU_ITEM(submenu, MSG_MIX_PERCENT, lcd_mixer_percent_menu);
-
-    END_MENU();
-  }
-
-  void lcd_mixer_menu() {
-    START_MENU();
-    MENU_BACK(MSG_MAIN);
-    mixer.rate[NOZZLE0] = (1.0 / mixing_factor[NOZZLE0]) * 100;
-    mixer.rate[NOZZLE1] = 100 - mixer.rate[NOZZLE0];
-
-    //MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, "filament0", &mixer.rate[NOZZLE0], 0, 100, watch_filament_callback_0);
-    //MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, "filament1", &mixer.rate[NOZZLE1], 0, 100, watch_filament_callback_1);
-
-    char tmp[32];
-    MENU_ITEM(submenu, "Filament 1", lcd_mixer_filament0_edit);
-    lcd.setCursor(15, 1);
-    sprintf(tmp, "%3d%%", mixer.rate[NOZZLE0]);
-    lcd.print(tmp);
-
-    MENU_ITEM(submenu, "Filament 2", lcd_mixer_filament1_edit);
-    sprintf(tmp, "%3d%%", mixer.rate[NOZZLE1]);
-    lcd.setCursor(15, 2);
-    lcd.print(tmp);
-
-    MENU_ITEM(submenu, MSG_GRADIENT_FILAMENT, lcd_mixer_gradient0_menu);
-
-    END_MENU();
-  }
-
-/**************************************************************************************/
+  #endif // MIXING_EXTRUDER
 
   #if ENABLED(MENU_ITEM_CASE_LIGHT)
 
@@ -1261,7 +1270,10 @@ void kill_screen(const char* lcd_msg) {
       MENU_ITEM(submenu, MSG_PREPARE, lcd_prepare_menu);
     }
     MENU_ITEM(submenu, MSG_CONTROL, lcd_control_menu);
-    MENU_ITEM(submenu, MSG_MIXER_FILAMENT, lcd_mixer_menu); //liu...
+
+    #if ENABLED(MIXING_EXTRUDER)
+      MENU_ITEM(submenu, MSG_MIXER, lcd_mixer_menu);
+    #endif
 
     #if ENABLED(SDSUPPORT)
       if (card.cardOK) {

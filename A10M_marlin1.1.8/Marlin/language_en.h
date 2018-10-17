@@ -601,14 +601,35 @@
   #define MSG_SWITCH_FILAMENT_OFF             _UxGT("Filament Off")
 #endif
 
-#ifndef MSG_MIXER_FILAMENT
-  #define MSG_MIXER_FILAMENT                  _UxGT("Mixer")
+#ifndef MSG_MIX
+  #define MSG_MIX                             _UxGT("Mix")
 #endif
-#ifndef MSG_GRADIENT_FILAMENT
-  #define MSG_GRADIENT_FILAMENT               _UxGT("Gradient")
+#ifndef MSG_MIXER
+  #define MSG_MIXER                           _UxGT("Mixer")
 #endif
-#ifndef MSG_MIX_PERCENT
-  #define MSG_MIX_PERCENT                     _UxGT("Mix percent")
+#ifndef MSG_GRADIENT
+  #define MSG_GRADIENT                        _UxGT("Gradient")
+#endif
+#ifndef MSG_FULL_GRADIENT
+  #define MSG_FULL_GRADIENT                   _UxGT("Full Gradient")
+#endif
+#ifndef MSG_TOGGLE_MIX
+  #define MSG_TOGGLE_MIX                      _UxGT("Toggle mix")
+#endif
+#ifndef MSG_MIX_START_END
+  #define MSG_MIX_START_END                   _UxGT("Mix start/end")
+#endif
+#ifndef MSG_START_MIX
+  #define MSG_START_MIX                       _UxGT("Start mix")
+#endif
+#ifndef MSG_END_MIX
+  #define MSG_END_MIX                         _UxGT("  End mix")
+#endif
+#ifndef MSG_START_Z
+  #define MSG_START_Z                         _UxGT("Start Z")
+#endif
+#ifndef MSG_END_Z
+  #define MSG_END_Z                           _UxGT("  End Z")
 #endif
 
 #ifndef MSG_ADVANCE_K

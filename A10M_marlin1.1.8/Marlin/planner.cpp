@@ -181,10 +181,6 @@ float Planner::previous_speed[NUM_AXIS],
   volatile uint32_t Planner::block_buffer_runtime_us = 0;
 #endif
 
-#define NOZZLE0 0
-#define NOZZLE1 1
-extern mixer_t mixer;
-
 /**
  * Class and Instance Methods
  */
@@ -711,34 +707,34 @@ void Planner::check_axes_activity() {
 
 #endif // PLANNER_LEVELING
 
-/************************************************************** [liu] */
+#if ENABLED(GRADIENT_MIX)
 
-void gradient_change(const uint8_t start_p, const uint8_t end_p, const float start_h, const float end_h) {
-  if (WITHIN(current_position[Z_AXIS], start_h, end_h)) {
-    mixer.rate[NOZZLE0] = start_p + (end_p - start_p) * ((current_position[Z_AXIS] - start_h) / (end_h - start_h));
-    if (mixer.max > mixer.min) {
-      NOMORE(mixer.rate[NOZZLE0], end_p);
-      NOLESS(mixer.rate[NOZZLE0], start_p);
+  void gradient_change(const int8_t start_p, const int8_t end_p, const float start_z, const float end_z) {
+    if (WITHIN(current_position[Z_AXIS], start_z, end_z)) {
+      mixer.rate[NOZZLE0] = start_p + (end_p - start_p) * ((current_position[Z_AXIS] - start_z) / (end_z - start_z));
+      if (mixer.end_pct > mixer.start_pct) {
+        NOMORE(mixer.rate[NOZZLE0], end_p);
+        NOLESS(mixer.rate[NOZZLE0], start_p);
+      }
+      else {
+        NOMORE(mixer.rate[NOZZLE0], start_p);
+        NOLESS(mixer.rate[NOZZLE0], end_p);
+      }
+      mixer.rate[NOZZLE1] = 100 - mixer.rate[NOZZLE0];
+      mixing_factor[NOZZLE0] = RECIPROCAL(mixer.rate[NOZZLE0] * 0.01);
+      mixing_factor[NOZZLE1] = RECIPROCAL(mixer.rate[NOZZLE1] * 0.01);
     }
-    else {
-      NOMORE(mixer.rate[NOZZLE0], start_p);
-      NOLESS(mixer.rate[NOZZLE0], end_p);
-    }
-    mixer.rate[NOZZLE1] = 100 - mixer.rate[NOZZLE0];
-    mixing_factor[NOZZLE0] = RECIPROCAL(mixer.rate[NOZZLE0] * 0.01);
-    mixing_factor[NOZZLE1] = RECIPROCAL(mixer.rate[NOZZLE1] * 0.01);
+
+    if (current_position[Z_AXIS] > end_z)
+      mixer.gradient_flag = false;
   }
 
-  if (current_position[Z_AXIS] > end_h)
-    mixer.gradient_flag = false;
-}
+  void gradient_control(void) {
+    if (mixer.gradient_flag)
+      gradient_change(mixer.start_pct, mixer.end_pct, mixer.start_z, mixer.end_z);
+  }
 
-void gradient_control(void) {
-  if (mixer.gradient_flag)
-    gradient_change(uint8_t(mixer.min), uint8_t(mixer.max), mixer.start_z, mixer.end_z);
-}
-
-/************************************************************** [liu] */
+#endif // GRADIENT_MIX
 
 /**
  * Planner::_buffer_steps
@@ -866,8 +862,9 @@ void Planner::_buffer_steps(const int32_t (&target)[XYZE], float fr_mm_s, const 
   // Bail if this is a zero-length block
   if (block->step_event_count < MIN_STEPS_PER_SEGMENT) return;
 
-  // [liu]
-  gradient_control();
+  #if ENABLED(GRADIENT_MIX)
+    gradient_control();
+  #endif
 
   // For a mixing extruder, get a magnified step_event_count for each [liu]
   #if ENABLED(MIXING_EXTRUDER)

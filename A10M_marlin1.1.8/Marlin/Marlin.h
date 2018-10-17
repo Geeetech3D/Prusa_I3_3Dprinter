@@ -460,6 +460,22 @@ extern uint8_t active_extruder;
 
 #if ENABLED(MIXING_EXTRUDER)
   extern float mixing_factor[MIXING_STEPPERS];
+
+  #if ENABLED(GRADIENT_MIX)
+    typedef struct {
+      int16_t rate[2], rate_buf[2]; // Buffer used for tool change
+      int counts;
+      float start_z, end_z;         // Region for gradient
+      int8_t start_pct, end_pct;   // Mix component for E0
+      //bool ofp;   // over fusion protect
+      bool gradient_flag;
+    } mixer_t;
+
+    #define NOZZLE0 0
+    #define NOZZLE1 1
+    extern mixer_t mixer;
+  #endif
+
 #endif
 
 inline void set_current_from_destination() { COPY(current_position, destination); }

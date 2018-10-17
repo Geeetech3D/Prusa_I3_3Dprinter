@@ -715,7 +715,6 @@ Possible status screens:
 */
 static void lcd_implementation_status_screen() {
   const bool blink = lcd_blink();
-  int mixing_factor_e0;
   char mixer_messages[12];
   //
   // Line 1
@@ -799,32 +798,17 @@ static void lcd_implementation_status_screen() {
 
       #else
 
+        const int mix_pct = int(RECIPROCAL(mixing_factor[NOZZLE0]) * 100.0f);
+        const char * const fmt = mixer.gradient_flag ? PSTR("Mx^%d;%d%% ") : PSTR("Mx %d;%d%% ");
+        sprintf_P(mixer_messages, fmt, mix_pct, 100 - mix_pct);
+        lcd.print(mixer_messages);
+
         // Before homing the axis letters are blinking 'X' <-> '?'.
         // When axis is homed but axis_known_position is false the axis letters are blinking 'X' <-> ' '.
         // When everything is ok you see a constant 'X'.
 
-        /**************liu*******/
-
-        if (mixing_factor[0] > 0.001)
-          mixing_factor_e0 = 100 / mixing_factor[0];
-        else if (mixing_factor[1] > 0.001)
-          mixing_factor_e0 = 0;
-        else
-          mixing_factor_e0 = 100;
-
-        const char * const fmt = mixer.gradient_flag ? PSTR("Mx^%d|%d%%") : PSTR("Mx %d|%d%%");
-        sprintf_P(mixer_messages, fmt, 100 - mixing_factor_e0, mixing_factor_e0);
-        lcd.print(mixer_messages);
-
         //_draw_axis_label(X_AXIS, PSTR(MSG_X), blink);
-        // mixing_factor_e0 = 100/mixing_factor[0];
-        // lcd.print(itostr3left(mixing_factor_e0));
-
-        //lcd.write('/');
-
         //_draw_axis_label(Y_AXIS, PSTR(MSG_Y), blink);
-        // lcd.print(itostr3left(100-mixing_factor_e0));
-        // lcd_printPGM(PSTR("   "));
 
       #endif // HOTENDS > 1 || TEMP_SENSOR_BED != 0
 
