@@ -48,8 +48,8 @@
 #ifndef MSG_SD_REMOVED
   #define MSG_SD_REMOVED                      _UxGT("Card removed")
 #endif
-#ifndef MSG_FILAMENT_ERROE
-  #define MSG_FILAMENT_ERROE                      _UxGT("Err:No Filament")
+#ifndef MSG_FILAMENT_ERROR
+  #define MSG_FILAMENT_ERROR                  _UxGT("Err:No Filament")
 #endif
 #ifndef MSG_LCD_ENDSTOPS
   #define MSG_LCD_ENDSTOPS                    _UxGT("Endstops") // Max length 8 characters
@@ -595,14 +595,14 @@
   #define MSG_FILAMENT_DIAM                   _UxGT("Fil. Dia.")
 #endif
 #ifndef MSG_SWITCH_FILAMENT_ON
-  #define MSG_SWITCH_FILAMENT_ON                    _UxGT("Filament On ")
+  #define MSG_SWITCH_FILAMENT_ON              _UxGT("Filament On ")
 #endif
 #ifndef MSG_SWITCH_FILAMENT_OFF
-  #define MSG_SWITCH_FILAMENT_OFF                   _UxGT("Filament Off")
+  #define MSG_SWITCH_FILAMENT_OFF             _UxGT("Filament Off")
 #endif
 
 #ifndef MSG_MIXER_FILAMENT
-  #define MSG_MIXER_FILAMENT                   _UxGT("Mixer")
+  #define MSG_MIXER_FILAMENT                  _UxGT("Mixer")
 #endif
 #ifndef MSG_TEMPLATE_FILAMENT
   #define MSG_TEMPLATE_FILAMENT                   _UxGT("template")

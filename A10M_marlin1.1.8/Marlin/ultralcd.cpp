@@ -610,17 +610,16 @@ void watch_filament_callback_0() ;
 
 #endif // ULTIPANEL
 
-void lcd_resume_menu_ok(void) 
-{
-  char tmp_n[64+10];
-  recovery=0;
-//  Config_StoreSettings();
+void lcd_resume_menu_ok(void) {
+  char tmp_n[64 + 10];
+  recovery = 0;
+  //Config_StoreSettings();
   //Config_RetrieveSettings();
   lcd_goto_screen(lcd_status_screen);
- // enquecommand("M930"); 
+  // enquecommand("M930");
   SERIAL_ECHOLN(P_file_name);
-  recovery=1;
-  
+  recovery = 1;
+
   sprintf_P(tmp_n,PSTR("G92 Z%u.%u"),Z_t/10,Z_t%10);
   SERIAL_ECHOLN(tmp_n);
   enqueue_and_echo_command(tmp_n);
@@ -635,50 +634,44 @@ void lcd_resume_menu_ok(void)
   enqueue_and_echo_command(tmp_n);
   //////////////
 }
-void lcd_resume_menu_cancel(void) 
-{
-   char tmp_n[64+10];
-   //Config_StoreSettings();
-   //Config_RetrieveSettings();
-  recovery=0;
-  P_file_name[0]=0;  
-  memset(print_dir,0,sizeof(print_dir));
- // (void)settings.poweroff_save();
-  sprintf_P(tmp_n,PSTR("M500"));
+void lcd_resume_menu_cancel(void) {
+  char tmp_n[64+10];
+  //Config_StoreSettings();
+  //Config_RetrieveSettings();
+  recovery = 0;
+  P_file_name[0] = 0;
+  memset(print_dir, 0, sizeof(print_dir));
+  // (void)settings.poweroff_save();
+  sprintf_P(tmp_n, PSTR("M500"));
   SERIAL_ECHOLN(tmp_n);
   enqueue_and_echo_command(tmp_n);
   lcd_goto_screen(lcd_status_screen);
-   
- 
 }
 
-void lcd_resume_menu0(void) 
-{
+void lcd_resume_menu0(void) {
   START_MENU();
   //////////
   MENU_ITEM(submenu, "Resume print ?", lcd_resume_menu0);
-  MENU_ITEM(submenu, "Yes  ", lcd_resume_menu_ok); 
-  MENU_ITEM(submenu, "NO  ", lcd_resume_menu_cancel);
- /* lcd.setCursor(0,0);
+  MENU_ITEM(submenu, "Yes", lcd_resume_menu_ok);
+  MENU_ITEM(submenu, "NO", lcd_resume_menu_cancel);
+  /*
+  lcd.setCursor(0,0);
   lcd.print("Resume print ?  ");
-  
+
   MENU_ITEM(submenu, "", lcd_resume_menu_ok);
   lcd.setCursor(1,1);
   lcd.print("Yes  ");
   MENU_ITEM(submenu, "", lcd_resume_menu_cancel);
   lcd.setCursor(1,2);
-  lcd.print("No  ");*/
+  lcd.print("No  ");
+  */
   END_MENU();
 
 }
 
-
-void lcd_resume_menu(void) 
-{
-	lcd_goto_screen(lcd_resume_menu0);
-
+void lcd_resume_menu(void) {
+  lcd_goto_screen(lcd_resume_menu0);
 }
-
 
 /**
  *
@@ -688,8 +681,7 @@ void lcd_resume_menu(void)
  */
 
 void lcd_status_screen() {
-	//if(recovery==3)
-		//return;
+  //if (recovery == 3) return;
   #if ENABLED(ULTIPANEL)
     ENCODER_DIRECTION_NORMAL();
     ENCODER_RATE_MULTIPLY(false);
@@ -886,6 +878,7 @@ void kill_screen(const char* lcd_msg) {
     }
 
 /********************************************************liu...*****************************/
+
 mixer_t mixer;
 unsigned char color_change_flag = 0;
 #define NOZZLE0  0
@@ -1565,12 +1558,12 @@ static void lcd_mixer_menu()
       thermalManager.start_watching_bed();
     #endif
   }
-    void watch_filament_callback_0() {//liu...
-
-    	}
-   void watch_filament_callback_1() {//liu...
-
-    	}
+  void watch_filament_callback_0() {
+    //liu...
+  }
+  void watch_filament_callback_1() {
+    //liu...
+  }
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
 
@@ -3963,16 +3956,18 @@ static void lcd_mixer_menu()
   }
 
 
-void Switch_Filament_ON(){
-	//SERIAL_ECHOLN("liu......ON ---2\r\n");
-	LCD_MESSAGEPGM(MSG_SWITCH_FILAMENT_ON);
-	filament_switch = true;
-}
-void Switch_Filament_OFF(){
-	//SERIAL_ECHOLN("liu......OFF ---2\r\n");
-	LCD_MESSAGEPGM(MSG_SWITCH_FILAMENT_OFF);
-	filament_switch = false;
-}
+  void Switch_Filament_ON(){
+    //SERIAL_ECHOLN("liu......ON ---2\r\n");
+    LCD_MESSAGEPGM(MSG_SWITCH_FILAMENT_ON);
+    filament_switch = true;
+  }
+
+  void Switch_Filament_OFF(){
+    //SERIAL_ECHOLN("liu......OFF ---2\r\n");
+    LCD_MESSAGEPGM(MSG_SWITCH_FILAMENT_OFF);
+    filament_switch = false;
+  }
+
   /**
    *
    * "Control" > "Filament" submenu
@@ -4006,15 +4001,14 @@ void Switch_Filament_OFF(){
         #endif // EXTRUDERS > 2
       #endif // EXTRUDERS > 1
     }
-    if(filament_switch==true)
-    {
-    	//SERIAL_ECHOLN("liu......ON ---1\r\n");
-    	MENU_ITEM(function, MSG_SWITCH_FILAMENT_ON, Switch_Filament_OFF);
+
+    if (filament_switch) {
+      //SERIAL_ECHOLN("liu......ON ---1\r\n");
+      MENU_ITEM(function, MSG_SWITCH_FILAMENT_ON, Switch_Filament_OFF);
     }
-    else
-    {
-    	//SERIAL_ECHOLN("liu......OFF ---1\r\n");
-	MENU_ITEM(function, MSG_SWITCH_FILAMENT_OFF, Switch_Filament_ON);	
+    else {
+      //SERIAL_ECHOLN("liu......OFF ---1\r\n");
+      MENU_ITEM(function, MSG_SWITCH_FILAMENT_OFF, Switch_Filament_ON);
     }
     END_MENU();
   }
@@ -4813,9 +4807,9 @@ void Switch_Filament_OFF(){
       #endif
       UNUSED(longFilename);
       card.openAndPrintFile(filename);
-	  strcpy(P_file_name,  filename);
+    strcpy(P_file_name,  filename);
       SERIAL_ECHOLN(P_file_name);
-	  recovery=0;
+    recovery=0;
       lcd_return_to_status();
     }
 
@@ -4853,7 +4847,7 @@ void lcd_init() {
 
  // SET_INPUT(BTN_EN1);
  //   SET_INPUT(BTN_EN2);
-    
+
     #if BUTTON_EXISTS(EN1)
       SET_INPUT_PULLUP(BTN_EN1);
     #endif

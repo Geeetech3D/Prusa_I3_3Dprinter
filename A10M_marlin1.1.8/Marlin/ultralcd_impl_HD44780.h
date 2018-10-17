@@ -662,11 +662,11 @@ FORCE_INLINE void _draw_heater_status(const int8_t heater, const char prefix, co
   #endif
       lcd.print(itostr3left(t2 + 0.5));
 
-// if (prefix >= 0) {//liu...
-    lcd.print((char)LCD_DEGREE_CHAR);
-    lcd.write(' ');
-    if (t2 < 10) lcd.write(' ');
- // }
+    // if (prefix >= 0) { // liu...
+      lcd.print((char)LCD_DEGREE_CHAR);
+      lcd.write(' ');
+      if (t2 < 10) lcd.write(' ');
+    // }
 }
 
 #if ENABLED(LCD_PROGRESS_BAR)
@@ -795,51 +795,46 @@ static void lcd_implementation_status_screen() {
         // If we both have a 2nd extruder and a heated bed,
         // show the heated bed temp on the left,
         // since the first line is filled with extruder temps
-      _draw_heater_status(-1, LCD_BEDTEMP_CHAR, blink);
+        _draw_heater_status(-1, LCD_BEDTEMP_CHAR, blink);
 
       #else
+
         // Before homing the axis letters are blinking 'X' <-> '?'.
         // When axis is homed but axis_known_position is false the axis letters are blinking 'X' <-> ' '.
         // When everything is ok you see a constant 'X'.
 
-      /**************liu*******/
+        /**************liu*******/
 
-      if(mixing_factor[0]>0.001)
-        mixing_factor_e0 = 100/mixing_factor[0];
-      else if(mixing_factor[1]>0.001)
-        mixing_factor_e0 = 0;
-      else
-        mixing_factor_e0 = 100;
-
-        
-        if(color_change_flag==1)//liu
-        {
-            sprintf(mixer_messages,"Mx^%d/%d  ",(100-mixing_factor_e0),mixing_factor_e0);
-            lcd.print(mixer_messages);
-        }
+        if (mixing_factor[0] > 0.001)
+          mixing_factor_e0 = 100 / mixing_factor[0];
+        else if (mixing_factor[1] > 0.001)
+          mixing_factor_e0 = 0;
         else
-        {
-            sprintf(mixer_messages,"Mx%d/%d   ",(100-mixing_factor_e0),mixing_factor_e0);
-            lcd.print(mixer_messages);
+          mixing_factor_e0 = 100;
 
-        }
 
-      
-       // if(color_change_flag==1)//liu
-       //     lcd_printPGM(PSTR("Mx^"));
-       // else
-       //     lcd_printPGM(PSTR("Mx"));
+        if (color_change_flag) //liu
+          sprintf(mixer_messages,"Mx^%d/%d", (100 - mixing_factor_e0), mixing_factor_e0);
+        else
+          sprintf(mixer_messages,"Mx %d/%d", (100 - mixing_factor_e0), mixing_factor_e0);
+        lcd.print(mixer_messages);
+
+
+        // if (color_change_flag==1)//liu
+        //     lcd_printPGM(PSTR("Mx^"));
+        // else
+        //     lcd_printPGM(PSTR("Mx"));
 
 
         //_draw_axis_label(X_AXIS, PSTR(MSG_X), blink);
-       // mixing_factor_e0 = 100/mixing_factor[0];
-       // lcd.print(itostr3left(mixing_factor_e0));
+        // mixing_factor_e0 = 100/mixing_factor[0];
+        // lcd.print(itostr3left(mixing_factor_e0));
 
         //lcd.write('/');
 
         //_draw_axis_label(Y_AXIS, PSTR(MSG_Y), blink);
-       // lcd.print(itostr3left(100-mixing_factor_e0));
-       // lcd_printPGM(PSTR("   "));
+        // lcd.print(itostr3left(100-mixing_factor_e0));
+        // lcd_printPGM(PSTR("   "));
 
       #endif // HOTENDS > 1 || TEMP_SENSOR_BED != 0
 

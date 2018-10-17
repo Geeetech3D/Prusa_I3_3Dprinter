@@ -223,7 +223,7 @@ void lcd_reset_status();
 #endif
 
 
-typedef struct    
+typedef struct
 {
   int16_t rate[2];
   int16_t rate_buf[2];  //use as buffer when use T code

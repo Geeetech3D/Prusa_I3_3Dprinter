@@ -544,8 +544,6 @@
    * Used to interactively edit the mesh by placing the
    * nozzle in a problem area and doing a G29 P4 R command.
    */
-
-  
   void gcode_G26() {
     SERIAL_ECHOLNPGM("G26 command started. Waiting for heater(s).");
     float tmp, start_angle, end_angle;
