@@ -181,11 +181,10 @@ float Planner::previous_speed[NUM_AXIS],
   volatile uint32_t Planner::block_buffer_runtime_us = 0;
 #endif
 
-#define NOZZLE0  0
-#define NOZZLE1  1
+#define NOZZLE0 0
+#define NOZZLE1 1
 extern mixer_t mixer;
-extern unsigned char color_change_flag;
-
+extern bool gradient_flag;
 
 /**
  * Class and Instance Methods
@@ -712,61 +711,36 @@ void Planner::check_axes_activity() {
   }
 
 #endif // PLANNER_LEVELING
-/**************************************************************liu...**/
-void Color_change(unsigned char start_p,unsigned char end_p,float start_h, float end_h)
-{
-  float thickness;
-  thickness = end_h - start_h;
-  
-  if((current_position[Z_AXIS] >= start_h)&&(current_position[Z_AXIS] < end_h))
-  {
-    mixer.rate[NOZZLE0]=mixer.rate[NOZZLE1]=0;
-    if(end_p > start_p)  
-    {
-      mixer.rate[NOZZLE0] = start_p + (end_p - start_p)*((current_position[Z_AXIS] - start_h)/thickness);    
-    }
-    else
-    {
-      mixer.rate[NOZZLE0] = start_p - ((start_p - end_p)*((current_position[Z_AXIS] - start_h)/thickness));
-	  
-    }
-    if(mixer.max>mixer.min)        
-   {
-	if(mixer.rate[NOZZLE0] >= end_p) mixer.rate[NOZZLE0] = end_p;
-	if(mixer.rate[NOZZLE0] <= start_p) mixer.rate[NOZZLE0] = start_p;
-   }
-   else
-   {
-	if(mixer.rate[NOZZLE0] >= start_p) mixer.rate[NOZZLE0] = start_p;
-	if(mixer.rate[NOZZLE0] <= end_p) mixer.rate[NOZZLE0] = end_p;
-   }
-    mixer.rate[NOZZLE1] = 100 - mixer.rate[NOZZLE0];  
-    mixing_factor[NOZZLE0] = 100.0/mixer.rate[NOZZLE0];
-    mixing_factor[NOZZLE1] = 100.0/mixer.rate[NOZZLE1];
 
-  }
-  
-  if(current_position[Z_AXIS] > end_h)
-  {
-    color_change_flag = 0; 
-    return;
-  }
-}
-void color_control(void)
-{
-	unsigned char start_p,end_p;
-	float start_h,end_h;
-	if(color_change_flag==1)
-	{
-		start_h=mixer.start_z;
-		end_h=mixer.end_z;
-		start_p = (unsigned char)mixer.min;
-		end_p = (unsigned char)mixer.max;
-		Color_change(start_p, end_p, start_h, end_h);
-	}
+/************************************************************** [liu] */
 
+void gradient_change(const uint8_t start_p, const uint8_t end_p, const float start_h, const float end_h) {
+  if (WITHIN(current_position[Z_AXIS], start_h, end_h)) {
+    mixer.rate[NOZZLE0] = start_p + (end_p - start_p) * ((current_position[Z_AXIS] - start_h) / (end_h - start_h));
+    if (mixer.max > mixer.min) {
+      NOMORE(mixer.rate[NOZZLE0], end_p);
+      NOLESS(mixer.rate[NOZZLE0], start_p);
+    }
+    else {
+      NOMORE(mixer.rate[NOZZLE0], start_p);
+      NOLESS(mixer.rate[NOZZLE0], end_p);
+    }
+    mixer.rate[NOZZLE1] = 100 - mixer.rate[NOZZLE0];
+    mixing_factor[NOZZLE0] = RECIPROCAL(mixer.rate[NOZZLE0] * 0.01);
+    mixing_factor[NOZZLE1] = RECIPROCAL(mixer.rate[NOZZLE1] * 0.01);
+  }
+
+  if (current_position[Z_AXIS] > end_h)
+    gradient_flag = false;
 }
-/**************************************************************liu...**/
+
+void gradient_control(void) {
+  if (gradient_flag)
+    gradient_change(uint8_t(mixer.min), uint8_t(mixer.max), mixer.start_z, mixer.end_z);
+}
+
+/************************************************************** [liu] */
+
 /**
  * Planner::_buffer_steps
  *
@@ -892,13 +866,14 @@ void Planner::_buffer_steps(const int32_t (&target)[XYZE], float fr_mm_s, const 
 
   // Bail if this is a zero-length block
   if (block->step_event_count < MIN_STEPS_PER_SEGMENT) return;
-   //liu...liu...
-   color_control();
-  // For a mixing extruder, get a magnified step_event_count for each liu...
+
+  // [liu]
+  gradient_control();
+
+  // For a mixing extruder, get a magnified step_event_count for each [liu]
   #if ENABLED(MIXING_EXTRUDER)
     for (uint8_t i = 0; i < MIXING_STEPPERS; i++)
       block->mix_event_count[i] = mixing_factor[i] * block->step_event_count;
- 
   #endif
 
   #if FAN_COUNT > 0
