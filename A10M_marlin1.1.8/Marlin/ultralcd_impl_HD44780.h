@@ -48,7 +48,7 @@
     #define LOWER_RIGHT   _BV(3)
   #endif
 #endif
-extern unsigned char color_change_flag;
+
 extern volatile uint8_t buttons;  //an extended version of the last checked buttons in a bit array.
 
 ////////////////////////////////////
@@ -812,19 +812,9 @@ static void lcd_implementation_status_screen() {
         else
           mixing_factor_e0 = 100;
 
-
-        if (color_change_flag) //liu
-          sprintf(mixer_messages,"Mx^%d/%d", (100 - mixing_factor_e0), mixing_factor_e0);
-        else
-          sprintf(mixer_messages,"Mx %d/%d", (100 - mixing_factor_e0), mixing_factor_e0);
+        const char * const fmt = mixer.gradient_flag ? PSTR("Mx^%d|%d%%") : PSTR("Mx %d|%d%%");
+        sprintf_P(mixer_messages, fmt, 100 - mixing_factor_e0, mixing_factor_e0);
         lcd.print(mixer_messages);
-
-
-        // if (color_change_flag==1)//liu
-        //     lcd_printPGM(PSTR("Mx^"));
-        // else
-        //     lcd_printPGM(PSTR("Mx"));
-
 
         //_draw_axis_label(X_AXIS, PSTR(MSG_X), blink);
         // mixing_factor_e0 = 100/mixing_factor[0];

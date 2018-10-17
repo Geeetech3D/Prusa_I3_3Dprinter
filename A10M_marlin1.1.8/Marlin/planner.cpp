@@ -184,7 +184,6 @@ float Planner::previous_speed[NUM_AXIS],
 #define NOZZLE0 0
 #define NOZZLE1 1
 extern mixer_t mixer;
-extern bool gradient_flag;
 
 /**
  * Class and Instance Methods
@@ -731,11 +730,11 @@ void gradient_change(const uint8_t start_p, const uint8_t end_p, const float sta
   }
 
   if (current_position[Z_AXIS] > end_h)
-    gradient_flag = false;
+    mixer.gradient_flag = false;
 }
 
 void gradient_control(void) {
-  if (gradient_flag)
+  if (mixer.gradient_flag)
     gradient_change(uint8_t(mixer.min), uint8_t(mixer.max), mixer.start_z, mixer.end_z);
 }
 

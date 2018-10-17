@@ -604,11 +604,11 @@
 #ifndef MSG_MIXER_FILAMENT
   #define MSG_MIXER_FILAMENT                  _UxGT("Mixer")
 #endif
-#ifndef MSG_TEMPLATE_FILAMENT
-  #define MSG_TEMPLATE_FILAMENT                   _UxGT("template")
+#ifndef MSG_GRADIENT_FILAMENT
+  #define MSG_GRADIENT_FILAMENT               _UxGT("Gradient")
 #endif
-#ifndef MSG_MIX_PRECENT
-  #define MSG_MIX_PRECENT                   _UxGT("mix percent")
+#ifndef MSG_MIX_PERCENT
+  #define MSG_MIX_PERCENT                     _UxGT("Mix percent")
 #endif
 
 #ifndef MSG_ADVANCE_K
