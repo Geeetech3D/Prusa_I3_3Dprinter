@@ -119,8 +119,7 @@
 // The following define selects which electronics board you have.
 // Please choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
-
-  #define MOTHERBOARD   BOARD_GT2560_V3_0
+  #define MOTHERBOARD BOARD_GT2560_V3_0
 #endif
 
 // Optional custom name for your RepStrap or other custom machine
@@ -344,7 +343,7 @@
 #define PID_MAX BANG_MAX // Limits current to nozzle while PID is active (see PID_FUNCTIONAL_RANGE below); 255=full current
 #define PID_K1 0.95      // Smoothing factor within the PID
 #if ENABLED(PIDTEMP)
-  //#define PID_AUTOTUNE_MENU // Add PID Autotune to the LCD "Temperature" menu to run M303 and apply the result.
+  #define PID_AUTOTUNE_MENU // Add PID Autotune to the LCD "Temperature" menu to run M303 and apply the result.
   //#define PID_DEBUG // Sends debug data to the serial port.
   //#define PID_OPENLOOP 1 // Puts PID in open loop. M104/M140 sets the output power from 0 to PID_MAX
   //#define SLOW_PWM_HEATERS // PWM with very low frequency (roughly 0.125Hz=8s) and minimum state time of approximately 1s useful for heaters driven by a relay
@@ -356,9 +355,14 @@
   // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
 
   // MeCreator2
-#define  DEFAULT_Kp 226.93  //11.93
-#define  DEFAULT_Ki 0.43  //0.59
-#define  DEFAULT_Kd 854.89  //59.89
+  //#define  DEFAULT_Kp 226.93  //11.93
+  //#define  DEFAULT_Ki 0.43  //0.59
+  //#define  DEFAULT_Kd 854.89  //59.89
+
+  // A10M [@thinkyhead]
+  #define  DEFAULT_Kp 45.80
+  #define  DEFAULT_Ki 3.61
+  #define  DEFAULT_Kd 145.39
 
   // Ultimaker
   //#define  DEFAULT_Kp 22.2
@@ -431,13 +435,13 @@
 // It also enables the M302 command to set the minimum extrusion temperature
 // or to allow moving the extruder regardless of the hotend temperature.
 // *** IT IS HIGHLY RECOMMENDED TO LEAVE THIS OPTION ENABLED! ***
-//#define PREVENT_COLD_EXTRUSION
-//#define EXTRUDE_MINTEMP 170
+#define PREVENT_COLD_EXTRUSION
+#define EXTRUDE_MINTEMP 190
 
 // This option prevents a single extrusion longer than EXTRUDE_MAXLENGTH.
 // Note that for Bowden Extruders a too-small value here may prevent loading.
 #define PREVENT_LENGTHY_EXTRUDE
-#define EXTRUDE_MAXLENGTH 200
+#define EXTRUDE_MAXLENGTH 400
 
 //===========================================================================
 //======================== Thermal Runaway Protection =======================
@@ -781,7 +785,7 @@
 
 //#define NO_MOTION_BEFORE_HOMING  // Inhibit movement until all axes have been homed
 
-//#define Z_HOMING_HEIGHT 4  // (in mm) Minimal z height before homing (G28) for Z clearance above the bed, clamps, ...
+#define Z_HOMING_HEIGHT 4    // (in mm) Minimal z height before homing (G28) for Z clearance above the bed, clamps, ...
                              // Be sure you have this distance over your Z_MAX_POS in case.
 
 // Direction of endstops when homing; 1=MAX, -1=MIN
@@ -1052,8 +1056,8 @@
 #endif
 
 // Homing speeds (mm/m)
-#define HOMING_FEEDRATE_XY (50*60)
-#define HOMING_FEEDRATE_Z  (4*60)
+#define HOMING_FEEDRATE_XY (100*60)
+#define HOMING_FEEDRATE_Z  (20*60)
 
 // @section calibrate
 
@@ -1126,8 +1130,8 @@
 // M501 - reads parameters from EEPROM (if you need reset them after you changed them temporarily).
 // M502 - reverts to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
 //
-#define EEPROM_SETTINGS // Enable for M500 and M501 commands
-#define DISABLE_M503    // Saves ~2700 bytes of PROGMEM. Disable for release!
+#define EEPROM_SETTINGS   // Enable for M500 and M501 commands
+//#define DISABLE_M503    // Saves ~2700 bytes of PROGMEM. Disable for release!
 #define EEPROM_CHITCHAT   // Give feedback on EEPROM commands. Disable to save PROGMEM.
 
 //
@@ -1158,12 +1162,12 @@
 // @section temperature
 
 // Preheat Constants
-#define PREHEAT_1_TEMP_HOTEND 180
-#define PREHEAT_1_TEMP_BED     70
+#define PREHEAT_1_TEMP_HOTEND 190
+#define PREHEAT_1_TEMP_BED     60
 #define PREHEAT_1_FAN_SPEED     0 // Value from 0 to 255
 
 #define PREHEAT_2_TEMP_HOTEND 240
-#define PREHEAT_2_TEMP_BED    110
+#define PREHEAT_2_TEMP_BED     90
 #define PREHEAT_2_FAN_SPEED     0 // Value from 0 to 255
 
 /**
@@ -1177,11 +1181,11 @@
  *    P1  Raise the nozzle always to Z-park height.
  *    P2  Raise the nozzle by Z-park amount, limited to Z_MAX_POS.
  */
-//#define NOZZLE_PARK_FEATURE
+#define NOZZLE_PARK_FEATURE
 
 #if ENABLED(NOZZLE_PARK_FEATURE)
   // Specify a park position as { X, Y, Z }
-  #define NOZZLE_PARK_POINT { (X_MIN_POS + 10), (Y_MAX_POS - 10), 20 }
+  #define NOZZLE_PARK_POINT { 3, 3, 10 }
   #define NOZZLE_PARK_XY_FEEDRATE 100   // X and Y axes feedrate in mm/s (also used for delta printers Z axis)
   #define NOZZLE_PARK_Z_FEEDRATE 5      // Z axis feedrate in mm/s (not used for delta printers)
 #endif
@@ -1367,7 +1371,7 @@
 // This option overrides the default number of encoder pulses needed to
 // produce one step. Should be increased for high-resolution encoders.
 //
-//#define ENCODER_PULSES_PER_STEP 1
+#define ENCODER_PULSES_PER_STEP 2
 
 //
 // Use this option to override the number of step signals required to
