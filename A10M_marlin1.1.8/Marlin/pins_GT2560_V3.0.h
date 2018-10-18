@@ -48,6 +48,17 @@
 #define Z_MIN_PIN          30
 #define Z_MAX_PIN          32
 
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN   66
+#endif
+#ifndef FIL_RUNOUT2_PIN
+  #define FIL_RUNOUT2_PIN  67
+#endif
+
+// Detect power-loss
+#define CONTINUITY_PIN     69
+#define CONTINUITY_STATE   HIGH
+
 //
 // Steppers
 //

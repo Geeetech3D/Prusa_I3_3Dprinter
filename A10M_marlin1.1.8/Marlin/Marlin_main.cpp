@@ -14570,9 +14570,11 @@ void setup() {
     WRITE(LCD_PINS_RS, HIGH);
   #endif
 
-  pinMode(A15, INPUT);
-  pinMode(A12, INPUT);
-  pinMode(A13, INPUT);
+  // A10M Custom pins
+  SET_INPUT(CONTINUITY_PIN);
+  SET_INPUT(FIL_RUNOUT_PIN);
+  SET_INPUT(FIL_RUNOUT2_PIN);
+
   if (recovery == 3) {
     lcd_resume_menu();
     //SERIAL_ECHOLN("recovery==3");

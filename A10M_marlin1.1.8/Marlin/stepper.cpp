@@ -384,7 +384,7 @@ ISR(TIMER1_COMPA_vect) {
   static bool test; // = false
   //if (READ(A12) && P_file_name[0] && !recovery && print_job_timer.isRunning()) {
   if (filament_switch) {
-		if ( (READ(A12) || READ(A13))
+		if ( (READ(FIL_RUNOUT_PIN) || READ(FIL_RUNOUT2_PIN))
       && ((P_file_name[0] && !recovery) && print_job_timer.isRunning())
       || !test
     ) {
@@ -394,7 +394,7 @@ ISR(TIMER1_COMPA_vect) {
 			LCD_MESSAGEPGM(MSG_FILAMENT_ERROR);
 			if (print_job_timer.isRunning()) recovery = 4;
 		}
-		if (test && !READ(A12) && !READ(A13)) {
+		if (test && !READ(FIL_RUNOUT_PIN) && !READ(FIL_RUNOUT2_PIN)) {
       //SERIAL_ECHOLN("filament ok");
       LCD_MESSAGEPGM(WELCOME_MSG);
       test = false;
@@ -403,29 +403,33 @@ ISR(TIMER1_COMPA_vect) {
   //
   // Power Outage
   //
-  if (!READ(CONTINUITY_PIN) && P_file_name[0] && !recovery && print_job_timer.isRunning()) {
-		//SERIAL_ECHOLN("Down");
-		// enquecommand("M929");
+  #if PIN_EXISTS(CONTINUITY)
 
-    Z_t = current_position[Z_AXIS] * 10;
-    E_t = current_position[E_AXIS];
-    pos_t = card.getStatus();
-    T0_t = thermalManager.degTargetHotend(0) + 0.5;
-    B_t = thermalManager.degTargetBed() + 0.5;
-    recovery = 3;
-    #if ENABLED(BLTOUCH)
-      recovery = 0;
-    #endif
-    //settings.save();
-    (void)settings.poweroff_save();
-    settings.load();
+    if (!READ(CONTINUITY_PIN) && P_file_name[0] && !recovery && print_job_timer.isRunning()) {
+      //SERIAL_ECHOLN("Down");
+      // enquecommand("M929");
 
-    char tmp_d[32];
-    sprintf_P(tmp_d, PSTR("Z%u,E%lu,P%lu,T%u,B%u,"), Z_t, E_t, pos_t, T0_t, B_t);
-    SERIAL_ECHOLN(tmp_d);
-    sprintf_P(tmp_d, PSTR("%s,"), P_file_name);
-    SERIAL_ECHOLN(tmp_d);
-  }
+      Z_t = current_position[Z_AXIS] * 10;
+      E_t = current_position[E_AXIS];
+      pos_t = card.getStatus();
+      T0_t = thermalManager.degTargetHotend(0) + 0.5;
+      B_t = thermalManager.degTargetBed() + 0.5;
+      recovery = 3;
+      #if ENABLED(BLTOUCH)
+        recovery = 0;
+      #endif
+      //settings.save();
+      (void)settings.poweroff_save();
+      settings.load();
+
+      char tmp_d[32];
+      sprintf_P(tmp_d, PSTR("Z%u,E%lu,P%lu,T%u,B%u,"), Z_t, E_t, pos_t, T0_t, B_t);
+      SERIAL_ECHOLN(tmp_d);
+      sprintf_P(tmp_d, PSTR("%s,"), P_file_name);
+      SERIAL_ECHOLN(tmp_d);
+    }
+
+  #endif
 
   #if ENABLED(LIN_ADVANCE)
     Stepper::advance_isr_scheduler();
