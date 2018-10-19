@@ -982,8 +982,9 @@ void kill_screen(const char* lcd_msg) {
     }
 
     inline void _lcd_mixer_full_gradient() {
-      mixer.start_pct = mixer.start_pct ? 0 : 100;
+      mixer.start_pct = (mixer.start_pct == 100 && mixer.end_pct == 0) ? 0 : 100;
       mixer.end_pct = 100 - mixer.start_pct;
+      lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
       _lcd_mixer_commit_gradient();
     }
 
@@ -1017,7 +1018,7 @@ void kill_screen(const char* lcd_msg) {
       START_MENU();
       MENU_BACK(MSG_MIXER);
 
-      MENU_ITEM(submenu, MSG_MIX_START_END, lcd_mixer_gradient_mix_menu);
+      MENU_ITEM(submenu, MSG_GRADIENT_MIX, lcd_mixer_gradient_mix_menu);
 
       char tmp[32];
 
@@ -1058,7 +1059,7 @@ void kill_screen(const char* lcd_msg) {
         mixer.rate[NOZZLE1] = 100 - mixer.rate[NOZZLE0];
       }
       char tmp[32];
-      sprintf_P(tmp, PSTR(MSG_MIX ":    %3d%%;%3d%%"), mixer.rate[NOZZLE0], mixer.rate[NOZZLE1]);
+      sprintf_P(tmp, PSTR(MSG_MIX ":    %3d%% %3d%%"), mixer.rate[NOZZLE0], mixer.rate[NOZZLE1]);
       lcd.setCursor(2,1);
       lcd.print(tmp);
 

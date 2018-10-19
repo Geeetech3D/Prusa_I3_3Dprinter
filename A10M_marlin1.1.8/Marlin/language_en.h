@@ -611,13 +611,13 @@
   #define MSG_GRADIENT                        _UxGT("Gradient")
 #endif
 #ifndef MSG_FULL_GRADIENT
-  #define MSG_FULL_GRADIENT                   _UxGT("Full Gradient")
+  #define MSG_FULL_GRADIENT                   _UxGT("Full gradient")
 #endif
 #ifndef MSG_TOGGLE_MIX
   #define MSG_TOGGLE_MIX                      _UxGT("Toggle mix")
 #endif
-#ifndef MSG_MIX_START_END
-  #define MSG_MIX_START_END                   _UxGT("Mix start/end")
+#ifndef MSG_GRADIENT_MIX
+  #define MSG_GRADIENT_MIX                    _UxGT("Gradient mix")
 #endif
 #ifndef MSG_START_MIX
   #define MSG_START_MIX                       _UxGT("Start mix")
