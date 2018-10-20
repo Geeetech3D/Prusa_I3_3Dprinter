@@ -14714,9 +14714,9 @@ void loop() {
         break;
       case 2:
         if (strlen(print_dir) > 1)
-          sprintf(tmp_y, "M32 S%lu !/%s/%s", pos_t, print_dir, P_file_name);
+          sprintf_P(tmp_y, PSTR("M32 S%lu !/%s/%s"), pos_t, print_dir, P_file_name);
         else
-          sprintf(tmp_y, "M32 S%lu !%s", pos_t, P_file_name);
+          sprintf_P(tmp_y, PSTR("M32 S%lu !%s"), pos_t, P_file_name);
 
         //SERIAL_ECHOLNPAIR("Gco : ", tmp_y);
 
