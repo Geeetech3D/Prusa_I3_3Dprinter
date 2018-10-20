@@ -597,6 +597,9 @@
 #ifndef MSG_RUNOUT_SENSORS
   #define MSG_RUNOUT_SENSORS                  _UxGT("Runout sensors")
 #endif
+#ifndef MSG_POWER_OUTAGE
+  #define MSG_POWER_OUTAGE                    _UxGT("Power outage")
+#endif
 
 #ifndef MSG_MIXER_FILAMENT
   #define MSG_MIXER_FILAMENT                   _UxGT("Mixer")
@@ -646,6 +649,9 @@
 #endif
 #ifndef MSG_STOP_PRINT
   #define MSG_STOP_PRINT                      _UxGT("Stop print")
+#endif
+#ifndef MSG_CANCEL_PRINT
+  #define MSG_CANCEL_PRINT                    _UxGT("Cancel print")
 #endif
 #ifndef MSG_CARD_MENU
   #define MSG_CARD_MENU                       _UxGT("Print from SD")

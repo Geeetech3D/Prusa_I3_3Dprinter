@@ -36,7 +36,7 @@
  *
  */
 
-#define EEPROM_VERSION "V21"    //"V47"  M20M
+#define EEPROM_VERSION "V22"
 
 // Change EEPROM version if these are changed:
 #define EEPROM_OFFSET 100
@@ -726,17 +726,6 @@ void MarlinSettings::postprocess() {
       for (uint8_t q = 3; q--;) EEPROM_WRITE(dummy);
     #endif
 
-    /*
-    EEPROM_WRITE(Z_t);
-    EEPROM_WRITE(E_t);
-    EEPROM_WRITE(pos_t);
-    EEPROM_WRITE(T0_t);
-    EEPROM_WRITE(B_t);
-    EEPROM_WRITE(recovery);
-    EEPROM_WRITE(P_file_name);
-    EEPROM_WRITE(filament_runout_enabled);
-    */
-
     if (!eeprom_error) {
       const int eeprom_size = eeprom_index;
 
@@ -774,15 +763,12 @@ void MarlinSettings::postprocess() {
 
     EEPROM_SKIP(working_crc); // Skip the checksum slot
     working_crc = 0;
-    EEPROM_WRITE(Z_t);
-    EEPROM_WRITE(E_t);
-    EEPROM_WRITE(pos_t);
-    EEPROM_WRITE(T0_t);
-    EEPROM_WRITE(B_t);
-    EEPROM_WRITE(recovery);
-    EEPROM_WRITE(P_file_name);
+
+    // Power Loss Recovery
+    EEPROM_WRITE(powerloss);
+
+    // Filament Runout Sensors
     EEPROM_WRITE(filament_runout_enabled);
-    EEPROM_WRITE(print_dir);
 
     const uint16_t final_crc = working_crc;
     const int eeprom_size = eeprom_index;
@@ -790,10 +776,9 @@ void MarlinSettings::postprocess() {
     EEPROM_WRITE(final_crc);
 
     SERIAL_ECHO_START();
-    SERIAL_ECHOPAIR("poweroff Stored (", eeprom_size - EEPROM_OFFSET_POWEROFF);
+    SERIAL_ECHOPAIR("Poweroff Stored (", eeprom_size - EEPROM_OFFSET_POWEROFF);
     SERIAL_ECHOPAIR(" bytes; crc ", (uint32_t)final_crc);
-    SERIAL_ECHOLNPGM(")");
-    SERIAL_ECHOPAIR("write file name: ",P_file_name);
+    SERIAL_ECHOPAIR(")\nWrite file name: ", powerloss.P_file_name);
  }
 
   bool MarlinSettings::poweroff_load() {
@@ -802,23 +787,20 @@ void MarlinSettings::postprocess() {
     eeprom_index = EEPROM_OFFSET_POWEROFF;
     EEPROM_READ(stored_crc);
     working_crc = 0;
-    EEPROM_READ(Z_t);
-    EEPROM_READ(E_t);
-    EEPROM_READ(pos_t);
-    EEPROM_READ(T0_t);
-    EEPROM_READ(B_t);
-    EEPROM_READ(recovery);
-    EEPROM_READ(P_file_name);
+
+    // Power Loss Recovery
+    EEPROM_READ(powerloss);
+
+    // Filament Runout Sensors
     EEPROM_READ(filament_runout_enabled);
-    EEPROM_READ(print_dir);
+
     if (working_crc == stored_crc) {
       #if ENABLED(EEPROM_CHITCHAT)
         SERIAL_ECHO_START();
         SERIAL_ECHOPAIR("poweroff stored settings retrieved (", eeprom_index - EEPROM_OFFSET_POWEROFF);
         SERIAL_ECHOPAIR(" bytes; crc ", (uint32_t)working_crc);
-        SERIAL_CHAR(')');
-        SERIAL_ECHOPAIR("\nread file dir: ", print_dir);
-        SERIAL_ECHOLNPAIR("\nread file name: ", P_file_name);
+        SERIAL_ECHOPAIR(")\nread file dir: ", powerloss.print_dir);
+        SERIAL_ECHOLNPAIR("\nread file name: ", powerloss.P_file_name);
       #endif
     }
     else {
@@ -1280,17 +1262,6 @@ void MarlinSettings::postprocess() {
       #else
         for (uint8_t q = 3; q--;) EEPROM_READ(dummy);
       #endif
-
-      /*
-      EEPROM_READ(Z_t);
-      EEPROM_READ(E_t);
-      EEPROM_READ(pos_t);
-      EEPROM_READ(T0_t);
-      EEPROM_READ(B_t);
-      EEPROM_READ(recovery);
-      EEPROM_READ(P_file_name);
-      EEPROM_READ(filament_runout_enabled);
-      */
 
       if (working_crc == stored_crc) {
         postprocess();
