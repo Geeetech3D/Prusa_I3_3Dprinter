@@ -74,6 +74,15 @@
   #if ENABLED(DOGLCD)
     extern uint16_t lcd_contrast;
     void set_lcd_contrast(const uint16_t value);
+    #define SETCURSOR(col, row) u8g.setPrintPos(col * (DOG_CHAR_WIDTH), (row + 1) * row_height)
+    #define SETCURSOR_RJ(len, row) u8g.setPrintPos(LCD_PIXEL_WIDTH - len * (DOG_CHAR_WIDTH), (row + 1) * row_height)
+    #define LCDPRINT(p) u8g.print(p)
+    #define LCDWRITE(c) u8g.print(c)
+  #else
+    #define SETCURSOR(col, row) lcd.setCursor(col, row)
+    #define SETCURSOR_RJ(len, row) lcd.setCursor(LCD_WIDTH - len, row)
+    #define LCDPRINT(p) lcd.print(p)
+    #define LCDWRITE(c) lcd.write(c)
   #endif
 
   #if ENABLED(SHOW_BOOTSCREEN)
