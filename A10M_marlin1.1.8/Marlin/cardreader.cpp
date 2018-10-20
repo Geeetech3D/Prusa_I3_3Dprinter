@@ -30,7 +30,7 @@
 #include "stepper.h"
 #include "language.h"
 
-extern char P_file_name[13];
+#include "Marlin.h" // For Power Loss Recovery
 
 #define LONGEST_FILENAME (longFilename[0] ? longFilename : filename)
 
@@ -416,8 +416,7 @@ void CardReader::openFile(char* name, const bool read, const bool subcall/*=fals
     if (file.open(curDir, fname, O_READ)) {
       filesize = file.fileSize();
       sdpos = 0;
-      strcpy(P_file_name,  fname);
-      SERIAL_ECHOLN(P_file_name);
+      strcpy(powerloss.P_file_name, fname);
       SERIAL_PROTOCOLPAIR(MSG_SD_FILE_OPENED, fname);
       SERIAL_PROTOCOLLNPAIR(MSG_SD_SIZE, filesize);
       SERIAL_PROTOCOLLNPGM(MSG_SD_FILE_SELECTED);
