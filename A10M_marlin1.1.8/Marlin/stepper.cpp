@@ -55,9 +55,7 @@
 #include "speed_lookuptable.h"
 #include "configuration_store.h"
 #include "Buzzer.h"
-extern char P_file_name[13],recovery;
-extern unsigned int Z_t,T0_t,B_t;
-extern uint32_t pos_t,E_t;
+
 extern Buzzer buzzer;
 
 #if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(ULTIPANEL)
@@ -359,7 +357,7 @@ void Stepper::set_directions() {
 #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
   extern volatile uint8_t e_hit;
 #endif
-extern MarlinSettings settings;
+
 extern bool filament_switch;
 
 /**
@@ -382,32 +380,33 @@ ISR(TIMER1_COMPA_vect) {
   // Filament Runout
   //
   static bool test; // = false
-  //if (READ(A12) && P_file_name[0] && !recovery && print_job_timer.isRunning()) {
+  //if (READ(FIL_RUNOUT_PIN) && P_file_name[0] && !recovery && print_job_timer.isRunning()) {
   if (filament_switch) {
-		if ( (READ(FIL_RUNOUT_PIN) || READ(FIL_RUNOUT2_PIN))
+    if ( (READ(FIL_RUNOUT_PIN) || READ(FIL_RUNOUT2_PIN))
       && ((P_file_name[0] && !recovery) && print_job_timer.isRunning())
       || !test
     ) {
-			test = true;
-			//buzzer.tone(400, 5000);
-			//SERIAL_ECHOLN("filament out");
-			LCD_MESSAGEPGM(MSG_FILAMENT_ERROR);
-			if (print_job_timer.isRunning()) recovery = 4;
-		}
-		if (test && !READ(FIL_RUNOUT_PIN) && !READ(FIL_RUNOUT2_PIN)) {
+      test = true;
+      //buzzer.tone(400, 5000);
+      //SERIAL_ECHOLN("filament out");
+      LCD_MESSAGEPGM(MSG_FILAMENT_ERROR);
+      if (print_job_timer.isRunning()) recovery = 4;
+    }
+    if (test && !READ(FIL_RUNOUT_PIN) && !READ(FIL_RUNOUT2_PIN)) {
       //SERIAL_ECHOLN("filament ok");
       LCD_MESSAGEPGM(WELCOME_MSG);
       test = false;
     }
   }
+
   //
   // Power Outage
   //
   #if PIN_EXISTS(CONTINUITY)
 
     if (!READ(CONTINUITY_PIN) && P_file_name[0] && !recovery && print_job_timer.isRunning()) {
-      //SERIAL_ECHOLN("Down");
-      // enquecommand("M929");
+      //SERIAL_ECHOLNPGM("Down");
+      // enqueuecommand("M929");
 
       Z_t = current_position[Z_AXIS] * 10;
       E_t = current_position[E_AXIS];

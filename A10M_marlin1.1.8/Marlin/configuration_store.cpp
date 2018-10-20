@@ -200,12 +200,7 @@ MarlinSettings settings;
 #include "stepper.h"
 #include "gcode.h"
 
-extern unsigned int Z_t,T0_t,B_t;
-extern uint32_t pos_t,E_t;
-extern char P_file_name[13],recovery;
 extern bool filament_switch;
-extern char print_dir[13];
-
 
 #if ENABLED(MESH_BED_LEVELING)
   #include "mesh_bed_leveling.h"

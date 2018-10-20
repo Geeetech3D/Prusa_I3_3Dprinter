@@ -261,13 +261,11 @@
 #include "types.h"
 #include "gcode.h"
 
-//
-// A10M Globals
-//
-char P_file_name[13], recovery = 0; // 0:idle, 1,2:recovering, 3:power outage, 4: filament out
-char print_dir[13];
-unsigned int Z_t = 0, T0_t = 0, B_t = 0;
+// Power Loss Recovery
+char P_file_name[13], print_dir[13], recovery = 0; // 0:idle, 1,2:recovering, 3:power outage, 4: filament out
+uint16_t Z_t = 0, T0_t = 0, B_t = 0;
 uint32_t pos_t = 0, E_t = 0;
+
 char tmp_y[50];
 
 extern char lcd_status_message[];
@@ -7868,9 +7866,7 @@ inline void gcode_M109() {
   } while (wait_for_heatup && TEMP_CONDITIONS);
 
   if (wait_for_heatup) {
-    LCD_MESSAGEPGM(MSG_HEATING_COMPLETE);//liu....
-    //strcpy(lcd_status_message,  P_file_name);
-    //lcd_setstatus(P_file_name);
+    LCD_MESSAGEPGM(MSG_HEATING_COMPLETE);
     #if ENABLED(PRINTER_EVENT_LEDS)
       leds.set_white();
     #endif
@@ -9885,7 +9881,6 @@ inline void gcode_M409() { //¹Ø±ÕºÄ²Ä¼ì²â
  */
 inline void gcode_M500() {
   (void)settings.save();
-  //(void)settings.poweroff_save();
 }
 
 /**
@@ -9893,7 +9888,6 @@ inline void gcode_M500() {
  */
 inline void gcode_M501() {
   (void)settings.load();
-  //(void)settings.poweroff_load();
 }
 
 /**
@@ -14715,8 +14709,7 @@ void loop() {
         //SERIAL_ECHOLN(tmp_y);
         enqueue_and_echo_command(tmp_y);
 
-        axis_homed[Z_AXIS] = true;
-        axis_known_position[Z_AXIS]= true;
+        axis_homed[Z_AXIS] = axis_known_position[Z_AXIS] = true;
         recovery = 2;
         break;
       case 2:

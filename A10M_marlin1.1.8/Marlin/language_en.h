@@ -600,6 +600,9 @@
 #ifndef MSG_SWITCH_FILAMENT_OFF
   #define MSG_SWITCH_FILAMENT_OFF             _UxGT("Filament Off")
 #endif
+#ifndef MSG_POWER_OUTAGE
+  #define MSG_POWER_OUTAGE                    _UxGT("Power outage")
+#endif
 
 #ifndef MSG_MIX
   #define MSG_MIX                             _UxGT("Mix")
@@ -670,6 +673,9 @@
 #endif
 #ifndef MSG_STOP_PRINT
   #define MSG_STOP_PRINT                      _UxGT("Stop print")
+#endif
+#ifndef MSG_CANCEL_PRINT
+  #define MSG_CANCEL_PRINT                    _UxGT("Cancel print")
 #endif
 #ifndef MSG_CARD_MENU
   #define MSG_CARD_MENU                       _UxGT("Print from SD")

@@ -555,4 +555,9 @@ void do_blocking_move_to_xy(const float &x, const float &y, const float &fr_mm_s
 
 #endif // CARTESIAN
 
+// Power Loss Recovery
+extern char P_file_name[13], print_dir[13], recovery;
+extern uint16_t Z_t, T0_t, B_t;
+extern uint32_t pos_t, E_t;
+
 #endif // MARLIN_H

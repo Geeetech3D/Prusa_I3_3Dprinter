@@ -439,7 +439,7 @@ void CardReader::openFile(char* name, const bool read, const bool subcall/*=fals
     else {
       saving = true;
       SERIAL_PROTOCOLLNPAIR(MSG_SD_WRITE_TO_FILE, name);
-      lcd_setstatus(fname);//liu...
+      lcd_setstatus(fname); // [liu]
     }
   }
 }
