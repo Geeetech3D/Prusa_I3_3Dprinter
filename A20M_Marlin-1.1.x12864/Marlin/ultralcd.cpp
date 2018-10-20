@@ -17,7 +17,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *  u8g.setPrintPos(104, 27);
+ *
  */
 
 #include "MarlinConfig.h"
@@ -35,11 +35,6 @@
 #include "utility.h"
 #include "gcode.h"
 
-extern unsigned int Z_t,T0_t,B_t;
-extern uint32_t pos_t,E_t;
-extern  char P_file_name[13],recovery;
-extern bool filament_switch;
-extern char print_dir[13];
 #if HAS_BUZZER && DISABLED(LCD_USE_I2C_BUZZER)
   #include "buzzer.h"
 #endif
@@ -610,75 +605,62 @@ void watch_filament_callback_0() ;
 
 #endif // ULTIPANEL
 
-void lcd_resume_menu_ok(void) 
-{
-  char tmp_n[64+10];
-  recovery=0;
-//  Config_StoreSettings();
+void lcd_resume_menu_ok(void) {
+  char tmp_n[64 + 10];
+  recovery = 0;
+  //Config_StoreSettings();
   //Config_RetrieveSettings();
   lcd_goto_screen(lcd_status_screen);
- // enquecommand("M930"); 
-  SERIAL_ECHOLN(P_file_name);
-  recovery=1;
-  
-  sprintf_P(tmp_n,PSTR("G92 Z%u.%u"),Z_t/10,Z_t%10);
-  SERIAL_ECHOLN(tmp_n);
+  // enqueuecommand("M930");
+  recovery = 1;
+
+  sprintf_P(tmp_n, PSTR("G92 Z%u.%u"), Z_t / 10, Z_t % 10);
   enqueue_and_echo_command(tmp_n);
-  //////////////////
-  sprintf_P(tmp_n,PSTR("G92 E%u"),E_t);
-  SERIAL_ECHOLN(tmp_n);
+
+  sprintf_P(tmp_n, PSTR("G92 E%u"), E_t);
   enqueue_and_echo_command(tmp_n);
-  //////////////
-  //////////////////
-  sprintf_P(tmp_n,PSTR("M104 S%u"),T0_t);
-  SERIAL_ECHOLN(tmp_n);
+
+  sprintf_P(tmp_n, PSTR("M104 S%u"), T0_t);
   enqueue_and_echo_command(tmp_n);
-  //////////////
-}
-void lcd_resume_menu_cancel(void) 
-{
-   char tmp_n[64+10];
-   //Config_StoreSettings();
-   //Config_RetrieveSettings();
-  recovery=0;
-  P_file_name[0]=0;  
-  memset(print_dir,0,sizeof(print_dir));
- // (void)settings.poweroff_save();
-  sprintf_P(tmp_n,PSTR("M500"));
-  SERIAL_ECHOLN(tmp_n);
-  enqueue_and_echo_command(tmp_n);
-  lcd_goto_screen(lcd_status_screen);
-   
- 
 }
 
-void lcd_resume_menu0(void) 
-{
+void lcd_resume_menu_cancel(void) {
+  char tmp_n[64+10];
+  //Config_StoreSettings();
+  //Config_RetrieveSettings();
+  recovery = 0;
+  P_file_name[0] = 0;
+  memset(print_dir, 0, sizeof(print_dir));
+  // (void)settings.poweroff_save();
+  sprintf_P(tmp_n, PSTR("M500"));
+  enqueue_and_echo_command(tmp_n);
+  lcd_goto_screen(lcd_status_screen);
+}
+
+void lcd_resume_menu0(void) {
   START_MENU();
   //////////
   MENU_ITEM(submenu, "Resume print ?", lcd_resume_menu0);
-  MENU_ITEM(submenu, "Yes  ", lcd_resume_menu_ok); 
-  MENU_ITEM(submenu, "NO  ", lcd_resume_menu_cancel);
- /* lcd.setCursor(0,0);
-  lcd.print("Resume print ?  ");
-  
+  MENU_ITEM(submenu, "Yes", lcd_resume_menu_ok);
+  MENU_ITEM(submenu, "NO", lcd_resume_menu_cancel);
+  /*
+  SETCURSOR(0, 0);
+  LCDPRINT("Resume print ?  ");
+
   MENU_ITEM(submenu, "", lcd_resume_menu_ok);
-  lcd.setCursor(1,1);
-  lcd.print("Yes  ");
+  SETCURSOR(1, 1);
+  LCDPRINT("Yes  ");
   MENU_ITEM(submenu, "", lcd_resume_menu_cancel);
-  lcd.setCursor(1,2);
-  lcd.print("No  ");*/
+  SETCURSOR(1, 2);
+  LCDPRINT("No  ");
+  */
   END_MENU();
 
 }
 
-
-void lcd_resume_menu(void) 
-{
-	lcd_goto_screen(lcd_resume_menu0);
-
+void lcd_resume_menu(void) {
+  lcd_goto_screen(lcd_resume_menu0);
 }
-
 
 /**
  *
@@ -688,8 +670,7 @@ void lcd_resume_menu(void)
  */
 
 void lcd_status_screen() {
-	//if(recovery==3)
-		//return;
+  //if (recovery == 3) return;
   #if ENABLED(ULTIPANEL)
     ENCODER_DIRECTION_NORMAL();
     ENCODER_RATE_MULTIPLY(false);
@@ -3951,17 +3932,6 @@ static void lcd_mixer_menu()
     END_MENU();
   }
 
-
-void Switch_Filament_ON(){
-	//SERIAL_ECHOLN("liu......ON ---2\r\n");
-	LCD_MESSAGEPGM(MSG_SWITCH_FILAMENT_ON);
-	filament_switch = true;
-}
-void Switch_Filament_OFF(){
-	//SERIAL_ECHOLN("liu......OFF ---2\r\n");
-	LCD_MESSAGEPGM(MSG_SWITCH_FILAMENT_OFF);
-	filament_switch = false;
-}
   /**
    *
    * "Control" > "Filament" submenu
@@ -3995,16 +3965,10 @@ void Switch_Filament_OFF(){
         #endif // EXTRUDERS > 2
       #endif // EXTRUDERS > 1
     }
-    if(filament_switch==true)
-    {
-    	//SERIAL_ECHOLN("liu......ON ---1\r\n");
-    	MENU_ITEM(function, MSG_SWITCH_FILAMENT_ON, Switch_Filament_OFF);
-    }
-    else
-    {
-    	//SERIAL_ECHOLN("liu......OFF ---1\r\n");
-	MENU_ITEM(function, MSG_SWITCH_FILAMENT_OFF, Switch_Filament_ON);	
-    }
+
+    // Filament Runout Sensors
+    MENU_ITEM_EDIT(bool, MSG_RUNOUT_SENSORS, &filament_runout_enabled);
+
     END_MENU();
   }
 
@@ -4094,12 +4058,7 @@ void Switch_Filament_OFF(){
       START_MENU();
       MENU_BACK(MSG_MAIN);
       card.getWorkDirName();
-
-	strcpy(print_dir,card.getWorkDirName());   //liu...
-	//SERIAL_ECHOLNPAIR("cur dir: ", print_dir);
-	//card.getAbsFilename(print_dir);
-	//SERIAL_ECHOLNPAIR("cur path: ", print_dir);
-	
+      strcpy(print_dir,card.getWorkDirName());
       if (card.filename[0] == '/') {
         #if !PIN_EXISTS(SD_DETECT)
           MENU_ITEM(function, LCD_STR_REFRESH MSG_REFRESH, lcd_sd_refresh);
@@ -4807,9 +4766,9 @@ void Switch_Filament_OFF(){
       #endif
       UNUSED(longFilename);
       card.openAndPrintFile(filename);
-	  strcpy(P_file_name,  filename);
+      strcpy(P_file_name, filename);
       SERIAL_ECHOLN(P_file_name);
-	  recovery=0;
+      recovery = 0;
       lcd_return_to_status();
     }
 
@@ -4831,20 +4790,14 @@ void Switch_Filament_OFF(){
   }
 
 #endif // ULTIPANEL
-//      #define BTN_EN1      16//17
-//      #define BTN_EN2      17//16
-//  #define BTN_ENC      19
+
 void lcd_init() {
 
   lcd_implementation_init();
 
   #if ENABLED(NEWPANEL)
 
-    SET_INPUT(BTN_EN1);
-       SET_INPUT(BTN_EN2);
-       SET_INPUT(BTN_ENC);
     #if BUTTON_EXISTS(EN1)
-      
       SET_INPUT_PULLUP(BTN_EN1);
     #endif
 
@@ -4853,8 +4806,7 @@ void lcd_init() {
     #endif
 
     #if BUTTON_EXISTS(ENC)
-    
-        SET_INPUT_PULLUP(BTN_ENC);
+      SET_INPUT_PULLUP(BTN_ENC);
     #endif
 
     #if ENABLED(REPRAPWORLD_KEYPAD) && DISABLED(ADC_KEYPAD)
@@ -4994,9 +4946,7 @@ void lcd_update() {
         lcd_clicked = !wait_for_user;    //  Keep the click if not waiting for a user-click
         wait_for_user = false;           //  Any click clears wait for user
         lcd_quick_feedback();            //  Always make a click sound
-//        SERIAL_ECHOLNPAIR("EN click : ", lcd_clicked);//liu..123
-//	 ENC_FLAG = false;
-	}
+      }
     }
     else wait_for_unclick = false;
   #endif
@@ -5187,7 +5137,7 @@ void lcd_update() {
       // Return to Status Screen after a timeout
       if (currentScreen == lcd_status_screen || defer_return_to_status)
         return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;
-      else if (ELAPSED(ms, return_to_status_ms)&&(recovery!=3))
+      else if (ELAPSED(ms, return_to_status_ms) && recovery != 3)
         lcd_return_to_status();
 
     #endif // ULTIPANEL

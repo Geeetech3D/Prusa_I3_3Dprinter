@@ -200,13 +200,6 @@ MarlinSettings settings;
 #include "stepper.h"
 #include "gcode.h"
 
-extern unsigned int Z_t,T0_t,B_t;
-extern uint32_t pos_t,E_t;
-extern 	char P_file_name[13],recovery;
-extern bool filament_switch;
-extern 	char print_dir[13];
-
-
 #if ENABLED(MESH_BED_LEVELING)
   #include "mesh_bed_leveling.h"
 #endif
@@ -732,14 +725,17 @@ void MarlinSettings::postprocess() {
       dummy = 0.0f;
       for (uint8_t q = 3; q--;) EEPROM_WRITE(dummy);
     #endif
-	/*  EEPROM_WRITE(Z_t);
-	  EEPROM_WRITE(E_t);
-	  EEPROM_WRITE(pos_t);
-	  EEPROM_WRITE(T0_t);
-	  EEPROM_WRITE(B_t);
-	  EEPROM_WRITE(recovery);
-	  EEPROM_WRITE(P_file_name);
-	  EEPROM_WRITE(filament_switch);*/
+
+    /*
+    EEPROM_WRITE(Z_t);
+    EEPROM_WRITE(E_t);
+    EEPROM_WRITE(pos_t);
+    EEPROM_WRITE(T0_t);
+    EEPROM_WRITE(B_t);
+    EEPROM_WRITE(recovery);
+    EEPROM_WRITE(P_file_name);
+    EEPROM_WRITE(filament_runout_enabled);
+    */
 
     if (!eeprom_error) {
       const int eeprom_size = eeprom_index;
@@ -751,7 +747,7 @@ void MarlinSettings::postprocess() {
 
       EEPROM_WRITE(version);
       EEPROM_WRITE(final_crc);
-     
+
       // Report storage size
       #if ENABLED(EEPROM_CHITCHAT)
         SERIAL_ECHO_START();
@@ -760,7 +756,9 @@ void MarlinSettings::postprocess() {
         SERIAL_ECHOLNPGM(")");
       #endif
     }
+
     (void)settings.poweroff_save();
+
     #if ENABLED(UBL_SAVE_ACTIVE_ON_M500)
       if (ubl.storage_slot >= 0)
         store_mesh(ubl.storage_slot);
@@ -769,69 +767,66 @@ void MarlinSettings::postprocess() {
     return !eeprom_error;
   }
 
-  bool MarlinSettings::poweroff_save() {//liu
+  bool MarlinSettings::poweroff_save() {
+    uint16_t working_crc = 0;
+    EEPROM_START();
+    eeprom_index = EEPROM_OFFSET_POWEROFF;
 
-	uint16_t working_crc = 0;
-	EEPROM_START();
-	eeprom_index = EEPROM_OFFSET_POWEROFF;
-   
-	EEPROM_SKIP(working_crc); // Skip the checksum slot
-	working_crc = 0; 
-	EEPROM_WRITE(Z_t);
-	EEPROM_WRITE(E_t);
-	EEPROM_WRITE(pos_t);
-	EEPROM_WRITE(T0_t);
-	EEPROM_WRITE(B_t);
-	EEPROM_WRITE(recovery);
-	EEPROM_WRITE(P_file_name);
-	EEPROM_WRITE(filament_switch);
-	EEPROM_WRITE(print_dir);
-	
-	const uint16_t final_crc = working_crc;
-	const int eeprom_size = eeprom_index;
-	eeprom_index = EEPROM_OFFSET_POWEROFF;
-	EEPROM_WRITE(final_crc);
-      
-	SERIAL_ECHO_START();
-	SERIAL_ECHOPAIR("poweroff Stored (", eeprom_size - EEPROM_OFFSET_POWEROFF);
-	SERIAL_ECHOPAIR(" bytes; crc ", (uint32_t)final_crc);
-	SERIAL_ECHOLNPGM(")");
-	SERIAL_ECHOPAIR("write file name: ",P_file_name);
+    EEPROM_SKIP(working_crc); // Skip the checksum slot
+    working_crc = 0;
+    EEPROM_WRITE(Z_t);
+    EEPROM_WRITE(E_t);
+    EEPROM_WRITE(pos_t);
+    EEPROM_WRITE(T0_t);
+    EEPROM_WRITE(B_t);
+    EEPROM_WRITE(recovery);
+    EEPROM_WRITE(P_file_name);
+    EEPROM_WRITE(filament_runout_enabled);
+    EEPROM_WRITE(print_dir);
 
-	
+    const uint16_t final_crc = working_crc;
+    const int eeprom_size = eeprom_index;
+    eeprom_index = EEPROM_OFFSET_POWEROFF;
+    EEPROM_WRITE(final_crc);
+
+    SERIAL_ECHO_START();
+    SERIAL_ECHOPAIR("poweroff Stored (", eeprom_size - EEPROM_OFFSET_POWEROFF);
+    SERIAL_ECHOPAIR(" bytes; crc ", (uint32_t)final_crc);
+    SERIAL_ECHOLNPGM(")");
+    SERIAL_ECHOPAIR("write file name: ",P_file_name);
  }
 
   bool MarlinSettings::poweroff_load() {
-	uint16_t working_crc = 0;
-	uint16_t stored_crc;
-	EEPROM_START();
-	eeprom_index = EEPROM_OFFSET_POWEROFF;
-	EEPROM_READ(stored_crc);
-	working_crc=0;
-	EEPROM_READ(Z_t);
-	EEPROM_READ(E_t);
-	EEPROM_READ(pos_t);
-	EEPROM_READ(T0_t);
-	EEPROM_READ(B_t);
-	EEPROM_READ(recovery);
-	EEPROM_READ(P_file_name);
-	EEPROM_READ(filament_switch);
-	EEPROM_READ(print_dir);
-	if (working_crc == stored_crc) {
-#if ENABLED(EEPROM_CHITCHAT)
-		SERIAL_ECHO_START();
-		SERIAL_ECHOPAIR("poweroff stored settings retrieved (", eeprom_index - EEPROM_OFFSET_POWEROFF);
-		SERIAL_ECHOPAIR(" bytes; crc ", (uint32_t)working_crc);
-		SERIAL_ECHOLNPGM(")");
-		SERIAL_ECHOPAIR("read file dir: ",print_dir);
-		SERIAL_ECHOPAIR("read file name: ",P_file_name);
-#endif
-	}
-	else{
-		SERIAL_ECHOPAIR(" \r\nbytes; crc error ", (uint32_t)working_crc);
-		SERIAL_ECHOPAIR(" \r\nbytes; crc error ", (uint32_t)stored_crc);
-	}
+    uint16_t working_crc = 0, stored_crc;
+    EEPROM_START();
+    eeprom_index = EEPROM_OFFSET_POWEROFF;
+    EEPROM_READ(stored_crc);
+    working_crc = 0;
+    EEPROM_READ(Z_t);
+    EEPROM_READ(E_t);
+    EEPROM_READ(pos_t);
+    EEPROM_READ(T0_t);
+    EEPROM_READ(B_t);
+    EEPROM_READ(recovery);
+    EEPROM_READ(P_file_name);
+    EEPROM_READ(filament_runout_enabled);
+    EEPROM_READ(print_dir);
+    if (working_crc == stored_crc) {
+      #if ENABLED(EEPROM_CHITCHAT)
+        SERIAL_ECHO_START();
+        SERIAL_ECHOPAIR("poweroff stored settings retrieved (", eeprom_index - EEPROM_OFFSET_POWEROFF);
+        SERIAL_ECHOPAIR(" bytes; crc ", (uint32_t)working_crc);
+        SERIAL_CHAR(')');
+        SERIAL_ECHOPAIR("\nread file dir: ", print_dir);
+        SERIAL_ECHOLNPAIR("\nread file name: ", P_file_name);
+      #endif
+    }
+    else {
+      SERIAL_ECHOPAIR("crc error: ", (uint32_t)working_crc);
+      SERIAL_ECHOLNPAIR(" != ", (uint32_t)stored_crc);
+    }
   }
+
   /**
    * M501 - Retrieve Configuration
    */
@@ -961,7 +956,6 @@ void MarlinSettings::postprocess() {
         float zprobe_zoffset;
       #endif
       EEPROM_READ(zprobe_zoffset);
-	 SERIAL_ECHOLNPAIR("zprobe_zoffset: ", zprobe_zoffset); //liu...
       //
       // Planar Bed Leveling matrix
       //
@@ -1287,14 +1281,16 @@ void MarlinSettings::postprocess() {
         for (uint8_t q = 3; q--;) EEPROM_READ(dummy);
       #endif
 
-	/*  EEPROM_READ(Z_t);
-	  EEPROM_READ(E_t);
-	  EEPROM_READ(pos_t);
-	  EEPROM_READ(T0_t);
-	  EEPROM_READ(B_t);
-	  EEPROM_READ(recovery);
-	  EEPROM_READ(P_file_name);
-	  EEPROM_READ(filament_switch);*/
+      /*
+      EEPROM_READ(Z_t);
+      EEPROM_READ(E_t);
+      EEPROM_READ(pos_t);
+      EEPROM_READ(T0_t);
+      EEPROM_READ(B_t);
+      EEPROM_READ(recovery);
+      EEPROM_READ(P_file_name);
+      EEPROM_READ(filament_runout_enabled);
+      */
 
       if (working_crc == stored_crc) {
         postprocess();
@@ -1304,9 +1300,8 @@ void MarlinSettings::postprocess() {
           SERIAL_ECHOPAIR(" stored settings retrieved (", eeprom_index - (EEPROM_OFFSET));
           SERIAL_ECHOPAIR(" bytes; crc ", (uint32_t)working_crc);
           SERIAL_ECHOLNPGM(")");
-	   
         #endif
-	  (void)settings.poweroff_load();
+        (void)settings.poweroff_load();
       }
       else {
         #if ENABLED(EEPROM_CHITCHAT)
