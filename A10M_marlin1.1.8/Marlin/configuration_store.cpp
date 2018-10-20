@@ -200,8 +200,6 @@ MarlinSettings settings;
 #include "stepper.h"
 #include "gcode.h"
 
-extern bool filament_switch;
-
 #if ENABLED(MESH_BED_LEVELING)
   #include "mesh_bed_leveling.h"
 #endif
@@ -736,7 +734,7 @@ void MarlinSettings::postprocess() {
     EEPROM_WRITE(B_t);
     EEPROM_WRITE(recovery);
     EEPROM_WRITE(P_file_name);
-    EEPROM_WRITE(filament_switch);
+    EEPROM_WRITE(filament_runout_enabled);
     */
 
     if (!eeprom_error) {
@@ -783,7 +781,7 @@ void MarlinSettings::postprocess() {
     EEPROM_WRITE(B_t);
     EEPROM_WRITE(recovery);
     EEPROM_WRITE(P_file_name);
-    EEPROM_WRITE(filament_switch);
+    EEPROM_WRITE(filament_runout_enabled);
     EEPROM_WRITE(print_dir);
 
     const uint16_t final_crc = working_crc;
@@ -811,7 +809,7 @@ void MarlinSettings::postprocess() {
     EEPROM_READ(B_t);
     EEPROM_READ(recovery);
     EEPROM_READ(P_file_name);
-    EEPROM_READ(filament_switch);
+    EEPROM_READ(filament_runout_enabled);
     EEPROM_READ(print_dir);
     if (working_crc == stored_crc) {
       #if ENABLED(EEPROM_CHITCHAT)
@@ -1291,7 +1289,7 @@ void MarlinSettings::postprocess() {
       EEPROM_READ(B_t);
       EEPROM_READ(recovery);
       EEPROM_READ(P_file_name);
-      EEPROM_READ(filament_switch);
+      EEPROM_READ(filament_runout_enabled);
       */
 
       if (working_crc == stored_crc) {

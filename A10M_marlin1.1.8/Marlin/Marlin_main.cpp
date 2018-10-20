@@ -644,7 +644,10 @@ uint8_t target_extruder;
 #endif
 
 float cartes[XYZ] = { 0 };
- bool filament_switch = false;
+
+// Filament Runout Sensors
+bool filament_runout_enabled = false;
+
 #if ENABLED(FILAMENT_WIDTH_SENSOR)
   bool filament_sensor = false;                                 // M405 turns on filament sensor control. M406 turns it off.
   float filament_width_nominal = DEFAULT_NOMINAL_FILAMENT_DIA,  // Nominal filament width. Change with M404.
@@ -9617,14 +9620,11 @@ void quickstop_stepper() {
   SYNC_PLAN_POSITION_KINEMATIC();
 }
 
-inline void gcode_M408() { //´ò¿ªºÄ²Ä¼ì²â
-  //SERIAL_ECHOLNPGM("filament_switch = true");
-  filament_switch = true;
-}
-inline void gcode_M409() { //¹Ø±ÕºÄ²Ä¼ì²â
-  //SERIAL_ECHOLNPGM("filament_switch = false");
-  filament_switch = false;
-}
+//
+// Filament Runout Sensors
+//
+inline void gcode_M408() { filament_runout_enabled = true; }
+inline void gcode_M409() { filament_runout_enabled = false; }
 
 #if HAS_LEVELING
   /**

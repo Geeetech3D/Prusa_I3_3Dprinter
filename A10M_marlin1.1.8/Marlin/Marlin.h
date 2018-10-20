@@ -560,4 +560,7 @@ extern char P_file_name[13], print_dir[13], recovery;
 extern uint16_t Z_t, T0_t, B_t;
 extern uint32_t pos_t, E_t;
 
+// Filament Runout Sensors
+extern bool filament_runout_enabled;
+
 #endif // MARLIN_H

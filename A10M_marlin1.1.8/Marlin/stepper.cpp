@@ -358,8 +358,6 @@ void Stepper::set_directions() {
   extern volatile uint8_t e_hit;
 #endif
 
-extern bool filament_switch;
-
 /**
  * Stepper Driver Interrupt
  *
@@ -381,7 +379,7 @@ ISR(TIMER1_COMPA_vect) {
   //
   static bool test; // = false
   //if (READ(FIL_RUNOUT_PIN) && P_file_name[0] && !recovery && print_job_timer.isRunning()) {
-  if (filament_switch) {
+  if (filament_runout_enabled) {
     if ( (READ(FIL_RUNOUT_PIN) || READ(FIL_RUNOUT2_PIN))
       && ((P_file_name[0] && !recovery) && print_job_timer.isRunning())
       || !test

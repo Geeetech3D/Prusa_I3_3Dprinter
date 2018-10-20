@@ -594,11 +594,8 @@
 #ifndef MSG_FILAMENT_DIAM
   #define MSG_FILAMENT_DIAM                   _UxGT("Fil. Dia.")
 #endif
-#ifndef MSG_SWITCH_FILAMENT_ON
-  #define MSG_SWITCH_FILAMENT_ON              _UxGT("Filament On ")
-#endif
-#ifndef MSG_SWITCH_FILAMENT_OFF
-  #define MSG_SWITCH_FILAMENT_OFF             _UxGT("Filament Off")
+#ifndef MSG_RUNOUT_SENSORS
+  #define MSG_RUNOUT_SENSORS                  _UxGT("Runout sensors")
 #endif
 #ifndef MSG_POWER_OUTAGE
   #define MSG_POWER_OUTAGE                    _UxGT("Power outage")
