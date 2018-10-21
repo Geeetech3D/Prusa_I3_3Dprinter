@@ -552,7 +552,7 @@
 
     // Don't allow Mesh Validation without homing first,
     // or if the parameter parsing did not go OK, abort
-    //if (axis_unhomed_error()) return;
+    if (axis_unhomed_error()) return;
 
     g26_extrusion_multiplier    = EXTRUSION_MULTIPLIER;
     g26_retraction_multiplier   = RETRACTION_MULTIPLIER;

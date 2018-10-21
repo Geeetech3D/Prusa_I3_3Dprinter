@@ -539,4 +539,25 @@ void do_blocking_move_to_xy(const float &x, const float &y, const float &fr_mm_s
 
 #endif // CARTESIAN
 
+// Power Loss Recovery
+enum RecState : uint8_t {
+  Rec_Idle,
+  Rec_Recovering1,
+  Rec_Recovering2,
+  Rec_Outage,
+  Rec_FilRunout
+};
+
+typedef struct {
+  char P_file_name[13], print_dir[13];
+  uint16_t Z_t, T0_t, B_t;
+  uint32_t pos_t, E_t;
+  RecState recovery; // 0:idle, 1,2:recovering, 3:power outage, 4: filament out
+} powerloss_t;
+
+extern powerloss_t powerloss;
+
+// Filament Runout Sensors
+extern bool filament_runout_enabled;
+
 #endif // MARLIN_H

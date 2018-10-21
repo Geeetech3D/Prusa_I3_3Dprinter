@@ -30,9 +30,9 @@
   #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
 #endif
 
-//#ifndef BOARD_NAME
+#ifndef BOARD_NAME
   #define BOARD_NAME "GT2560 Rev.A"
-//#endif
+#endif
 #define DEFAULT_MACHINE_NAME "Prusa i3 Pro B"
 
 //
@@ -71,9 +71,9 @@
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN          8
-#define TEMP_1_PIN          9
-#define TEMP_BED_PIN       10
+#define TEMP_0_PIN          8   // Analog Input
+#define TEMP_1_PIN          9   // Analog Input
+#define TEMP_BED_PIN       10   // Analog Input
 
 //
 // Heaters / Fans
@@ -102,18 +102,17 @@
     #if ENABLED(MKS_MINI_12864)
       #define DOGLCD_A0     5
       #define DOGLCD_CS    21
-    //  #define BTN_EN1      40
-    //  #define BTN_EN2      42
+      #define BTN_EN1      40
+      #define BTN_EN2      42
     #else
-     
-      #define LCD_PINS_RS  5//20//rs
-      #define LCD_PINS_ENABLE 36//6//17 //enable
-      #define LCD_PINS_D4  21//16 //
+      #define LCD_PINS_RS  20
+      #define LCD_PINS_ENABLE 17
+      #define LCD_PINS_D4  16
       #define LCD_PINS_D5  21
       #define LCD_PINS_D6   5
       #define LCD_PINS_D7   6
-      #define BTN_EN1      17
-      #define BTN_EN2      16
+      #define BTN_EN1      42
+      #define BTN_EN2      40
     #endif
 
     #define BTN_ENC        19
@@ -121,7 +120,10 @@
 
   #else // !NEWPANEL
 
-     
+    #define SHIFT_CLK      38
+    #define SHIFT_LD       42
+    #define SHIFT_OUT      40
+    #define SHIFT_EN       17
 
     #define LCD_PINS_RS    16
     #define LCD_PINS_ENABLE 5
