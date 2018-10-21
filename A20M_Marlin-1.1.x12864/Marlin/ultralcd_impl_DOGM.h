@@ -225,10 +225,6 @@
 uint16_t lcd_contrast; // Initialized by settings.load()
 static char currentfont = 0;
 
-//liu
-extern unsigned char color_change_flag;
-
-
 // The current graphical page being rendered
 u8g_page_t &page = ((u8g_pb_t *)((u8g.getU8g())->dev->dev_mem))->p;
 
@@ -490,8 +486,7 @@ inline void lcd_implementation_status_message(const bool blink) {
 static void lcd_implementation_status_screen() {//liu...
 
   const bool blink = lcd_blink();
-    int mixing_factor_e0;//liu
-    char mixer_messages[12];
+  char mixer_messages[12];
   // Status Menu Font
   lcd_setFont(FONT_STATUSMENU);
 
@@ -681,7 +676,8 @@ static void lcd_implementation_status_screen() {//liu...
       #if DISABLED(XYZ_HOLLOW_FRAME)
         u8g.setColorIndex(0); // white on black
       #endif
-/*
+
+      /*
       u8g.setPrintPos(0 * XYZ_SPACING + X_LABEL_POS, XYZ_BASELINE);
       _draw_axis_label(X_AXIS, PSTR(MSG_X), blink);
       u8g.setPrintPos(0 * XYZ_SPACING + X_VALUE_POS, XYZ_BASELINE);
@@ -691,31 +687,15 @@ static void lcd_implementation_status_screen() {//liu...
       _draw_axis_label(Y_AXIS, PSTR(MSG_Y), blink);
       u8g.setPrintPos(1 * XYZ_SPACING + X_VALUE_POS, XYZ_BASELINE);
       lcd_print(ystring);
-*/
+      */
 
-/**************liu*******/
-      u8g.setPrintPos(3,XYZ_BASELINE);
-      if(mixing_factor[0]>0.001)
-        mixing_factor_e0 = 100/mixing_factor[0];
-      else if(mixing_factor[1]>0.001)
-        mixing_factor_e0 = 0;
-      else
-        mixing_factor_e0 = 100;
+      u8g.setPrintPos(3, XYZ_BASELINE);
 
-        
-        if(color_change_flag==1)//liu
-        {
-            sprintf(mixer_messages,"Mx^%d/%d  ",(100-mixing_factor_e0),mixing_factor_e0);
-            lcd_print(mixer_messages);
-        }
-        else
-        {
-            sprintf(mixer_messages,"Mx%d/%d   ",(100-mixing_factor_e0),mixing_factor_e0);
-            lcd_print(mixer_messages);
+      const int mix_pct = int(RECIPROCAL(mixing_factor[NOZZLE0]) * 100.0f);
+      const char * const fmt = mixer.gradient_flag ? PSTR("Mx^%d;%d%% ") : PSTR("Mx %d;%d%% ");
+      sprintf_P(mixer_messages, fmt, mix_pct, 100 - mix_pct);
+      lcd_print(mixer_messages);
 
-        }
-
-/**************liu*******/ 
       u8g.setPrintPos(2 * XYZ_SPACING + X_LABEL_POS, XYZ_BASELINE);
       _draw_axis_label(Z_AXIS, PSTR(MSG_Z), blink);
       u8g.setPrintPos(2 * XYZ_SPACING + X_VALUE_POS, XYZ_BASELINE);

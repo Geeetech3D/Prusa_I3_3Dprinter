@@ -231,18 +231,4 @@ void lcd_reset_status();
   void lcd_reselect_last_file();
 #endif
 
-
-typedef struct    
-{
-  int16_t rate[2];
-  int16_t rate_buf[2];  //use as buffer when use T code
-  int counts;
-  unsigned char min,max;
-  //bool ofp;   //over fusion protect
-  float start_z;
-  float end_z;
-}mixer_t;
-
-
-
 #endif // ULTRALCD_H

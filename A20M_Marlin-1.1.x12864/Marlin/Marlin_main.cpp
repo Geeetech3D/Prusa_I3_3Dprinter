@@ -11026,6 +11026,50 @@ inline void gcode_M355() {
     inline void gcode_M165() { gcode_get_mix(); }
   #endif
 
+  #if ENABLED(GRADIENT_MIX)
+
+    mixer_t mixer = {
+      { 0 }, { 0 },
+      0,
+      0, 0,
+      100, 0,
+      // false,
+      false
+    };
+
+    /**
+     * M166: Set a simple gradient mix for a two-component mixer
+     *       based on the Geeetech A10M implementation by Jone Liu.
+     *
+     * Example: M166 S1 A0 Z20 P100 Q0
+     */
+    inline void gcode_M166() {
+      bool gflag = parser.seen('S') ? parser.value_bool() : mixer.gradient_flag;
+      if (parser.seenval('A')) mixer.start_z = parser.value_float();
+      if (parser.seenval('Z')) mixer.end_z = parser.value_float();
+      if (parser.seenval('P')) mixer.start_pct = (uint8_t)constrain(parser.value_int(), 0, 100);
+      if (parser.seenval('Q')) mixer.end_pct = (uint8_t)constrain(parser.value_int(), 0, 100);
+
+      if (mixer.start_pct == mixer.end_pct || mixer.start_z == mixer.end_z)
+        gflag = false;
+
+      SERIAL_ECHOPGM("Gradient Mix ");
+      if ((mixer.gradient_flag = gflag)) {
+        SERIAL_ECHOPAIR("ON from Z", mixer.start_z);
+        SERIAL_ECHOPAIR(" (", int(mixer.start_pct));
+        SERIAL_ECHOPAIR("%|", int(100-mixer.start_pct));
+        SERIAL_ECHOPAIR("%) to Z", mixer.end_z);
+        SERIAL_ECHOPAIR(" (", int(mixer.end_pct));
+        SERIAL_ECHOPAIR("%|", int(100-mixer.end_pct));
+        SERIAL_ECHOPGM("%)");
+      }
+      else
+        SERIAL_ECHOPGM("OFF");
+      SERIAL_EOL();
+    }
+
+  #endif
+
 #endif // MIXING_EXTRUDER
 
 /**
@@ -12049,6 +12093,11 @@ void process_parsed_command() {
         #if ENABLED(DIRECT_MIXING_IN_G1)
           case 165: // M165: Set multiple mix weights
             gcode_M165();
+            break;
+        #endif
+        #if ENABLED(GRADIENT_MIX)
+          case 166: // M166: Set gradient Z range and mix range
+            gcode_M166();
             break;
         #endif
       #endif
