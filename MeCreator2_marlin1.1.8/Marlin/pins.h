@@ -128,7 +128,7 @@
 #elif MB(ULTIMAIN_2)
   #include "pins_ULTIMAIN_2.h"        // ATmega2560
 #elif MB(MECREATOR2)
-  #include "pins_MECREATOR2.h"
+  #include "pins_MECREATOR2.h"        // ATmega2560
 #elif MB(RUMBA)
   #include "pins_RUMBA.h"             // ATmega2560
 #elif MB(BQ_ZUM_MEGA_3D)

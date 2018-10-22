@@ -29,7 +29,8 @@
 #include "ultralcd.h"
 #include "stepper.h"
 #include "language.h"
-extern   char P_file_name[13];
+
+#include "Marlin.h" // For Power Loss Recovery
 
 #define LONGEST_FILENAME (longFilename[0] ? longFilename : filename)
 
@@ -415,8 +416,7 @@ void CardReader::openFile(char* name, const bool read, const bool subcall/*=fals
     if (file.open(curDir, fname, O_READ)) {
       filesize = file.fileSize();
       sdpos = 0;
-	  strcpy(P_file_name,  fname);
-      SERIAL_ECHOLN(P_file_name);
+      strcpy(powerloss.P_file_name, fname);
       SERIAL_PROTOCOLPAIR(MSG_SD_FILE_OPENED, fname);
       SERIAL_PROTOCOLLNPAIR(MSG_SD_SIZE, filesize);
       SERIAL_PROTOCOLLNPGM(MSG_SD_FILE_SELECTED);
@@ -499,13 +499,13 @@ void CardReader::removeFile(const char * const name) {
 }
 
 uint32_t CardReader::getStatus() {
-  uint32_t ret=0;	
+  uint32_t ret = 0;
   if (cardOK) {
     SERIAL_PROTOCOLPGM(MSG_SD_PRINTING_BYTE);
     SERIAL_PROTOCOL(sdpos);
     SERIAL_PROTOCOLCHAR('/');
     SERIAL_PROTOCOLLN(filesize);
-	ret=sdpos;
+    ret = sdpos;
   }
   else
     SERIAL_PROTOCOLLNPGM(MSG_SD_NOT_PRINTING);
