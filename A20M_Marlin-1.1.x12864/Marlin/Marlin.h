@@ -460,6 +460,22 @@ extern uint8_t active_extruder;
 
 #if ENABLED(MIXING_EXTRUDER)
   extern float mixing_factor[MIXING_STEPPERS];
+
+  #if ENABLED(GRADIENT_MIX)
+    typedef struct {
+      int16_t rate[2], rate_buf[2]; // Buffer used for tool change
+      int counts;
+      float start_z, end_z;         // Region for gradient
+      int8_t start_pct, end_pct;   // Mix component for E0
+      //bool ofp;   // over fusion protect
+      bool gradient_flag;
+    } mixer_t;
+
+    #define NOZZLE0 0
+    #define NOZZLE1 1
+    extern mixer_t mixer;
+  #endif
+
 #endif
 
 inline void set_current_from_destination() { COPY(current_position, destination); }
@@ -538,5 +554,26 @@ void do_blocking_move_to_xy(const float &x, const float &y, const float &fr_mm_s
   }
 
 #endif // CARTESIAN
+
+// Power Loss Recovery
+enum RecState : uint8_t {
+  Rec_Idle,
+  Rec_Recovering1,
+  Rec_Recovering2,
+  Rec_Outage,
+  Rec_FilRunout
+};
+
+typedef struct {
+  char P_file_name[13], print_dir[13];
+  uint16_t Z_t, T0_t, B_t;
+  uint32_t pos_t, E_t;
+  RecState recovery; // 0:idle, 1,2:recovering, 3:power outage, 4: filament out
+} powerloss_t;
+
+extern powerloss_t powerloss;
+
+// Filament Runout Sensors
+extern bool filament_runout_enabled;
 
 #endif // MARLIN_H

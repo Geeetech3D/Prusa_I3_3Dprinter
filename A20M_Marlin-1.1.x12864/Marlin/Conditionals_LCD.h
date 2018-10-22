@@ -135,18 +135,7 @@
     #define MINIPANEL
 
   #endif
-  ///////////luojin
-#define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
-    #ifndef ST7920_DELAY_1
-      #define ST7920_DELAY_1 DELAY_2_NOP
-    #endif
-    #ifndef ST7920_DELAY_2
-      #define ST7920_DELAY_2 DELAY_2_NOP
-    #endif
-    #ifndef ST7920_DELAY_3
-      #define ST7920_DELAY_3 DELAY_2_NOP
-    #endif
-    ///////////
+
   #if ENABLED(MAKRPANEL) || ENABLED(MINIPANEL)
     #define DOGLCD
     #define ULTIPANEL
