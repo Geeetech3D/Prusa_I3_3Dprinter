@@ -314,7 +314,7 @@ uint16_t max_display_update_time = 0;
 
   // Used to print static text with no visible cursor.
   // Parameters: label [, bool center [, bool invert [, char *value] ] ]
-  #define STATIC_ITEM(LABEL, ...) \
+  #define STATIC_ITEM(LABEL, ...) do{ \
     if (_menuLineNr == _thisItemNr) { \
       if (_skipStatic && encoderLine <= _thisItemNr) { \
         encoderPosition += ENCODER_STEPS_PER_MENU_ITEM; \
@@ -323,7 +323,7 @@ uint16_t max_display_update_time = 0;
       if (lcdDrawUpdate) \
         lcd_implementation_drawmenu_static(_lcdLineNr, PSTR(LABEL), ## __VA_ARGS__); \
     } \
-    ++_thisItemNr
+    ++_thisItemNr; }while(0)
 
   #if ENABLED(ENCODER_RATE_MULTIPLIER)
 
@@ -643,7 +643,7 @@ void lcd_resume_menu_cancel(void) {
   lcd_return_to_status();
 }
 
-void lcd_resume_menu0(void) {
+void lcd_resume_menu(void) {
   START_MENU();
 
   STATIC_ITEM(MSG_POWER_OUTAGE);
@@ -653,8 +653,8 @@ void lcd_resume_menu0(void) {
   END_MENU();
 }
 
-void lcd_resume_menu(void) {
-  lcd_goto_screen(lcd_resume_menu0);
+void lcd_goto_resume_menu(void) {
+  lcd_goto_screen(lcd_resume_menu);
 }
 
 /**
@@ -3280,10 +3280,17 @@ void kill_screen(const char* lcd_msg) {
           STATIC_ITEM(MSG_MOVE_E, true, true); break;
       }
     }
-    MENU_BACK(MSG_MOVE_AXIS);
-    MENU_ITEM(submenu, MSG_MOVE_10MM, lcd_move_menu_10mm);
-    MENU_ITEM(submenu, MSG_MOVE_1MM, lcd_move_menu_1mm);
-    MENU_ITEM(submenu, MSG_MOVE_01MM, lcd_move_menu_01mm);
+    #if ENABLED(PREVENT_COLD_EXTRUSION)
+      if (axis == E_AXIS && thermalManager.tooColdToExtrude(active_extruder))
+        MENU_BACK(MSG_HOTEND_TOO_COLD);
+      else
+    #endif
+    {
+      MENU_BACK(MSG_MOVE_AXIS);
+      MENU_ITEM(submenu, MSG_MOVE_10MM, lcd_move_menu_10mm);
+      MENU_ITEM(submenu, MSG_MOVE_1MM, lcd_move_menu_1mm);
+      MENU_ITEM(submenu, MSG_MOVE_01MM, lcd_move_menu_01mm);
+    }
     END_MENU();
   }
   void lcd_move_get_x_amount()        { _lcd_move_distance_menu(X_AXIS, lcd_move_x); }
