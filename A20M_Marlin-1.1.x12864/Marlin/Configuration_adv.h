@@ -242,7 +242,7 @@
   #define INVERT_CASE_LIGHT false             // Set true if Case Light is ON when pin is LOW
   #define CASE_LIGHT_DEFAULT_ON true          // Set default power-up state on
   #define CASE_LIGHT_DEFAULT_BRIGHTNESS 105   // Set default power-up brightness (0-255, requires PWM pin)
- // #define MENU_ITEM_CASE_LIGHT                // Add a Case Light option to the LCD main menu
+  //#define MENU_ITEM_CASE_LIGHT              // Add a Case Light option to the LCD main menu
 #endif
 
 //===========================================================================
@@ -352,7 +352,7 @@
 #define X_HOME_BUMP_MM 5
 #define Y_HOME_BUMP_MM 5
 #define Z_HOME_BUMP_MM 2
-#define HOMING_BUMP_DIVISOR { 2, 2, 2 }  // Re-Bump Speed Divisor (Divides the Homing Feedrate)
+#define HOMING_BUMP_DIVISOR { 2, 2, 4 }  // Re-Bump Speed Divisor (Divides the Homing Feedrate)
 #define QUICK_HOME                       // If homing includes X and Y, do a diagonal move initially
 
 // When G28 is called, this option will make Y home before X
