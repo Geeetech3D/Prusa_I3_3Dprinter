@@ -486,7 +486,7 @@ inline void lcd_implementation_status_message(const bool blink) {
 static void lcd_implementation_status_screen() {
 
   const bool blink = lcd_blink();
-
+  char mixer_messages[12];
   // Status Menu Font
   lcd_setFont(FONT_STATUSMENU);
 
@@ -677,6 +677,7 @@ static void lcd_implementation_status_screen() {
         u8g.setColorIndex(0); // white on black
       #endif
 
+      /*
       u8g.setPrintPos(0 * XYZ_SPACING + X_LABEL_POS, XYZ_BASELINE);
       _draw_axis_label(X_AXIS, PSTR(MSG_X), blink);
       u8g.setPrintPos(0 * XYZ_SPACING + X_VALUE_POS, XYZ_BASELINE);
@@ -686,6 +687,14 @@ static void lcd_implementation_status_screen() {
       _draw_axis_label(Y_AXIS, PSTR(MSG_Y), blink);
       u8g.setPrintPos(1 * XYZ_SPACING + X_VALUE_POS, XYZ_BASELINE);
       lcd_print(ystring);
+      */
+
+      u8g.setPrintPos(3, XYZ_BASELINE);
+
+      const int mix_pct = int(RECIPROCAL(mixing_factor[NOZZLE0]) * 100.0f);
+      const char * const fmt = mixer.gradient_flag ? PSTR("Mx^%d;%d%% ") : PSTR("Mx %d;%d%% ");
+      sprintf_P(mixer_messages, fmt, mix_pct, 100 - mix_pct);
+      lcd_print(mixer_messages);
 
       u8g.setPrintPos(2 * XYZ_SPACING + X_LABEL_POS, XYZ_BASELINE);
       _draw_axis_label(Z_AXIS, PSTR(MSG_Z), blink);

@@ -30,9 +30,9 @@
   #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
 #endif
 
-//#ifndef BOARD_NAME
+#ifndef BOARD_NAME
   #define BOARD_NAME "GT2560 Rev.A"
-//#endif
+#endif
 #define DEFAULT_MACHINE_NAME "Prusa i3 Pro B"
 
 //
@@ -71,9 +71,9 @@
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN          8
-#define TEMP_1_PIN          9
-#define TEMP_BED_PIN       10
+#define TEMP_0_PIN          8   // Analog Input
+#define TEMP_1_PIN          9   // Analog Input
+#define TEMP_BED_PIN       10   // Analog Input
 
 //
 // Heaters / Fans

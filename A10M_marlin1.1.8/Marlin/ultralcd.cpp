@@ -35,11 +35,6 @@
 #include "utility.h"
 #include "gcode.h"
 
-extern unsigned int Z_t,T0_t,B_t;
-extern uint32_t pos_t,E_t;
-extern  char P_file_name[13],recovery;
-extern bool filament_switch;
-extern char print_dir[13];
 #if HAS_BUZZER && DISABLED(LCD_USE_I2C_BUZZER)
   #include "buzzer.h"
 #endif
@@ -310,6 +305,12 @@ uint16_t max_display_update_time = 0;
     }while(0)
 
   #define MENU_BACK(LABEL) MENU_ITEM(back, LABEL, 0)
+
+  #define MENU_ITEM_ADDON_START(X) \
+    if (lcdDrawUpdate && _menuLineNr == _thisItemNr - 1) { \
+      SETCURSOR(X, _lcdLineNr)
+
+  #define MENU_ITEM_ADDON_END() } (0)
 
   // Used to print static text with no visible cursor.
   // Parameters: label [, bool center [, bool invert [, char *value] ] ]
@@ -612,61 +613,44 @@ uint16_t max_display_update_time = 0;
 
 void lcd_resume_menu_ok(void) {
   char tmp_n[64 + 10];
-  recovery = 0;
+  powerloss.recovery = Rec_Idle;
   //Config_StoreSettings();
   //Config_RetrieveSettings();
-  lcd_goto_screen(lcd_status_screen);
-  // enquecommand("M930");
-  SERIAL_ECHOLN(P_file_name);
-  recovery = 1;
+  lcd_return_to_status();
+  // enqueuecommand("M930");
+  powerloss.recovery = Rec_Recovering1;
 
-  sprintf_P(tmp_n,PSTR("G92 Z%u.%u"),Z_t/10,Z_t%10);
-  SERIAL_ECHOLN(tmp_n);
+  sprintf_P(tmp_n, PSTR("G92 Z%u.%u"), powerloss.Z_t / 10, powerloss.Z_t % 10);
   enqueue_and_echo_command(tmp_n);
-  //////////////////
-  sprintf_P(tmp_n,PSTR("G92 E%u"),E_t);
-  SERIAL_ECHOLN(tmp_n);
+
+  sprintf_P(tmp_n, PSTR("G92 E%u"), powerloss.E_t);
   enqueue_and_echo_command(tmp_n);
-  //////////////
-  //////////////////
-  sprintf_P(tmp_n,PSTR("M104 S%u"),T0_t);
-  SERIAL_ECHOLN(tmp_n);
+
+  sprintf_P(tmp_n, PSTR("M104 S%u"), powerloss.T0_t);
   enqueue_and_echo_command(tmp_n);
-  //////////////
 }
+
 void lcd_resume_menu_cancel(void) {
-  char tmp_n[64+10];
+  char tmp_n[64 + 10];
   //Config_StoreSettings();
   //Config_RetrieveSettings();
-  recovery = 0;
-  P_file_name[0] = 0;
-  memset(print_dir, 0, sizeof(print_dir));
-  // (void)settings.poweroff_save();
+  powerloss.recovery = Rec_Idle;
+  powerloss.P_file_name[0] = 0;
+  ZERO(powerloss.print_dir);
+  //(void)settings.poweroff_save();
   sprintf_P(tmp_n, PSTR("M500"));
-  SERIAL_ECHOLN(tmp_n);
   enqueue_and_echo_command(tmp_n);
-  lcd_goto_screen(lcd_status_screen);
+  lcd_return_to_status();
 }
 
 void lcd_resume_menu0(void) {
   START_MENU();
-  //////////
-  MENU_ITEM(submenu, "Resume print ?", lcd_resume_menu0);
-  MENU_ITEM(submenu, "Yes", lcd_resume_menu_ok);
-  MENU_ITEM(submenu, "NO", lcd_resume_menu_cancel);
-  /*
-  lcd.setCursor(0,0);
-  lcd.print("Resume print ?  ");
 
-  MENU_ITEM(submenu, "", lcd_resume_menu_ok);
-  lcd.setCursor(1,1);
-  lcd.print("Yes  ");
-  MENU_ITEM(submenu, "", lcd_resume_menu_cancel);
-  lcd.setCursor(1,2);
-  lcd.print("No  ");
-  */
+  STATIC_ITEM(MSG_POWER_OUTAGE);
+  MENU_ITEM(function, MSG_RESUME_PRINT, lcd_resume_menu_ok);
+  MENU_ITEM(function, MSG_CANCEL_PRINT, lcd_resume_menu_cancel);
+
   END_MENU();
-
 }
 
 void lcd_resume_menu(void) {
@@ -681,7 +665,7 @@ void lcd_resume_menu(void) {
  */
 
 void lcd_status_screen() {
-  //if (recovery == 3) return;
+  //if (powerloss.recovery == Rec_Outage) return;
   #if ENABLED(ULTIPANEL)
     ENCODER_DIRECTION_NORMAL();
     ENCODER_RATE_MULTIPLY(false);
@@ -896,10 +880,12 @@ void kill_screen(const char* lcd_msg) {
         if (mixer.start_z > mixer.end_z)
           mixer.end_z = mixer.start_z + 1;
       }
-      char tmp[32];
-      sprintf_P(tmp, PSTR(MSG_START_Z ": %4d.%d mm"), int(mixer.start_z), int(mixer.start_z * 10) % 10);
-      lcd.setCursor(2,1);
-      lcd.print(tmp);
+      if (lcdDrawUpdate) {
+        char tmp[21];
+        sprintf_P(tmp, PSTR(MSG_START_Z ": %4d.%d mm"), int(mixer.start_z), int(mixer.start_z * 10) % 10);
+        SETCURSOR(2, (LCD_HEIGHT - 1) / 2);
+        LCDPRINT(tmp);
+      }
 
       if (lcd_clicked) {
         _lcd_mixer_commit_gradient();
@@ -920,10 +906,12 @@ void kill_screen(const char* lcd_msg) {
         NOLESS(mixer.start_z, 0);
       }
 
-      char tmp[32];
-      sprintf_P(tmp, PSTR(MSG_END_Z ": %4d.%d mm"), int(mixer.end_z), int(mixer.end_z * 10) % 10);
-      lcd.setCursor(2,1);
-      lcd.print(tmp);
+      if (lcdDrawUpdate) {
+        char tmp[21];
+        sprintf_P(tmp, PSTR(MSG_END_Z ": %4d.%d mm"), int(mixer.end_z), int(mixer.end_z * 10) % 10);
+        SETCURSOR(2, (LCD_HEIGHT - 1) / 2);
+        LCDPRINT(tmp);
+      }
 
       if (lcd_clicked) {
         _lcd_mixer_commit_gradient();
@@ -940,14 +928,14 @@ void kill_screen(const char* lcd_msg) {
         if (mixer.start_pct > 100) mixer.start_pct -= 100;
       }
       if (lcdDrawUpdate) {
-        char tmp[32];
+        char tmp[21];
         sprintf_P(tmp, PSTR(MSG_START_MIX ": %3d%% %3d%%"), mixer.start_pct, 100 - mixer.start_pct);
-        lcd.setCursor(0, 1);
-        lcd.print(tmp);
+        SETCURSOR(0, (LCD_HEIGHT - 1) / 2);
+        LCDPRINT(tmp);
 
         sprintf_P(tmp, PSTR("(Z <= %d.%d)"), int(mixer.start_z), int(mixer.start_z * 10) % 10);
-        lcd.setCursor(LCD_WIDTH - strlen(tmp), 3);
-        lcd.print(tmp);
+        SETCURSOR_RJ(strlen(tmp), LCD_HEIGHT - 1);
+        LCDPRINT(tmp);
       }
 
       if (lcd_clicked) {
@@ -965,14 +953,14 @@ void kill_screen(const char* lcd_msg) {
         if (mixer.end_pct > 100) mixer.end_pct -= 100;
       }
       if (lcdDrawUpdate) {
-        char tmp[32];
+        char tmp[21];
         sprintf_P(tmp, PSTR(MSG_END_MIX ": %3d%% %3d%%"), mixer.end_pct, 100 - mixer.end_pct);
-        lcd.setCursor(0, 1);
-        lcd.print(tmp);
+        SETCURSOR(0, (LCD_HEIGHT - 1) / 2);
+        LCDPRINT(tmp);
 
         sprintf_P(tmp, PSTR("(Z >= %d.%d)"), int(mixer.end_z), int(mixer.end_z * 10) % 10);
-        lcd.setCursor(LCD_WIDTH - strlen(tmp), 3);
-        lcd.print(tmp);
+        SETCURSOR_RJ(strlen(tmp), LCD_HEIGHT - 1);
+        LCDPRINT(tmp);
       }
 
       if (lcd_clicked) {
@@ -982,31 +970,29 @@ void kill_screen(const char* lcd_msg) {
     }
 
     inline void _lcd_mixer_full_gradient() {
-      mixer.start_pct = mixer.start_pct ? 0 : 100;
+      mixer.start_pct = (mixer.start_pct == 100 && mixer.end_pct == 0) ? 0 : 100;
       mixer.end_pct = 100 - mixer.start_pct;
+      lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
       _lcd_mixer_commit_gradient();
     }
 
     void lcd_mixer_gradient_mix_menu() {
       START_MENU();
-      //MENU_ITEM(back, MSG_MAIN, lcd_mixer_menu);
       MENU_BACK(MSG_GRADIENT);
 
-      char tmp[32];
+      char tmp[10];
 
       MENU_ITEM(submenu, MSG_START_MIX ":", lcd_mixer_mix_start_edit);
-      if (lcdDrawUpdate) {
+      MENU_ITEM_ADDON_START(11);
         sprintf_P(tmp, PSTR("%3d;%3d%%"), mixer.start_pct, 100 - mixer.start_pct);
-        lcd.setCursor(12, 1);
-        lcd.print(tmp);
-      }
+        LCDPRINT(tmp);
+      MENU_ITEM_ADDON_END();
 
       MENU_ITEM(submenu, MSG_END_MIX ":", lcd_mixer_mix_end_edit);
-      if (lcdDrawUpdate) {
+      MENU_ITEM_ADDON_START(11);
         sprintf_P(tmp, PSTR("%3d;%3d%%"), mixer.end_pct, 100 - mixer.end_pct);
-        lcd.setCursor(12, 2);
-        lcd.print(tmp);
-      }
+        LCDPRINT(tmp);
+      MENU_ITEM_ADDON_END();
 
       MENU_ITEM(function, MSG_FULL_GRADIENT, _lcd_mixer_full_gradient);
 
@@ -1017,19 +1003,21 @@ void kill_screen(const char* lcd_msg) {
       START_MENU();
       MENU_BACK(MSG_MIXER);
 
-      MENU_ITEM(submenu, MSG_MIX_START_END, lcd_mixer_gradient_mix_menu);
+      MENU_ITEM(submenu, MSG_GRADIENT_MIX, lcd_mixer_gradient_mix_menu);
 
-      char tmp[32];
+      char tmp[10];
 
       MENU_ITEM(submenu, MSG_START_Z ":", lcd_mixer_gradient_z_start_edit);
-      sprintf_P(tmp, PSTR("%4d.%d mm"), int(mixer.start_z), int(mixer.start_z * 10) % 10);
-      lcd.setCursor(9, 2);
-      lcd.print(tmp);
+      MENU_ITEM_ADDON_START(9);
+        sprintf_P(tmp, PSTR("%4d.%d mm"), int(mixer.start_z), int(mixer.start_z * 10) % 10);
+        LCDPRINT(tmp);
+      MENU_ITEM_ADDON_END();
 
       MENU_ITEM(submenu, MSG_END_Z ":", lcd_mixer_gradient_z_end_edit);
-      sprintf_P(tmp, PSTR("%4d.%d mm"), int(mixer.end_z), int(mixer.end_z * 10) % 10);
-      lcd.setCursor(9, 3);
-      lcd.print(tmp);
+      MENU_ITEM_ADDON_START(9);
+        sprintf_P(tmp, PSTR("%4d.%d mm"), int(mixer.end_z), int(mixer.end_z * 10) % 10);
+        LCDPRINT(tmp);
+      MENU_ITEM_ADDON_END();
 
       END_MENU();
     }
@@ -1044,8 +1032,8 @@ void kill_screen(const char* lcd_msg) {
     }
 
     inline void _lcd_mixer_toggle_mix() {
-      mixer.rate[NOZZLE1] = mixer.rate[NOZZLE1] ? 0 : 100;
-      mixer.rate[NOZZLE0] = 100 - mixer.rate[NOZZLE1];
+      mixer.rate[NOZZLE0] = mixer.rate[NOZZLE0] == 100 ? 0 : 100;
+      mixer.rate[NOZZLE1] = 100 - mixer.rate[NOZZLE0];
       _lcd_mixer_update_mix();
     }
 
@@ -1057,10 +1045,10 @@ void kill_screen(const char* lcd_msg) {
         if (mixer.rate[NOZZLE0] > 100) mixer.rate[NOZZLE0] -= 100;
         mixer.rate[NOZZLE1] = 100 - mixer.rate[NOZZLE0];
       }
-      char tmp[32];
-      sprintf_P(tmp, PSTR(MSG_MIX ":    %3d%%;%3d%%"), mixer.rate[NOZZLE0], mixer.rate[NOZZLE1]);
-      lcd.setCursor(2,1);
-      lcd.print(tmp);
+      char tmp[21];
+      sprintf_P(tmp, PSTR(MSG_MIX ":    %3d%% %3d%%"), mixer.rate[NOZZLE0], mixer.rate[NOZZLE1]);
+      SETCURSOR(2, (LCD_HEIGHT - 1) / 2);
+      LCDPRINT(tmp);
 
       if (lcd_clicked) {
         mixer.gradient_flag = false;
@@ -1076,11 +1064,12 @@ void kill_screen(const char* lcd_msg) {
       mixer.rate[NOZZLE0] = int16_t(RECIPROCAL(mixing_factor[NOZZLE0]) * 100.0);
       mixer.rate[NOZZLE1] = 100 - mixer.rate[NOZZLE0];
 
-      char tmp[32];
+      char tmp[10];
       MENU_ITEM(submenu, MSG_MIX, lcd_mixer_mix_edit);
-      lcd.setCursor(10, 1);
-      sprintf_P(tmp, PSTR("%3d;%3d%%"), mixer.rate[NOZZLE0], mixer.rate[NOZZLE1]);
-      lcd.print(tmp);
+      MENU_ITEM_ADDON_START(10);
+        sprintf_P(tmp, PSTR("%3d;%3d%%"), mixer.rate[NOZZLE0], mixer.rate[NOZZLE1]);
+        LCDPRINT(tmp);
+      MENU_ITEM_ADDON_END();
 
       MENU_ITEM(function, MSG_TOGGLE_MIX, _lcd_mixer_toggle_mix);
 
@@ -1146,9 +1135,9 @@ void kill_screen(const char* lcd_msg) {
       bar_percent = constrain(bar_percent, 0, 100);
       encoderPosition = 0;
       lcd_implementation_drawmenu_static(0, PSTR(MSG_PROGRESS_BAR_TEST), true, true);
-      lcd.setCursor((LCD_WIDTH) / 2 - 2, LCD_HEIGHT - 2);
-      lcd.print(itostr3(bar_percent)); lcd.write('%');
-      lcd.setCursor(0, LCD_HEIGHT - 1); lcd_draw_progress_bar(bar_percent);
+      SETCURSOR((LCD_WIDTH) / 2 - 2, LCD_HEIGHT - 2);
+      LCDPRINT(itostr3(bar_percent)); LCDWRITE('%');
+      SETCURSOR(0, LCD_HEIGHT - 1); lcd_draw_progress_bar(bar_percent);
     }
 
     void _progress_bar_test() {
@@ -3907,19 +3896,6 @@ void kill_screen(const char* lcd_msg) {
     END_MENU();
   }
 
-
-  void Switch_Filament_ON(){
-    //SERIAL_ECHOLN("liu......ON ---2\r\n");
-    LCD_MESSAGEPGM(MSG_SWITCH_FILAMENT_ON);
-    filament_switch = true;
-  }
-
-  void Switch_Filament_OFF(){
-    //SERIAL_ECHOLN("liu......OFF ---2\r\n");
-    LCD_MESSAGEPGM(MSG_SWITCH_FILAMENT_OFF);
-    filament_switch = false;
-  }
-
   /**
    *
    * "Control" > "Filament" submenu
@@ -3954,14 +3930,9 @@ void kill_screen(const char* lcd_msg) {
       #endif // EXTRUDERS > 1
     }
 
-    if (filament_switch) {
-      //SERIAL_ECHOLN("liu......ON ---1\r\n");
-      MENU_ITEM(function, MSG_SWITCH_FILAMENT_ON, Switch_Filament_OFF);
-    }
-    else {
-      //SERIAL_ECHOLN("liu......OFF ---1\r\n");
-      MENU_ITEM(function, MSG_SWITCH_FILAMENT_OFF, Switch_Filament_ON);
-    }
+    // Filament Runout Sensors
+    MENU_ITEM_EDIT(bool, MSG_RUNOUT_SENSORS, &filament_runout_enabled);
+
     END_MENU();
   }
 
@@ -4051,7 +4022,7 @@ void kill_screen(const char* lcd_msg) {
       START_MENU();
       MENU_BACK(MSG_MAIN);
       card.getWorkDirName();
-      strcpy(print_dir,card.getWorkDirName());
+      strcpy(powerloss.print_dir, card.getWorkDirName());
       if (card.filename[0] == '/') {
         #if !PIN_EXISTS(SD_DETECT)
           MENU_ITEM(function, LCD_STR_REFRESH MSG_REFRESH, lcd_sd_refresh);
@@ -4759,9 +4730,9 @@ void kill_screen(const char* lcd_msg) {
       #endif
       UNUSED(longFilename);
       card.openAndPrintFile(filename);
-    strcpy(P_file_name,  filename);
-      SERIAL_ECHOLN(P_file_name);
-    recovery=0;
+      strcpy(powerloss.P_file_name, filename);
+      SERIAL_ECHOLN(powerloss.P_file_name);
+      powerloss.recovery = Rec_Idle;
       lcd_return_to_status();
     }
 
@@ -4783,22 +4754,12 @@ void kill_screen(const char* lcd_msg) {
   }
 
 #endif // ULTIPANEL
-/*
-    #define SHIFT_CLK      38
-    #define SHIFT_LD       42
-    #define SHIFT_OUT      40
-    #define SHIFT_EN       17
-    #define BTN_EN1      42
-      #define BTN_EN2      40
-*/
+
 void lcd_init() {
 
   lcd_implementation_init();
 
   #if ENABLED(NEWPANEL)
-
- // SET_INPUT(BTN_EN1);
- //   SET_INPUT(BTN_EN2);
 
     #if BUTTON_EXISTS(EN1)
       SET_INPUT_PULLUP(BTN_EN1);
@@ -5140,7 +5101,7 @@ void lcd_update() {
       // Return to Status Screen after a timeout
       if (currentScreen == lcd_status_screen || defer_return_to_status)
         return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;
-      else if (ELAPSED(ms, return_to_status_ms)&&(recovery!=3))
+      else if (ELAPSED(ms, return_to_status_ms) && powerloss.recovery != Rec_Outage)
         lcd_return_to_status();
 
     #endif // ULTIPANEL

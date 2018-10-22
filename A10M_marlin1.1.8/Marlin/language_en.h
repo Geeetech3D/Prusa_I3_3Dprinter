@@ -594,11 +594,11 @@
 #ifndef MSG_FILAMENT_DIAM
   #define MSG_FILAMENT_DIAM                   _UxGT("Fil. Dia.")
 #endif
-#ifndef MSG_SWITCH_FILAMENT_ON
-  #define MSG_SWITCH_FILAMENT_ON              _UxGT("Filament On ")
+#ifndef MSG_RUNOUT_SENSORS
+  #define MSG_RUNOUT_SENSORS                  _UxGT("Runout sensors")
 #endif
-#ifndef MSG_SWITCH_FILAMENT_OFF
-  #define MSG_SWITCH_FILAMENT_OFF             _UxGT("Filament Off")
+#ifndef MSG_POWER_OUTAGE
+  #define MSG_POWER_OUTAGE                    _UxGT("Power outage")
 #endif
 
 #ifndef MSG_MIX
@@ -611,13 +611,13 @@
   #define MSG_GRADIENT                        _UxGT("Gradient")
 #endif
 #ifndef MSG_FULL_GRADIENT
-  #define MSG_FULL_GRADIENT                   _UxGT("Full Gradient")
+  #define MSG_FULL_GRADIENT                   _UxGT("Full gradient")
 #endif
 #ifndef MSG_TOGGLE_MIX
   #define MSG_TOGGLE_MIX                      _UxGT("Toggle mix")
 #endif
-#ifndef MSG_MIX_START_END
-  #define MSG_MIX_START_END                   _UxGT("Mix start/end")
+#ifndef MSG_GRADIENT_MIX
+  #define MSG_GRADIENT_MIX                    _UxGT("Gradient mix")
 #endif
 #ifndef MSG_START_MIX
   #define MSG_START_MIX                       _UxGT("Start mix")
@@ -670,6 +670,9 @@
 #endif
 #ifndef MSG_STOP_PRINT
   #define MSG_STOP_PRINT                      _UxGT("Stop print")
+#endif
+#ifndef MSG_CANCEL_PRINT
+  #define MSG_CANCEL_PRINT                    _UxGT("Cancel print")
 #endif
 #ifndef MSG_CARD_MENU
   #define MSG_CARD_MENU                       _UxGT("Print from SD")

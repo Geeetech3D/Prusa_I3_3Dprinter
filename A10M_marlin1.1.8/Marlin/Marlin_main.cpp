@@ -261,13 +261,9 @@
 #include "types.h"
 #include "gcode.h"
 
-//
-// A10M Globals
-//
-char P_file_name[13], recovery = 0; // 0:idle, 1,2:recovering, 3:power outage, 4: filament out
-char print_dir[13];
-unsigned int Z_t = 0, T0_t = 0, B_t = 0;
-uint32_t pos_t = 0, E_t = 0;
+// Power Loss Recovery
+powerloss_t powerloss; // (zero'ed by bootloader)
+
 char tmp_y[50];
 
 extern char lcd_status_message[];
@@ -646,7 +642,10 @@ uint8_t target_extruder;
 #endif
 
 float cartes[XYZ] = { 0 };
- bool filament_switch = false;
+
+// Filament Runout Sensors
+bool filament_runout_enabled = false;
+
 #if ENABLED(FILAMENT_WIDTH_SENSOR)
   bool filament_sensor = false;                                 // M405 turns on filament sensor control. M406 turns it off.
   float filament_width_nominal = DEFAULT_NOMINAL_FILAMENT_DIA,  // Nominal filament width. Change with M404.
@@ -7868,9 +7867,7 @@ inline void gcode_M109() {
   } while (wait_for_heatup && TEMP_CONDITIONS);
 
   if (wait_for_heatup) {
-    LCD_MESSAGEPGM(MSG_HEATING_COMPLETE);//liu....
-    //strcpy(lcd_status_message,  P_file_name);
-    //lcd_setstatus(P_file_name);
+    LCD_MESSAGEPGM(MSG_HEATING_COMPLETE);
     #if ENABLED(PRINTER_EVENT_LEDS)
       leds.set_white();
     #endif
@@ -9621,14 +9618,11 @@ void quickstop_stepper() {
   SYNC_PLAN_POSITION_KINEMATIC();
 }
 
-inline void gcode_M408() { //´ò¿ªºÄ²Ä¼ì²â
-  //SERIAL_ECHOLNPGM("filament_switch = true");
-  filament_switch = true;
-}
-inline void gcode_M409() { //¹Ø±ÕºÄ²Ä¼ì²â
-  //SERIAL_ECHOLNPGM("filament_switch = false");
-  filament_switch = false;
-}
+//
+// Filament Runout Sensors
+//
+inline void gcode_M408() { filament_runout_enabled = true; }
+inline void gcode_M409() { filament_runout_enabled = false; }
 
 #if HAS_LEVELING
   /**
@@ -9885,7 +9879,6 @@ inline void gcode_M409() { //¹Ø±ÕºÄ²Ä¼ì²â
  */
 inline void gcode_M500() {
   (void)settings.save();
-  //(void)settings.poweroff_save();
 }
 
 /**
@@ -9893,7 +9886,6 @@ inline void gcode_M500() {
  */
 inline void gcode_M501() {
   (void)settings.load();
-  //(void)settings.poweroff_load();
 }
 
 /**
@@ -14624,13 +14616,12 @@ void setup() {
   SET_INPUT(FIL_RUNOUT_PIN);
   SET_INPUT(FIL_RUNOUT2_PIN);
 
-  if (recovery == 3) {
+  if (powerloss.recovery == Rec_Outage) {
     lcd_resume_menu();
-    //SERIAL_ECHOLN("recovery==3");
+    //SERIAL_ECHOLN("Rec_Outage");
     //return;
   }
-  //sprintf_P(tmp_y, PSTR("recovery%d"), recovery);
-  //SERIAL_ECHOLN(tmp_y);
+  //SERIAL_ECHOLNPAIR("recovery=", int(powerloss.recovery));
 }
 
 /**
@@ -14697,13 +14688,14 @@ void loop() {
   }
 
   if (commands_in_queue == 0) {
-    switch (recovery) {
-      case 1:
-        sprintf_P(tmp_y, PSTR("M190 S%u"), B_t);
+    switch (powerloss.recovery) {
+      default: break;
+      case Rec_Recovering1:
+        sprintf_P(tmp_y, PSTR("M190 S%u"), powerloss.B_t);
         //SERIAL_ECHOLN(tmp_y);
         enqueue_and_echo_command(tmp_y);
 
-        sprintf_P(tmp_y, PSTR("M109 T0 S%u"), T0_t);
+        sprintf_P(tmp_y, PSTR("M109 T0 S%u"), powerloss.T0_t);
         //SERIAL_ECHOLN(tmp_y);
         enqueue_and_echo_command(tmp_y);
 
@@ -14715,20 +14707,19 @@ void loop() {
         //SERIAL_ECHOLN(tmp_y);
         enqueue_and_echo_command(tmp_y);
 
-        axis_homed[Z_AXIS] = true;
-        axis_known_position[Z_AXIS]= true;
-        recovery = 2;
+        axis_homed[Z_AXIS] = axis_known_position[Z_AXIS] = true;
+        powerloss.recovery = Rec_Recovering2;
         break;
-      case 2:
-        if (strlen(print_dir) > 1)
-          sprintf(tmp_y, "M32 S%lu !/%s/%s", pos_t, print_dir, P_file_name);
+      case Rec_Recovering2:
+        if (strlen(powerloss.print_dir) > 1)
+          sprintf_P(tmp_y, PSTR("M32 S%lu !/%s/%s"), powerloss.pos_t, powerloss.print_dir, powerloss.P_file_name);
         else
-          sprintf(tmp_y, "M32 S%lu !%s", pos_t, P_file_name);
+          sprintf_P(tmp_y, PSTR("M32 S%lu !%s"), powerloss.pos_t, powerloss.P_file_name);
 
         //SERIAL_ECHOLNPAIR("Gco : ", tmp_y);
 
-        //memset(print_dir,0,sizeof(print_dir));
-        recovery = 0;
+        //ZERO(powerloss.print_dir);
+        powerloss.recovery = Rec_Idle;
         (void)settings.poweroff_save();
 
         enqueue_and_echo_command(tmp_y);
@@ -14737,7 +14728,7 @@ void loop() {
     }
   }
 
-  if (recovery == 4) {
+  if (powerloss.recovery == Rec_FilRunout) {
     SERIAL_ECHOLNPGM("filament out");
     gcode_M25();
     // sprintf_P(tmp_y,PSTR("M25"));
@@ -14747,7 +14738,7 @@ void loop() {
     sprintf_P(tmp_y, PSTR("G28 X"));
     //SERIAL_ECHOLN(tmp_y);
     enqueue_and_echo_command(tmp_y);
-    recovery = 0;
+    powerloss.recovery = Rec_Idle;
   }
   endstops.report_state();
   idle();

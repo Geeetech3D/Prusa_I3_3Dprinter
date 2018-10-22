@@ -20,7 +20,6 @@
  *
  */
 
-
 /*****************************************************************
  * GT2560 V3.0 pin assignment
  ******************************************************************/
@@ -85,10 +84,10 @@
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN         11   //8
-#define TEMP_1_PIN          9
-#define TEMP_2_PIN         -1
-#define TEMP_BED_PIN       10
+#define TEMP_0_PIN         11   // Analog Input (8)
+#define TEMP_1_PIN          9   // Analog Input
+#define TEMP_2_PIN         -1   // Analog Input
+#define TEMP_BED_PIN       10   // Analog Input
 
 //
 // Heaters / Fans
