@@ -544,8 +544,6 @@
    * Used to interactively edit the mesh by placing the
    * nozzle in a problem area and doing a G29 P4 R command.
    */
-
-  
   void gcode_G26() {
     SERIAL_ECHOLNPGM("G26 command started. Waiting for heater(s).");
     float tmp, start_angle, end_angle;
@@ -554,7 +552,7 @@
 
     // Don't allow Mesh Validation without homing first,
     // or if the parameter parsing did not go OK, abort
-    //if (axis_unhomed_error()) return;
+    if (axis_unhomed_error()) return;
 
     g26_extrusion_multiplier    = EXTRUSION_MULTIPLIER;
     g26_retraction_multiplier   = RETRACTION_MULTIPLIER;
