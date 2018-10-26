@@ -173,7 +173,7 @@
  * M250 - Set LCD contrast: "M250 C<contrast>" (0-63). (Requires LCD support)
  * M260 - i2c Send Data (Requires EXPERIMENTAL_I2CBUS)
  * M261 - i2c Request Data (Requires EXPERIMENTAL_I2CBUS)
- * M280 - Set servo position absolute: "M280 P<index> S<angle|µs>". (Requires servos)
+ * M280 - Set servo position absolute: "M280 P<index> S<angle|Âµs>". (Requires servos)
  * M290 - Babystepping (Requires BABYSTEPPING)
  * M300 - Play beep sound S<frequency Hz> P<duration ms>
  * M301 - Set PID parameters P I and D. (Requires PIDTEMP)
@@ -192,6 +192,8 @@
  * M405 - Enable Filament Sensor flow control. "M405 D<delay_cm>". (Requires FILAMENT_WIDTH_SENSOR)
  * M406 - Disable Filament Sensor flow control. (Requires FILAMENT_WIDTH_SENSOR)
  * M407 - Display measured filament diameter in millimeters. (Requires FILAMENT_WIDTH_SENSOR)
+ * M408 - Enable filament runout sensor(s). (Requires FILAMENT_RUNOUT_SENSOR)
+ * M409 - Disable filament runout sensor(s). (Requires FILAMENT_RUNOUT_SENSOR)
  * M410 - Quickstop. Abort all planned moves.
  * M420 - Enable/Disable Leveling (with current values) S1=enable S0=disable (Requires MESH_BED_LEVELING or ABL)
  * M421 - Set a single Z coordinate in the Mesh Leveling grid. X<units> Y<units> Z<units> (Requires MESH_BED_LEVELING or AUTO_BED_LEVELING_UBL)
@@ -261,14 +263,13 @@
 #include "types.h"
 #include "gcode.h"
 
+// Power Loss Recovery
+powerloss_t powerloss; // (zero'ed by bootloader)
 
-char P_file_name[13],recovery=0;//=0 idle,=1~2 recoverying,=3 power down
-char print_dir[13];
-unsigned int Z_t=0,T0_t=0,T1_t=0,B_t=0;
-uint8_t active_extruder_save=0;
-uint32_t pos_t=0,E_t=0;
 char tmp_y[50];
+
 extern char lcd_status_message[];
+
 #if HAS_ABL
   #include "vector_3.h"
   #if ENABLED(AUTO_BED_LEVELING_LINEAR)
@@ -643,7 +644,10 @@ uint8_t target_extruder;
 #endif
 
 float cartes[XYZ] = { 0 };
- bool filament_switch = false;   
+
+// Filament Runout Sensors
+bool filament_runout_enabled = false;
+
 #if ENABLED(FILAMENT_WIDTH_SENSOR)
   bool filament_sensor = false;                                 // M405 turns on filament sensor control. M406 turns it off.
   float filament_width_nominal = DEFAULT_NOMINAL_FILAMENT_DIA,  // Nominal filament width. Change with M404.
@@ -2652,7 +2656,7 @@ static void clean_up_after_endstop_or_probe_move() {
     //                                : ((c < b) ? b : (a < c) ? a : c);
   }
 
-  //Enable this if your SCARA uses 180° of total area
+  //Enable this if your SCARA uses 180Â° of total area
   //#define EXTRAPOLATE_FROM_EDGE
 
   #if ENABLED(EXTRAPOLATE_FROM_EDGE)
@@ -7865,8 +7869,7 @@ inline void gcode_M109() {
   } while (wait_for_heatup && TEMP_CONDITIONS);
 
   if (wait_for_heatup) {
-    LCD_MESSAGEPGM(MSG_HEATING_COMPLETE);//liu....
-    //strcpy(lcd_status_message,  P_file_name);
+    LCD_MESSAGEPGM(MSG_HEATING_COMPLETE);
     #if ENABLED(PRINTER_EVENT_LEDS)
       leds.set_white();
     #endif
@@ -8778,7 +8781,7 @@ inline void gcode_M204() {
  *
  *    S = Min Feed Rate (units/s)
  *    T = Min Travel Feed Rate (units/s)
- *    B = Min Segment Time (µs)
+ *    B = Min Segment Time (Âµs)
  *    X = Max X Jerk (units/sec^2)
  *    Y = Max Y Jerk (units/sec^2)
  *    Z = Max Z Jerk (units/sec^2)
@@ -9617,14 +9620,11 @@ void quickstop_stepper() {
   SYNC_PLAN_POSITION_KINEMATIC();
 }
 
-inline void gcode_M408() {//´ò¿ªºÄ²Ä¼ì²â
-SERIAL_ECHOLN("liu......filament_switch = true");
-	filament_switch = true;
-	}
-inline void gcode_M409() {//¹Ø±ÕºÄ²Ä¼ì²â
-SERIAL_ECHOLN("liu......filament_switch = false");
-	filament_switch = false;
-	}
+//
+// Filament Runout Sensors
+//
+inline void gcode_M408() { filament_runout_enabled = true; }
+inline void gcode_M409() { filament_runout_enabled = false; }
 
 #if HAS_LEVELING
   /**
@@ -9881,7 +9881,6 @@ SERIAL_ECHOLN("liu......filament_switch = false");
  */
 inline void gcode_M500() {
   (void)settings.save();
-  //(void)settings.poweroff_save();
 }
 
 /**
@@ -9889,7 +9888,6 @@ inline void gcode_M500() {
  */
 inline void gcode_M501() {
   (void)settings.load();
-  //(void)settings.poweroff_load();
 }
 
 /**
@@ -11224,7 +11222,6 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
           // Activate the new extruder ahead of calling set_axis_is_at_home!
           active_extruder = tmp_extruder;
 
-          
           // This function resets the max/min values - the current position may be overwritten below.
           set_axis_is_at_home(X_AXIS);
 
@@ -11563,8 +11560,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
 
     SERIAL_ECHO_START();
     SERIAL_ECHOLNPAIR(MSG_ACTIVE_EXTRUDER, (int)active_extruder);
-    active_extruder_save =active_extruder;  //liu...
-    SERIAL_ECHOLNPAIR("T1 : ", (int)active_extruder);//liu
+
   #endif // !MIXING_EXTRUDER || MIXING_VIRTUAL_TOOLS <= 1
 }
 
@@ -11827,10 +11823,6 @@ void process_parsed_command() {
 
         case 928: // M928: Start SD write
           gcode_M928(); break;
-
-	 
-
-		  
       #endif // SDSUPPORT
 
       case 31: // M31: Report time since the start of SD print or last M109
@@ -12248,12 +12240,14 @@ void process_parsed_command() {
           gcode_M407();
           break;
       #endif // FILAMENT_WIDTH_SENSOR
-        case 408:  //
-          gcode_M408();
-          break;
-        case 409:   //
-          gcode_M409();
-          break;
+
+      case 408:   // M408: Filament runout on
+        gcode_M408();
+        break;
+      case 409:   // M409: Filament runout off
+        gcode_M409();
+        break;
+
       #if HAS_LEVELING
         case 420: // M420: Enable/Disable Bed Leveling
           gcode_M420();
@@ -14319,8 +14313,6 @@ void stop() {
   }
 }
 
-
-
 /**
  * Marlin entry-point: Set up before the program loop
  *  - Set up the kill pin, filament runout, power hold
@@ -14328,16 +14320,16 @@ void stop() {
  *  - Print startup messages and diagnostics
  *  - Get EEPROM or default settings
  *  - Initialize managers for:
- *    • temperature
- *    • planner
- *    • watchdog
- *    • stepper
- *    • photo pin
- *    • servos
- *    • LCD controller
- *    • Digipot I2C
- *    • Z probe sled
- *    • status LEDs
+ *    â€¢ temperature
+ *    â€¢ planner
+ *    â€¢ watchdog
+ *    â€¢ stepper
+ *    â€¢ photo pin
+ *    â€¢ servos
+ *    â€¢ LCD controller
+ *    â€¢ Digipot I2C
+ *    â€¢ Z probe sled
+ *    â€¢ status LEDs
  */
 void setup() {
 
@@ -14383,6 +14375,7 @@ void setup() {
   SERIAL_ECHOPGM(MSG_MARLIN);
   SERIAL_CHAR(' ');
   SERIAL_ECHOLNPGM(SHORT_BUILD_VERSION);
+  //SERIAL_ECHOLNPGM(MOTHERBOARD); // [liu]
   SERIAL_EOL();
 
   #if defined(STRING_DISTRIBUTION_DATE) && defined(STRING_CONFIG_H_AUTHOR)
@@ -14572,20 +14565,23 @@ void setup() {
     WRITE(LCD_PINS_RS, HIGH);
   #endif
 
-  
-   /////////////
-  pinMode(A15, INPUT);
-  pinMode(A12, INPUT);
-  pinMode(A13, INPUT);
-  if(recovery==3)
-   {
-	   lcd_resume_menu() ;
-	  SERIAL_ECHOLN("recovery==3");
-  
-	 //return;
-   }
-   sprintf_P(tmp_y,PSTR("recovery%d"),recovery);
-   SERIAL_ECHOLN(tmp_y);
+  // A10D Custom pins
+  #if PIN_EXISTS(CONTINUITY)
+    SET_INPUT(CONTINUITY_PIN);
+  #endif
+  #if PIN_EXISTS(FIL_RUNOUT_PIN)
+    SET_INPUT(FIL_RUNOUT_PIN);
+  #endif
+  #if PIN_EXISTS(FIL_RUNOUT2_PIN)
+    SET_INPUT(FIL_RUNOUT2_PIN);
+  #endif
+
+  if (powerloss.recovery == Rec_Outage) {
+    lcd_goto_resume_menu();
+    //SERIAL_ECHOLN("Rec_Outage");
+    //return;
+  }
+  //SERIAL_ECHOLNPAIR("recovery=", int(powerloss.recovery));
 }
 
 /**
@@ -14643,7 +14639,6 @@ void loop() {
       process_next_command();
 
     #endif // SDSUPPORT
-	 
 
     // The queue may be reset by a command handler or by code invoked by idle() within a handler
     if (commands_in_queue) {
@@ -14652,74 +14647,58 @@ void loop() {
     }
   }
 
- if((commands_in_queue==0)&&(recovery==1))
-	  {
-		   //////////////////
-		   
-			sprintf_P(tmp_y,PSTR("M190 S%u"),B_t);
-			SERIAL_ECHOLN(tmp_y);
-			enqueue_and_echo_command(tmp_y);
-			//////////////
-		   //////////////////
-			sprintf_P(tmp_y,PSTR("M104 T1 S%u"),T1_t);
-			SERIAL_ECHOLN(tmp_y);
-			enqueue_and_echo_command(tmp_y);
-			sprintf_P(tmp_y,PSTR("M109 T0 S%u"),T0_t);
-			SERIAL_ECHOLN(tmp_y);
-			enqueue_and_echo_command(tmp_y);
-			sprintf_P(tmp_y,PSTR("M109 T1 S%u"),T1_t);
-			SERIAL_ECHOLN(tmp_y);
-			enqueue_and_echo_command(tmp_y);
-			//////////////
-			//////////////////
-			sprintf_P(tmp_y,PSTR("G28 XY"));
-			SERIAL_ECHOLN(tmp_y);
-			enqueue_and_echo_command(tmp_y);
-
-			
-			sprintf_P(tmp_y,PSTR("T%d"),active_extruder_save);
-			SERIAL_ECHOLN(tmp_y);
-			enqueue_and_echo_command(tmp_y);
-			SERIAL_ECHOLNPAIR("T00 : ", tmp_y);//liu
-			//////////////
-			//////////////////
-			//sprintf_P(tmp_y,PSTR("G28 Y"));
-			//SERIAL_ECHOLN(tmp_y);
-			//enqueue_and_echo_command(tmp_y);
-			//////////////
-			axis_homed[Z_AXIS] = true;
-			axis_known_position[Z_AXIS]= true;
-			recovery=2;
-	  }
-	if((commands_in_queue==0)&&(recovery==2))
-	{
-		if(strlen(print_dir)>1)
-			sprintf(tmp_y,"M32 S%lu !/%s/%s",pos_t,print_dir,P_file_name);
-		else
-			sprintf(tmp_y,"M32 S%lu !%s",pos_t,P_file_name);
-		SERIAL_ECHOLNPAIR("Gco : ", tmp_y);
-			
-
-	      //memset(print_dir,0,sizeof(print_dir));
-	      recovery=0;
-	     (void)settings.poweroff_save();
-		
-		enqueue_and_echo_command(tmp_y);
-		SERIAL_ECHOLN(tmp_y);
-	 
-	}   
-  if((recovery==4))
-  {
-       SERIAL_ECHOLN("filament out");
-       gcode_M25();
-       // sprintf_P(tmp_y,PSTR("M25"));
-      //  SERIAL_ECHOLN(tmp_y);
-      //  enqueue_and_echo_command(tmp_y);
-        ///////
-        sprintf_P(tmp_y,PSTR("G28 X"));
-        SERIAL_ECHOLN(tmp_y);
+  if (commands_in_queue == 0) {
+    switch (powerloss.recovery) {
+      default: break;
+      case Rec_Recovering1:
+        sprintf_P(tmp_y, PSTR("M190 S%u"), powerloss.B_t);
+        //SERIAL_ECHOLN(tmp_y);
         enqueue_and_echo_command(tmp_y);
-       recovery=0;
+
+        sprintf_P(tmp_y, PSTR("M109 T0 S%u"), powerloss.T0_t);
+        //SERIAL_ECHOLN(tmp_y);
+        enqueue_and_echo_command(tmp_y);
+
+        sprintf_P(tmp_y, PSTR("G28 X"));
+        //SERIAL_ECHOLN(tmp_y);
+        enqueue_and_echo_command(tmp_y);
+
+        sprintf_P(tmp_y,PSTR("G28 Y"));
+        //SERIAL_ECHOLN(tmp_y);
+        enqueue_and_echo_command(tmp_y);
+
+        axis_homed[Z_AXIS] = axis_known_position[Z_AXIS] = true;
+        powerloss.recovery = Rec_Recovering2;
+        break;
+      case Rec_Recovering2:
+        if (strlen(powerloss.print_dir) > 1)
+          sprintf_P(tmp_y, PSTR("M32 S%lu !/%s/%s"), powerloss.pos_t, powerloss.print_dir, powerloss.P_file_name);
+        else
+          sprintf_P(tmp_y, PSTR("M32 S%lu !%s"), powerloss.pos_t, powerloss.P_file_name);
+
+        //SERIAL_ECHOLNPAIR("Gco : ", tmp_y);
+
+        //ZERO(powerloss.print_dir);
+        powerloss.recovery = Rec_Idle;
+        (void)settings.poweroff_save();
+
+        enqueue_and_echo_command(tmp_y);
+        //SERIAL_ECHOLN(tmp_y);
+        break;
+    }
+  }
+
+  if (powerloss.recovery == Rec_FilRunout) {
+    SERIAL_ECHOLNPGM("filament out");
+    gcode_M25();
+    // sprintf_P(tmp_y,PSTR("M25"));
+    //  SERIAL_ECHOLN(tmp_y);
+    //  enqueue_and_echo_command(tmp_y);
+    ///////
+    sprintf_P(tmp_y, PSTR("G28 X"));
+    //SERIAL_ECHOLN(tmp_y);
+    enqueue_and_echo_command(tmp_y);
+    powerloss.recovery = Rec_Idle;
   }
   endstops.report_state();
   idle();

@@ -35,10 +35,6 @@
 #include "utility.h"
 #include "gcode.h"
 
-extern unsigned int Z_t,T0_t,B_t;
-extern uint32_t pos_t,E_t;
-extern  char P_file_name[13],recovery;
-
 #if HAS_BUZZER && DISABLED(LCD_USE_I2C_BUZZER)
   #include "buzzer.h"
 #endif
@@ -307,9 +303,15 @@ uint16_t max_display_update_time = 0;
 
   #define MENU_BACK(LABEL) MENU_ITEM(back, LABEL, 0)
 
+  #define MENU_ITEM_ADDON_START(X) \
+    if (lcdDrawUpdate && _menuLineNr == _thisItemNr - 1) { \
+      SETCURSOR(X, _lcdLineNr)
+
+  #define MENU_ITEM_ADDON_END() } (0)
+
   // Used to print static text with no visible cursor.
   // Parameters: label [, bool center [, bool invert [, char *value] ] ]
-  #define STATIC_ITEM(LABEL, ...) \
+  #define STATIC_ITEM(LABEL, ...) do{ \
     if (_menuLineNr == _thisItemNr) { \
       if (_skipStatic && encoderLine <= _thisItemNr) { \
         encoderPosition += ENCODER_STEPS_PER_MENU_ITEM; \
@@ -318,7 +320,7 @@ uint16_t max_display_update_time = 0;
       if (lcdDrawUpdate) \
         lcd_implementation_drawmenu_static(_lcdLineNr, PSTR(LABEL), ## __VA_ARGS__); \
     } \
-    ++_thisItemNr
+    ++_thisItemNr; }while(0)
 
   #if ENABLED(ENCODER_RATE_MULTIPLIER)
 
@@ -606,68 +608,46 @@ uint16_t max_display_update_time = 0;
 
 #endif // ULTIPANEL
 
-void lcd_resume_menu_ok(void) 
-{
-  char tmp_n[64+10];
-  recovery=0;
-//  Config_StoreSettings();
+void lcd_resume_menu_ok(void) {
+  char tmp_n[64 + 10];
+  powerloss.recovery = Rec_Idle;
+  //Config_StoreSettings();
   //Config_RetrieveSettings();
-  lcd_goto_screen(lcd_status_screen);
- // enquecommand("M930"); 
-  SERIAL_ECHOLN(P_file_name);
-  recovery=1;
-  
-  sprintf_P(tmp_n,PSTR("G92 Z%u.%u"),Z_t/10,Z_t%10);
-  SERIAL_ECHOLN(tmp_n);
+  lcd_return_to_status();
+  // enqueuecommand("M930");
+  powerloss.recovery = Rec_Recovering1;
+
+  sprintf_P(tmp_n, PSTR("G92 Z%u.%u"), powerloss.Z_t / 10, powerloss.Z_t % 10);
   enqueue_and_echo_command(tmp_n);
-  //////////////////
-  sprintf_P(tmp_n,PSTR("G92 E%u"),E_t);
-  SERIAL_ECHOLN(tmp_n);
+
+  sprintf_P(tmp_n, PSTR("G92 E%u"), powerloss.E_t);
   enqueue_and_echo_command(tmp_n);
-  //////////////
-  //////////////////
-  sprintf_P(tmp_n,PSTR("M104 S%u"),T0_t);
-  SERIAL_ECHOLN(tmp_n);
+
+  sprintf_P(tmp_n, PSTR("M104 S%u"), powerloss.T0_t);
   enqueue_and_echo_command(tmp_n);
-  //////////////
-}
-void lcd_resume_menu_cancel(void) 
-{
-   recovery=0;
-   //Config_StoreSettings();
-   //Config_RetrieveSettings();
-  lcd_goto_screen(lcd_status_screen);
-   
- 
 }
 
-void lcd_resume_menu0(void) 
-{
+void lcd_resume_menu_cancel(void) {
+  char tmp_n[64 + 10];
+  //Config_StoreSettings();
+  //Config_RetrieveSettings();
+  powerloss.recovery = Rec_Idle;
+  lcd_return_to_status();
+}
+
+void lcd_resume_menu(void) {
   START_MENU();
-  //////////
-  MENU_ITEM(submenu, "Resume print ?", lcd_resume_menu0);
-  MENU_ITEM(submenu, "Yes  ", lcd_resume_menu_ok); 
-  MENU_ITEM(submenu, "NO  ", lcd_resume_menu_cancel);
- /* lcd.setCursor(0,0);
-  lcd.print("Resume print ?  ");
-  
-  MENU_ITEM(submenu, "", lcd_resume_menu_ok);
-  lcd.setCursor(1,1);
-  lcd.print("Yes  ");
-  MENU_ITEM(submenu, "", lcd_resume_menu_cancel);
-  lcd.setCursor(1,2);
-  lcd.print("No  ");*/
+
+  STATIC_ITEM(MSG_POWER_OUTAGE);
+  MENU_ITEM(function, MSG_RESUME_PRINT, lcd_resume_menu_ok);
+  MENU_ITEM(function, MSG_CANCEL_PRINT, lcd_resume_menu_cancel);
+
   END_MENU();
-
 }
 
-
-void lcd_resume_menu(void) 
-{
-	lcd_goto_screen(lcd_resume_menu0);
-
+void lcd_goto_resume_menu(void) {
+  lcd_goto_screen(lcd_resume_menu);
 }
-
 
 /**
  *
@@ -677,8 +657,9 @@ void lcd_resume_menu(void)
  */
 
 void lcd_status_screen() {
-	if(recovery==3)
-		return;
+
+  if (powerloss.recovery == Rec_Outage) return;
+
   #if ENABLED(ULTIPANEL)
     ENCODER_DIRECTION_NORMAL();
     ENCODER_RATE_MULTIPLY(false);
@@ -929,9 +910,9 @@ void kill_screen(const char* lcd_msg) {
       bar_percent = constrain(bar_percent, 0, 100);
       encoderPosition = 0;
       lcd_implementation_drawmenu_static(0, PSTR(MSG_PROGRESS_BAR_TEST), true, true);
-      lcd.setCursor((LCD_WIDTH) / 2 - 2, LCD_HEIGHT - 2);
-      lcd.print(itostr3(bar_percent)); lcd.write('%');
-      lcd.setCursor(0, LCD_HEIGHT - 1); lcd_draw_progress_bar(bar_percent);
+      SETCURSOR((LCD_WIDTH) / 2 - 2, LCD_HEIGHT - 2);
+      LCDPRINT(itostr3(bar_percent)); LCDWRITE('%');
+      SETCURSOR(0, LCD_HEIGHT - 1); lcd_draw_progress_bar(bar_percent);
     }
 
     void _progress_bar_test() {
@@ -3070,10 +3051,17 @@ void kill_screen(const char* lcd_msg) {
           STATIC_ITEM(MSG_MOVE_E, true, true); break;
       }
     }
-    MENU_BACK(MSG_MOVE_AXIS);
-    MENU_ITEM(submenu, MSG_MOVE_10MM, lcd_move_menu_10mm);
-    MENU_ITEM(submenu, MSG_MOVE_1MM, lcd_move_menu_1mm);
-    MENU_ITEM(submenu, MSG_MOVE_01MM, lcd_move_menu_01mm);
+    #if ENABLED(PREVENT_COLD_EXTRUSION)
+      if (axis == E_AXIS && thermalManager.tooColdToExtrude(active_extruder))
+        MENU_BACK(MSG_HOTEND_TOO_COLD);
+      else
+    #endif
+    {
+      MENU_BACK(MSG_MOVE_AXIS);
+      MENU_ITEM(submenu, MSG_MOVE_10MM, lcd_move_menu_10mm);
+      MENU_ITEM(submenu, MSG_MOVE_1MM, lcd_move_menu_1mm);
+      MENU_ITEM(submenu, MSG_MOVE_01MM, lcd_move_menu_01mm);
+    }
     END_MENU();
   }
   void lcd_move_get_x_amount()        { _lcd_move_distance_menu(X_AXIS, lcd_move_x); }
@@ -4516,9 +4504,9 @@ void kill_screen(const char* lcd_msg) {
       #endif
       UNUSED(longFilename);
       card.openAndPrintFile(filename);
-	  strcpy(P_file_name,  filename);
-      SERIAL_ECHOLN(P_file_name);
-	  recovery=0;
+      strcpy(powerloss.P_file_name, filename);
+      SERIAL_ECHOLN(powerloss.P_file_name);
+      powerloss.recovery = Rec_Idle;
       lcd_return_to_status();
     }
 
@@ -4540,23 +4528,13 @@ void kill_screen(const char* lcd_msg) {
   }
 
 #endif // ULTIPANEL
-/*
-    #define SHIFT_CLK      38
-    #define SHIFT_LD       42
-    #define SHIFT_OUT      40
-    #define SHIFT_EN       17
-    #define BTN_EN1      42
-      #define BTN_EN2      40
-*/
+
 void lcd_init() {
 
   lcd_implementation_init();
 
   #if ENABLED(NEWPANEL)
 
- // SET_INPUT(BTN_EN1);
- //   SET_INPUT(BTN_EN2);
-    
     #if BUTTON_EXISTS(EN1)
       SET_INPUT_PULLUP(BTN_EN1);
     #endif
@@ -4897,7 +4875,7 @@ void lcd_update() {
       // Return to Status Screen after a timeout
       if (currentScreen == lcd_status_screen || defer_return_to_status)
         return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;
-      else if (ELAPSED(ms, return_to_status_ms)&&(recovery!=3))
+      else if (ELAPSED(ms, return_to_status_ms) && powerloss.recovery != Rec_Outage)
         lcd_return_to_status();
 
     #endif // ULTIPANEL

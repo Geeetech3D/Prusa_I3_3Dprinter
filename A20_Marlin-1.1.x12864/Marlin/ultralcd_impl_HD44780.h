@@ -637,8 +637,8 @@ FORCE_INLINE void _draw_heater_status(const int8_t heater, const char prefix, co
   const float t1 = (isBed ? thermalManager.degBed()       : thermalManager.degHotend(heater)),
               t2 = (isBed ? thermalManager.degTargetBed() : thermalManager.degTargetHotend(heater));
 
-  if (prefix >= 0) lcd.print(prefix);
-
+  //if (prefix >= 0) lcd.print((char)prefix);
+  lcd.print((char)prefix);
   lcd.print(itostr3(t1 + 0.5));
   lcd.write('/');
 
@@ -662,11 +662,11 @@ FORCE_INLINE void _draw_heater_status(const int8_t heater, const char prefix, co
   #endif
       lcd.print(itostr3left(t2 + 0.5));
 
-  if (prefix >= 0) {
-    lcd.print((char)LCD_DEGREE_CHAR);
-    lcd.write(' ');
-    if (t2 < 10) lcd.write(' ');
-  }
+    // if (prefix >= 0) { // liu...
+      lcd.print((char)LCD_DEGREE_CHAR);
+      lcd.write(' ');
+      if (t2 < 10) lcd.write(' ');
+    // }
 }
 
 #if ENABLED(LCD_PROGRESS_BAR)
@@ -794,7 +794,7 @@ static void lcd_implementation_status_screen() {
         // If we both have a 2nd extruder and a heated bed,
         // show the heated bed temp on the left,
         // since the first line is filled with extruder temps
-      _draw_heater_status(-1, LCD_BEDTEMP_CHAR, blink);
+        _draw_heater_status(-1, LCD_BEDTEMP_CHAR, blink);
 
       #else
         // Before homing the axis letters are blinking 'X' <-> '?'.

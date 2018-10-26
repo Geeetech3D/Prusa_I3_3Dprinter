@@ -54,9 +54,6 @@
 #include "cardreader.h"
 #include "speed_lookuptable.h"
 #include "configuration_store.h"
-extern char P_file_name[13],recovery;
-extern unsigned int Z_t,T0_t,B_t;
-extern uint32_t pos_t,E_t;
 
 #if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(ULTIPANEL)
   #include "ubl.h"
@@ -373,28 +370,33 @@ extern MarlinSettings settings;
  *  4000   500  Hz - init rate
  */
 ISR(TIMER1_COMPA_vect) {
- 
-     if((digitalRead(A0)==0)&&(P_file_name[0])&&(recovery==0))
-	  {
-		 SERIAL_ECHOLN("Down");
-		// enquecommand("M929");
-		char tmp_d[32];
-	  
-	   Z_t=current_position[Z_AXIS]*10;
-	   E_t=current_position[E_AXIS];
-	   pos_t=card.getStatus();
-	   T0_t=thermalManager.degHotend(0);
-	   B_t=thermalManager.degBed();
-	   recovery=3;
-	   settings.save();
-	   settings.load();
-	   
-	   sprintf_P(tmp_d,PSTR("Z%u,E%lu,P%lu,T%u,B%u,"),Z_t,E_t,pos_t,T0_t,B_t);
-	   SERIAL_ECHOLN(tmp_d);
-	   sprintf_P(tmp_d,PSTR("%s,"),P_file_name);
-	   SERIAL_ECHOLN(tmp_d);
-	   
-	  }
+
+  //
+  // Power Outage
+  //
+  #if PIN_EXISTS(CONTINUITY)
+
+    if (!READ(CONTINUITY_PIN) && powerloss.P_file_name[0] && powerloss.recovery == Rec_Idle && print_job_timer.isRunning()) {
+      //SERIAL_ECHOLNPGM("Down");
+      // enqueuecommand("M929");
+
+      powerloss.Z_t = current_position[Z_AXIS] * 10;
+      powerloss.E_t = current_position[E_AXIS];
+      powerloss.pos_t = card.getStatus();
+      powerloss.T0_t = thermalManager.degTargetHotend(0) + 0.5;
+      powerloss.B_t = thermalManager.degTargetBed() + 0.5;
+      powerloss.recovery = Rec_Outage;
+      //settings.save();
+      (void)settings.poweroff_save();
+      settings.load();
+
+      char tmp_d[32];
+      sprintf_P(tmp_d, PSTR("Z%u,E%lu,P%lu,T%u,B%u,"), powerloss.Z_t, powerloss.E_t, powerloss.pos_t, powerloss.T0_t, powerloss.B_t);
+      SERIAL_ECHO(tmp_d);
+      SERIAL_ECHOLN(powerloss.P_file_name);
+    }
+
+  #endif
 
   #if ENABLED(LIN_ADVANCE)
     Stepper::advance_isr_scheduler();
@@ -411,8 +413,6 @@ void Stepper::isr() {
 
   #define ENDSTOP_NOMINAL_OCR_VAL 3000 // Check endstops every 1.5ms to guarantee two stepper ISRs within 5ms for BLTouch
   #define OCR_VAL_TOLERANCE       1000 // First max delay is 2.0ms, last min delay is 0.5ms, all others 1.5ms
-
-
 
   #if DISABLED(LIN_ADVANCE)
     // Disable Timer0 ISRs and enable global ISR again to capture UART events (incoming chars)

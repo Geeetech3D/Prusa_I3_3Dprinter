@@ -199,11 +199,6 @@ MarlinSettings settings;
 #include "stepper.h"
 #include "gcode.h"
 
-extern unsigned int Z_t,T0_t,B_t;
-extern uint32_t pos_t,E_t;
-extern 	char P_file_name[13],recovery;
-
-
 #if ENABLED(MESH_BED_LEVELING)
   #include "mesh_bed_leveling.h"
 #endif
@@ -729,13 +724,18 @@ void MarlinSettings::postprocess() {
       dummy = 0.0f;
       for (uint8_t q = 3; q--;) EEPROM_WRITE(dummy);
     #endif
-	  EEPROM_WRITE(Z_t);
-	  EEPROM_WRITE(E_t);
-	  EEPROM_WRITE(pos_t);
-	  EEPROM_WRITE(T0_t);
-	  EEPROM_WRITE(B_t);
-	  EEPROM_WRITE(recovery);
-	  EEPROM_WRITE(P_file_name);
+
+    //
+    // Power Loss Recovery
+    //
+
+    EEPROM_WRITE(powerloss.Z_t);
+    EEPROM_WRITE(powerloss.E_t);
+    EEPROM_WRITE(powerloss.pos_t);
+    EEPROM_WRITE(powerloss.T0_t);
+    EEPROM_WRITE(powerloss.B_t);
+    EEPROM_WRITE(powerloss.recovery);
+    EEPROM_WRITE(powerloss.P_file_name);
 
     if (!eeprom_error) {
       const int eeprom_size = eeprom_index;
@@ -1219,13 +1219,17 @@ void MarlinSettings::postprocess() {
         for (uint8_t q = 3; q--;) EEPROM_READ(dummy);
       #endif
 
-	  EEPROM_READ(Z_t);
-	  EEPROM_READ(E_t);
-	  EEPROM_READ(pos_t);
-	  EEPROM_READ(T0_t);
-	  EEPROM_READ(B_t);
-	  EEPROM_READ(recovery);
-	  EEPROM_READ(P_file_name);
+      //
+      // Power Loss Recovery
+      //
+
+      EEPROM_READ(powerloss.Z_t);
+      EEPROM_READ(powerloss.E_t);
+      EEPROM_READ(powerloss.pos_t);
+      EEPROM_READ(powerloss.T0_t);
+      EEPROM_READ(powerloss.B_t);
+      EEPROM_READ(powerloss.recovery);
+      EEPROM_READ(powerloss.P_file_name);
 
       if (working_crc == stored_crc) {
         postprocess();

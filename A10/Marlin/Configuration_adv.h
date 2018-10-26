@@ -298,7 +298,7 @@
 //#define MENU_ADDAUTOSTART
 
 // Show a progress bar on the LCD when printing from SD?
-//#define LCD_PROGRESS_BAR
+#define LCD_PROGRESS_BAR
 
 #ifdef LCD_PROGRESS_BAR
   // Amount of time (ms) to show the bar
@@ -306,7 +306,7 @@
   // Amount of time (ms) to show the status message
   #define PROGRESS_BAR_MSG_TIME 3000
   // Amount of time (ms) to retain the status message (0=forever)
-  #define PROGRESS_MSG_EXPIRE   0
+  #define PROGRESS_MSG_EXPIRE 180000
   // Enable this to show messages for MSG_TIME then hide them
   //#define PROGRESS_MSG_ONCE
 #endif

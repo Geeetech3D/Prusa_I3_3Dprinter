@@ -48,8 +48,8 @@
 #ifndef MSG_SD_REMOVED
   #define MSG_SD_REMOVED                      _UxGT("Card removed")
 #endif
-#ifndef MSG_FILAMENT_ERROE
-  #define MSG_FILAMENT_ERROE                      _UxGT("Err:No Filament")
+#ifndef MSG_FILAMENT_ERROR
+  #define MSG_FILAMENT_ERROR                  _UxGT("Err:No Filament")
 #endif
 #ifndef MSG_LCD_ENDSTOPS
   #define MSG_LCD_ENDSTOPS                    _UxGT("Endstops") // Max length 8 characters
@@ -441,6 +441,9 @@
 #ifndef MSG_MOVE_E
   #define MSG_MOVE_E                          _UxGT("Extruder")
 #endif
+#ifndef MSG_HOTEND_TOO_COLD
+  #define MSG_HOTEND_TOO_COLD                 _UxGT("Hotend too cold")
+#endif
 #ifndef MSG_MOVE_01MM
   #define MSG_MOVE_01MM                       _UxGT("Move 0.1mm")
 #endif
@@ -594,12 +597,14 @@
 #ifndef MSG_FILAMENT_DIAM
   #define MSG_FILAMENT_DIAM                   _UxGT("Fil. Dia.")
 #endif
-#ifndef MSG_SWITCH_FILAMENT_ON
-  #define MSG_SWITCH_FILAMENT_ON                    _UxGT("Filament On ")
+#ifndef MSG_RUNOUT_SENSORS
+  #define MSG_RUNOUT_SENSORS                  _UxGT("Runout sensors")
 #endif
-#ifndef MSG_SWITCH_FILAMENT_OFF
-  #define MSG_SWITCH_FILAMENT_OFF                   _UxGT("Filament Off")
+#ifndef MSG_POWER_OUTAGE
+  #define MSG_POWER_OUTAGE                    _UxGT("Power outage")
 #endif
+
+
 #ifndef MSG_ADVANCE_K
   #define MSG_ADVANCE_K                       _UxGT("Advance K")
 #endif
@@ -638,6 +643,9 @@
 #endif
 #ifndef MSG_STOP_PRINT
   #define MSG_STOP_PRINT                      _UxGT("Stop print")
+#endif
+#ifndef MSG_CANCEL_PRINT
+  #define MSG_CANCEL_PRINT                    _UxGT("Cancel print")
 #endif
 #ifndef MSG_CARD_MENU
   #define MSG_CARD_MENU                       _UxGT("Print from SD")

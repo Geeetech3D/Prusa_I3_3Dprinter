@@ -192,6 +192,8 @@
  * M405 - Enable Filament Sensor flow control. "M405 D<delay_cm>". (Requires FILAMENT_WIDTH_SENSOR)
  * M406 - Disable Filament Sensor flow control. (Requires FILAMENT_WIDTH_SENSOR)
  * M407 - Display measured filament diameter in millimeters. (Requires FILAMENT_WIDTH_SENSOR)
+ * M408 - Enable filament runout sensor(s). (Requires FILAMENT_RUNOUT_SENSOR)
+ * M409 - Disable filament runout sensor(s). (Requires FILAMENT_RUNOUT_SENSOR)
  * M410 - Quickstop. Abort all planned moves.
  * M420 - Enable/Disable Leveling (with current values) S1=enable S0=disable (Requires MESH_BED_LEVELING or ABL)
  * M421 - Set a single Z coordinate in the Mesh Leveling grid. X<units> Y<units> Z<units> (Requires MESH_BED_LEVELING or AUTO_BED_LEVELING_UBL)
@@ -14611,13 +14613,13 @@ void setup() {
     WRITE(LCD_PINS_RS, HIGH);
   #endif
 
-  // A10M Custom pins
+  // A20M Custom pins
   SET_INPUT(CONTINUITY_PIN);
   SET_INPUT(FIL_RUNOUT_PIN);
   SET_INPUT(FIL_RUNOUT2_PIN);
 
   if (powerloss.recovery == Rec_Outage) {
-    lcd_resume_menu();
+    lcd_goto_resume_menu();
     //SERIAL_ECHOLN("Rec_Outage");
     //return;
   }
