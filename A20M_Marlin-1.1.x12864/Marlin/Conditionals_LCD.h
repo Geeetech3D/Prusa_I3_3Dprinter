@@ -28,6 +28,9 @@
 #ifndef CONDITIONALS_LCD_H // Get the LCD defines which are needed first
 #define CONDITIONALS_LCD_H
 
+  // Geeetech doesn't use this
+  #undef FILAMENT_RUNOUT_SENSOR
+
   #define LCD_HAS_DIRECTIONAL_BUTTONS (BUTTON_EXISTS(UP) || BUTTON_EXISTS(DWN) || BUTTON_EXISTS(LFT) || BUTTON_EXISTS(RT))
 
   #if ENABLED(CARTESIO_UI)
