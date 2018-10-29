@@ -381,8 +381,7 @@ ISR(TIMER1_COMPA_vect) {
   //if (READ(FIL_RUNOUT_PIN) && powerloss.P_file_name[0] && powerloss.recovery == Rec_Idle && print_job_timer.isRunning()) {
   if (filament_runout_enabled) {
     if ( (READ(FIL_RUNOUT_PIN) || READ(FIL_RUNOUT2_PIN))
-      && ((powerloss.P_file_name[0] && powerloss.recovery == Rec_Idle) && print_job_timer.isRunning())
-      || !test
+      && ((powerloss.P_file_name[0] && powerloss.recovery == Rec_Idle && print_job_timer.isRunning()) || !test)
     ) {
       test = true;
       //buzzer.tone(400, 5000);
