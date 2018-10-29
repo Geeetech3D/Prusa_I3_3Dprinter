@@ -410,11 +410,13 @@ ISR(TIMER1_COMPA_vect) {
       powerloss.pos_t = card.getStatus();
       powerloss.T0_t = thermalManager.degTargetHotend(0) + 0.5;
       powerloss.B_t = thermalManager.degTargetBed() + 0.5;
-      #if ENABLED(BLTOUCH)
-        powerloss.recovery = Rec_Idle;
-      #else
-        powerloss.recovery = Rec_Outage;
-      #endif
+      powerloss.recovery =
+        #if ENABLED(BLTOUCH)
+          Rec_Idle
+        #else
+          Rec_Outage
+        #endif
+      ;
       //settings.save();
       (void)settings.poweroff_save();
       settings.load();
