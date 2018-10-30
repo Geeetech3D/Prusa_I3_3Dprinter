@@ -381,8 +381,7 @@ ISR(TIMER1_COMPA_vect) {
   //if (READ(FIL_RUNOUT_PIN) && powerloss.P_file_name[0] && powerloss.recovery == Rec_Idle && print_job_timer.isRunning()) {
   if (filament_runout_enabled) {
     if ( (READ(FIL_RUNOUT_PIN) || READ(FIL_RUNOUT2_PIN))
-      && ((powerloss.P_file_name[0] && powerloss.recovery == Rec_Idle) && print_job_timer.isRunning())
-      || !test
+      && ((powerloss.P_file_name[0] && powerloss.recovery == Rec_Idle && print_job_timer.isRunning()) || !test)
     ) {
       test = true;
       //buzzer.tone(400, 5000);
@@ -411,11 +410,13 @@ ISR(TIMER1_COMPA_vect) {
       powerloss.pos_t = card.getStatus();
       powerloss.T0_t = thermalManager.degTargetHotend(0) + 0.5;
       powerloss.B_t = thermalManager.degTargetBed() + 0.5;
-      #if ENABLED(BLTOUCH)
-        powerloss.recovery = Rec_Idle;
-      #else
-        powerloss.recovery = Rec_Outage;
-      #endif
+      powerloss.recovery =
+        #if ENABLED(BLTOUCH)
+          Rec_Idle
+        #else
+          Rec_Outage
+        #endif
+      ;
       //settings.save();
       (void)settings.poweroff_save();
       settings.load();
