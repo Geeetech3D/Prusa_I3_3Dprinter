@@ -11086,6 +11086,78 @@ inline void gcode_M355() {
 
 #endif // MIXING_EXTRUDER
 
+//#define POWER_LOSS_RECOVERY_TEST
+
+#if ENABLED(POWER_LOSS_RECOVERY_TEST)
+
+  //
+  // TEST Power Loss Save
+  //
+
+  inline void powerloss_report(const char * const prefix) {
+    serialprintPGM(prefix);
+    char tmp_d[32];
+    sprintf_P(tmp_d, PSTR(": S%u, Z%u, E%lu, P%lu, T%u, B%u, "), int(powerloss.recovery), powerloss.Z_t, powerloss.E_t, powerloss.pos_t, powerloss.T0_t, powerloss.B_t);
+    SERIAL_ECHO(tmp_d);
+    SERIAL_ECHO(powerloss.print_dir);
+    SERIAL_CHAR('/');
+    SERIAL_ECHOLN(powerloss.P_file_name);
+    SERIAL_ECHOLNPAIR("filament_runout_enabled = ", int(filament_runout_enabled));
+  }
+
+  /**
+   * M929: Save simulated power-loss data
+   */
+  inline void gcode_M929() {
+    if (IS_SD_PRINTING) {
+      powerloss.pos_t = card.getStatus();
+    else {
+      strcpy_P(powerloss.P_file_name, PSTR("TESTFILE.GCO"));
+      strcpy_P(powerloss.print_dir, PSTR("FILEPATH"));
+    }
+
+    powerloss.Z_t = current_position[Z_AXIS] * 10;
+    powerloss.T0_t = 200 + 0.5;
+    powerloss.B_t = 60 + 0.5;
+    powerloss.E_t = current_position[E_AXIS];
+    powerloss.recovery = Rec_Outage;
+    filament_runout_enabled = parser.boolval('S');
+    (void)settings.poweroff_save();
+    powerloss_report(PSTR("  SAVED"));
+  }
+
+  /**
+   * M930: Simulate power-loss recovery
+   */
+  inline void gcode_M930() {
+    powerloss.recovery = Rec_Recovering1;
+
+    (void)settings.poweroff_load();
+
+    sprintf_P(tmp_n, PSTR("G92 Z%u.%u"), powerloss.Z_t / 10, powerloss.Z_t % 10);
+    enqueue_and_echo_command(tmp_n);
+
+    sprintf_P(tmp_n, PSTR("G92 E%u"), powerloss.E_t);
+    enqueue_and_echo_command(tmp_n);
+
+    sprintf_P(tmp_n, PSTR("M104 S%u"), powerloss.T0_t);
+    enqueue_and_echo_command(tmp_n);
+  }
+
+  /**
+   * M931: Load and report power-loss data
+   */
+  inline void gcode_M931() {
+    ZERO(powerloss);
+    filament_runout_enabled = false;
+    powerloss_report(PSTR("CLEARED"));
+
+    (void)settings.poweroff_load();
+    powerloss_report(PSTR(" LOADED"));
+  }
+
+#endif // POWER_LOSS_RECOVERY_TEST
+
 /**
  * M999: Restart after being stopped
  *
@@ -11889,6 +11961,13 @@ void process_parsed_command() {
 
         case 928: // M928: Start SD write
           gcode_M928(); break;
+
+        #if ENABLED(POWER_LOSS_RECOVERY_TEST)
+          case 929: gcode_M929(); break; // M929: TEST Power Loss Save
+          case 930: gcode_M930(); break; // M930: Simulate Power Loss Recovery
+          case 931: gcode_M931(); break; // M931: TEST Power Loss Load
+        #endif
+
       #endif // SDSUPPORT
 
       case 31: // M31: Report time since the start of SD print or last M109
