@@ -14663,15 +14663,12 @@ void setup() {
   #endif
 
   // A20 Custom pins
- // #if PIN_EXISTS(CONTINUITY)
+  #if PIN_EXISTS(CONTINUITY)
     SET_INPUT(CONTINUITY_PIN);
- // #endif
-//  #if PIN_EXISTS(FIL_RUNOUT_PIN)
+  #endif
+  #if PIN_EXISTS(FIL_RUNOUT)
     SET_INPUT(FIL_RUNOUT_PIN);
- // #endif
- // #if PIN_EXISTS(FIL_RUNOUT2_PIN)
- //   SET_INPUT(FIL_RUNOUT2_PIN);
- // #endif
+  #endif
 
   if (powerloss.recovery == Rec_Outage) {
     lcd_goto_resume_menu();

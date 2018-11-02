@@ -377,24 +377,26 @@ ISR(TIMER1_COMPA_vect) {
   //
   // Filament Runout
   //
-  static bool test; // = false
-  //if (READ(FIL_RUNOUT_PIN) && powerloss.P_file_name[0] && powerloss.recovery == Rec_Idle && print_job_timer.isRunning()) {
-  if (filament_runout_enabled) {
-    if ( (READ(FIL_RUNOUT_PIN) || READ(FIL_RUNOUT2_PIN))
-      && ((powerloss.P_file_name[0] && powerloss.recovery == Rec_Idle && print_job_timer.isRunning()) || !test)
-    ) {
-      test = true;
-      //buzzer.tone(400, 5000);
-      //SERIAL_ECHOLN("filament out");
-      LCD_MESSAGEPGM(MSG_FILAMENT_ERROR);
-      if (print_job_timer.isRunning()) powerloss.recovery = Rec_FilRunout;
+  #if PIN_EXISTS(FIL_RUNOUT) && PIN_EXISTS(FIL_RUNOUT2)
+    static bool test; // = false
+    //if (READ(FIL_RUNOUT_PIN) && powerloss.P_file_name[0] && powerloss.recovery == Rec_Idle && print_job_timer.isRunning()) {
+    if (filament_runout_enabled) {
+      if ( (READ(FIL_RUNOUT_PIN) || READ(FIL_RUNOUT2_PIN))
+        && ((powerloss.P_file_name[0] && powerloss.recovery == Rec_Idle && print_job_timer.isRunning()) || !test)
+      ) {
+        test = true;
+        //buzzer.tone(400, 5000);
+        //SERIAL_ECHOLN("filament out");
+        LCD_MESSAGEPGM(MSG_FILAMENT_ERROR);
+        if (print_job_timer.isRunning()) powerloss.recovery = Rec_FilRunout;
+      }
+      if (test && !READ(FIL_RUNOUT_PIN) && !READ(FIL_RUNOUT2_PIN)) {
+        //SERIAL_ECHOLN("filament ok");
+        LCD_MESSAGEPGM(WELCOME_MSG);
+        test = false;
+      }
     }
-    if (test && !READ(FIL_RUNOUT_PIN) && !READ(FIL_RUNOUT2_PIN)) {
-      //SERIAL_ECHOLN("filament ok");
-      LCD_MESSAGEPGM(WELCOME_MSG);
-      test = false;
-    }
-  }
+  #endif
 
   //
   // Power Outage

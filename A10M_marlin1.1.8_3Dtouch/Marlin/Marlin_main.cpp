@@ -14724,9 +14724,15 @@ void setup() {
   #endif
 
   // A10M Custom pins
-  SET_INPUT(CONTINUITY_PIN);
-  SET_INPUT(FIL_RUNOUT_PIN);
-  SET_INPUT(FIL_RUNOUT2_PIN);
+  #if PIN_EXISTS(CONTINUITY)
+    SET_INPUT(CONTINUITY_PIN);
+  #endif
+  #if PIN_EXISTS(FIL_RUNOUT)
+    SET_INPUT(FIL_RUNOUT_PIN);
+  #endif
+  #if PIN_EXISTS(FIL_RUNOUT2)
+    SET_INPUT(FIL_RUNOUT2_PIN);
+  #endif
 
   if (powerloss.recovery == Rec_Outage) {
     lcd_goto_resume_menu();
