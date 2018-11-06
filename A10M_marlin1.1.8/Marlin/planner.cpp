@@ -731,7 +731,9 @@ void Planner::check_axes_activity() {
 
   void gradient_control(void) {
     if (mixer.gradient_flag)
-      gradient_change(mixer.start_pct, mixer.end_pct, mixer.start_z, mixer.end_z);
+    {
+          gradient_change(mixer.start_pct, mixer.end_pct, mixer.start_z, mixer.end_z);
+    }
   }
 
 #endif // GRADIENT_MIX

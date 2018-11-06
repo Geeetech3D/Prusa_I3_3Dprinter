@@ -616,7 +616,7 @@ void lcd_resume_menu_ok(void) {
   lcd_return_to_status();
   // enqueuecommand("M930");
   powerloss.recovery = Rec_Recovering1;
-
+  enable_Z();
   sprintf_P(tmp_n, PSTR("G92 Z%u.%u"), powerloss.Z_t / 10, powerloss.Z_t % 10);
   enqueue_and_echo_command(tmp_n);
 
@@ -3949,6 +3949,10 @@ void kill_screen(const char* lcd_msg) {
       START_SCREEN();
       STATIC_ITEM(BOARD_NAME, true, true);                           // MyPrinterController
       STATIC_ITEM(MSG_INFO_BAUDRATE ": " STRINGIFY(BAUDRATE), true); // Baud: 250000
+    // SERIAL_ECHOPAIR("hardware version:", hardware_version);	//liu..
+	  //STATIC_ITEM(MSG_FW_VER, false, true);
+	  STATIC_ITEM("" MSG_FW_VER, true);
+      STATIC_ITEM("    " MSG_HW_VER,false, false, ftostr12ns(hardware_version));//MSG_HW_VER liu
       STATIC_ITEM(MSG_INFO_PROTOCOL ": " PROTOCOL_VERSION, true);    // Protocol: 1.0
       #if POWER_SUPPLY == 0
         STATIC_ITEM(MSG_INFO_PSU ": Generic", true);

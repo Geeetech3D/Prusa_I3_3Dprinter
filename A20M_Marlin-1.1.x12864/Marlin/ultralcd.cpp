@@ -619,7 +619,7 @@ void lcd_resume_menu_ok(void) {
   lcd_return_to_status();
   // enqueuecommand("M930");
   powerloss.recovery = Rec_Recovering1;
-
+  enable_Z();
   sprintf_P(tmp_n, PSTR("G92 Z%u.%u"), powerloss.Z_t / 10, powerloss.Z_t % 10);
   enqueue_and_echo_command(tmp_n);
 
@@ -1017,6 +1017,16 @@ void kill_screen(const char* lcd_msg) {
       MENU_ITEM_ADDON_START(9);
         sprintf_P(tmp, PSTR("%4d.%d mm"), int(mixer.end_z), int(mixer.end_z * 10) % 10);
         LCDPRINT(tmp);
+	//jone
+	if(mixer.gradient_flag = true)
+	{
+		powerloss.Nozzle0_Value = 110;
+		powerloss.start_ps =mixer.start_pct;
+		powerloss.end_ps = mixer.end_pct;
+		powerloss.start_zs = mixer.start_z;
+		powerloss.end_zs = mixer.end_z;
+		
+	}
       MENU_ITEM_ADDON_END();
 
       END_MENU();
@@ -1052,6 +1062,7 @@ void kill_screen(const char* lcd_msg) {
 
       if (lcd_clicked) {
         mixer.gradient_flag = false;
+	 powerloss.Nozzle0_Value = mixer.rate[NOZZLE0];
         _lcd_mixer_update_mix();
         lcd_goto_previous_menu();
       }
@@ -4175,6 +4186,10 @@ void kill_screen(const char* lcd_msg) {
       START_SCREEN();
       STATIC_ITEM(BOARD_NAME, true, true);                           // MyPrinterController
       STATIC_ITEM(MSG_INFO_BAUDRATE ": " STRINGIFY(BAUDRATE), true); // Baud: 250000
+    // SERIAL_ECHOPAIR("hardware version:", hardware_version);	//liu..
+	  //STATIC_ITEM(MSG_FW_VER, false, true);
+	  STATIC_ITEM("" MSG_FW_VER, true);
+      STATIC_ITEM("    " MSG_HW_VER,false, false, ftostr12ns(hardware_version));//MSG_HW_VER liu
       STATIC_ITEM(MSG_INFO_PROTOCOL ": " PROTOCOL_VERSION, true);    // Protocol: 1.0
       #if POWER_SUPPLY == 0
         STATIC_ITEM(MSG_INFO_PSU ": Generic", true);

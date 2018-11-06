@@ -24,6 +24,7 @@
 #define CONFIGURATION_STORE_H
 
 #include "MarlinConfig.h"
+extern float hardware_version;
 
 class MarlinSettings {
   public:
@@ -31,10 +32,10 @@ class MarlinSettings {
 
     static bool poweroff_save();
     static bool poweroff_load();
-
-    static void reset();
-    static bool save();
-
+      static void reset();
+      static bool save();
+     static bool Fixed_parameter_save() ;
+     static bool Fixed_parameter_load() ;
     #if ENABLED(EEPROM_SETTINGS)
       static bool load();
 

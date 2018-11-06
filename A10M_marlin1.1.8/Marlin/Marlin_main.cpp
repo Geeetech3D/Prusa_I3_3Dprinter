@@ -10989,6 +10989,10 @@ inline void gcode_M355() {
       float mix_value = parser.floatval('P');
       NOLESS(mix_value, 0.0);
       mixing_factor[mix_index] = RECIPROCAL(mix_value);
+	if(mix_index == 0)
+	{
+		powerloss.Nozzle0_Value = (uint8_t)(mix_value*100);
+	}
     }
   }
 
@@ -11054,7 +11058,15 @@ inline void gcode_M355() {
 
       if (mixer.start_pct == mixer.end_pct || mixer.start_z == mixer.end_z)
         gflag = false;
-
+	if(mixer.gradient_flag = true)
+	{
+		powerloss.Nozzle0_Value = 110;
+		powerloss.start_ps =mixer.start_pct;
+		powerloss.end_ps = mixer.end_pct;
+		powerloss.start_zs = mixer.start_z;
+		powerloss.end_zs = mixer.end_z;
+		
+	}
       SERIAL_ECHOPGM("Gradient Mix ");
       if ((mixer.gradient_flag = gflag)) {
         SERIAL_ECHOPAIR("ON from Z", mixer.start_z);
@@ -11093,6 +11105,18 @@ inline void gcode_M999() {
   // gcode_LastN = Stopped_gcode_LastN;
   FlushSerialRequestResend();
 }
+inline void gcode_M2000(){
+	
+}
+inline void gcode_M2009(){
+	if (parser.seen('V')) hardware_version = parser.value_celsius();
+	//SERIAL_ECHOPAIR("HV...:", hardware_version);//liu
+	(void)settings.Fixed_parameter_save();
+	SERIAL_ECHOLNPGM("HV_set_ok");
+	
+}
+
+		
 
 #if ENABLED(SWITCHING_EXTRUDER)
   #if EXTRUDERS > 3
@@ -12503,6 +12527,12 @@ void process_parsed_command() {
 
       case 999: // M999: Restart after being Stopped
         gcode_M999();
+        break;
+	case 2000: //  
+        gcode_M2000();
+        break;
+      case 2009: //  
+        gcode_M2009();
         break;
     }
     break;
@@ -14445,6 +14475,8 @@ void setup() {
   // Load data from EEPROM if available (or use defaults)
   // This also updates variables in the planner, elsewhere
   (void)settings.load();
+  (void)settings.Fixed_parameter_load();
+  
 
   #if HAS_M206_COMMAND
     // Initialize current position based on home_offset
@@ -14700,6 +14732,9 @@ void loop() {
         sprintf_P(tmp_y, PSTR("M109 T0 S%u"), powerloss.T0_t);
         //SERIAL_ECHOLN(tmp_y);
         enqueue_and_echo_command(tmp_y);
+        
+        sprintf_P(tmp_y, PSTR("M106  S255"));
+        enqueue_and_echo_command(tmp_y);
 
         sprintf_P(tmp_y, PSTR("G28 X"));
         //SERIAL_ECHOLN(tmp_y);
@@ -14708,6 +14743,22 @@ void loop() {
         sprintf_P(tmp_y,PSTR("G28 Y"));
         //SERIAL_ECHOLN(tmp_y);
         enqueue_and_echo_command(tmp_y);
+		
+	sprintf_P(tmp_y, PSTR("G0 F1000 Z%u.%u"), powerloss.Z_t / 10, powerloss.Z_t % 10);//jone
+       enqueue_and_echo_command(tmp_y);
+	if(powerloss.Nozzle0_Value <101)
+	{
+		mixing_factor[NOZZLE0] = RECIPROCAL( powerloss.Nozzle0_Value* 0.01);
+		mixing_factor[NOZZLE1] = RECIPROCAL((100-powerloss.Nozzle0_Value) * 0.01);
+	}
+	else
+	{
+		mixer.gradient_flag =true;
+		mixer.start_pct =powerloss.start_ps;
+		mixer.end_pct=powerloss.end_ps;
+		mixer.start_z =powerloss.start_zs;
+		mixer.end_z =powerloss.end_zs;    	
+	}
 
         axis_homed[Z_AXIS] = axis_known_position[Z_AXIS] = true;
         powerloss.recovery = Rec_Recovering2;

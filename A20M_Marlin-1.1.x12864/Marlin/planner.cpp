@@ -721,6 +721,7 @@ void Planner::check_axes_activity() {
         NOLESS(mixer.rate[NOZZLE0], end_p);
       }
       mixer.rate[NOZZLE1] = 100 - mixer.rate[NOZZLE0];
+      //powerloss.Nozzle0_Value = mixer.rate[NOZZLE0];
       mixing_factor[NOZZLE0] = RECIPROCAL(mixer.rate[NOZZLE0] * 0.01);
       mixing_factor[NOZZLE1] = RECIPROCAL(mixer.rate[NOZZLE1] * 0.01);
     }
@@ -731,7 +732,9 @@ void Planner::check_axes_activity() {
 
   void gradient_control(void) {
     if (mixer.gradient_flag)
-      gradient_change(mixer.start_pct, mixer.end_pct, mixer.start_z, mixer.end_z);
+    {
+          gradient_change(mixer.start_pct, mixer.end_pct, mixer.start_z, mixer.end_z);
+    }
   }
 
 #endif // GRADIENT_MIX

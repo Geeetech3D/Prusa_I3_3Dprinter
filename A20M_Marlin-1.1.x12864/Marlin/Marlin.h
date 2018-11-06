@@ -569,6 +569,9 @@ typedef struct {
   uint16_t Z_t, T0_t, B_t;
   uint32_t pos_t, E_t;
   RecState recovery; // 0:idle, 1,2:recovering, 3:power outage, 4: filament out
+  uint16_t  Nozzle0_Value;
+  uint8_t start_ps,end_ps; //  void gradient_change(const int8_t start_p, const int8_t end_p, const float start_z, const float end_z)
+  float start_zs,end_zs;
 } powerloss_t;
 
 extern powerloss_t powerloss;
