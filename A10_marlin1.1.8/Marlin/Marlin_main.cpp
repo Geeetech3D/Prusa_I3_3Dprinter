@@ -14586,15 +14586,15 @@ void setup() {
   #endif
 
   // A10 Custom pins
-  #if PIN_EXISTS(CONTINUITY)
+ // #if PIN_EXISTS(CONTINUITY)
     SET_INPUT(CONTINUITY_PIN);
-  #endif
-  #if PIN_EXISTS(FIL_RUNOUT_PIN)
+ // #endif
+//  #if PIN_EXISTS(FIL_RUNOUT_PIN)
     SET_INPUT(FIL_RUNOUT_PIN);
-  #endif
-  #if PIN_EXISTS(FIL_RUNOUT2_PIN)
-    SET_INPUT(FIL_RUNOUT2_PIN);
-  #endif
+ // #endif
+ // #if PIN_EXISTS(FIL_RUNOUT2_PIN)
+ //   SET_INPUT(FIL_RUNOUT2_PIN);
+ // #endif
 
   if (powerloss.recovery == Rec_Outage) {
     lcd_goto_resume_menu();
@@ -14723,9 +14723,12 @@ void loop() {
     //  SERIAL_ECHOLN(tmp_y);
     //  enqueue_and_echo_command(tmp_y);
     ///////
-    sprintf_P(tmp_y, PSTR("G28 X"));
-    //SERIAL_ECHOLN(tmp_y);
-    enqueue_and_echo_command(tmp_y);
+    if(current_position[Z_AXIS]>=5)
+	{
+		sprintf_P(tmp_y, PSTR("G28 X"));
+		//SERIAL_ECHOLN(tmp_y);
+		enqueue_and_echo_command(tmp_y);
+	}
     powerloss.recovery = Rec_Idle;
   }
   endstops.report_state();

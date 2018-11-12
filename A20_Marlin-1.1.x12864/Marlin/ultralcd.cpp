@@ -842,6 +842,8 @@ void kill_screen(const char* lcd_msg) {
         print_job_timer.start();
       #endif
       lcd_reset_status();
+      //strncpy_P(lcd_status_message, powerloss.P_file_name, 13);//jone-181107
+       lcd_status_printf_P(0, PSTR("%s"), powerloss.P_file_name);
     }
 
     void lcd_sdcard_stop() {

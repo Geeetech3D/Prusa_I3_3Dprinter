@@ -842,6 +842,8 @@ void kill_screen(const char* lcd_msg) {
         print_job_timer.start();
       #endif
       lcd_reset_status();
+      //strncpy_P(lcd_status_message, powerloss.P_file_name, 13);//jone-181107
+       lcd_status_printf_P(0, PSTR("%s"), powerloss.P_file_name);
     }
 
     void lcd_sdcard_stop() {
@@ -3686,6 +3688,7 @@ void kill_screen(const char* lcd_msg) {
     START_MENU();
     MENU_BACK(MSG_CONTROL);
 
+
     #if ENABLED(LIN_ADVANCE)
       MENU_ITEM_EDIT(float3, MSG_ADVANCE_K, &planner.extruder_advance_k, 0, 999);
     #endif
@@ -3710,7 +3713,6 @@ void kill_screen(const char* lcd_msg) {
         #endif // EXTRUDERS > 2
       #endif // EXTRUDERS > 1
     }
-
     // Filament Runout Sensors
     MENU_ITEM_EDIT(bool, MSG_RUNOUT_SENSORS, &filament_runout_enabled);
 

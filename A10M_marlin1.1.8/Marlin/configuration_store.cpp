@@ -793,6 +793,8 @@ float hardware_version=0.1;
 
     // Filament Runout Sensors
     EEPROM_READ(filament_runout_enabled);
+    if(filament_runout_enabled != false)
+		filament_runout_enabled = true;
 
     if (working_crc == stored_crc) {
       #if ENABLED(EEPROM_CHITCHAT)

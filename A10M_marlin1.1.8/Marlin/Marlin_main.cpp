@@ -14788,9 +14788,12 @@ void loop() {
     //  SERIAL_ECHOLN(tmp_y);
     //  enqueue_and_echo_command(tmp_y);
     ///////
-    sprintf_P(tmp_y, PSTR("G28 X"));
-    //SERIAL_ECHOLN(tmp_y);
-    enqueue_and_echo_command(tmp_y);
+    if(current_position[Z_AXIS]>=5)
+	{
+		sprintf_P(tmp_y, PSTR("G28 X"));
+		//SERIAL_ECHOLN(tmp_y);
+		enqueue_and_echo_command(tmp_y);
+	}
     powerloss.recovery = Rec_Idle;
   }
   endstops.report_state();

@@ -355,9 +355,14 @@
   // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
 
   // MeCreator2
-#define  DEFAULT_Kp 226.93  //11.93
-#define  DEFAULT_Ki 0.43  //0.59
-#define  DEFAULT_Kd 854.89  //59.89
+  //#define  DEFAULT_Kp 226.93  //11.93
+  //#define  DEFAULT_Ki 0.43  //0.59
+  //#define  DEFAULT_Kd 854.89  //59.89
+
+  // A10M [@thinkyhead]
+  #define  DEFAULT_Kp 45.80
+  #define  DEFAULT_Ki 3.61
+  #define  DEFAULT_Kd 145.39
 
   // Ultimaker
   //#define  DEFAULT_Kp 22.2
