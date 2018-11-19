@@ -11086,6 +11086,42 @@ inline void gcode_M355() {
 
 #endif // MIXING_EXTRUDER
 
+inline void powerloss_report(const char * const prefix) {
+  serialprintPGM(prefix);
+  char tmp_d[32];
+  sprintf_P(tmp_d, PSTR(": S%u, Z%u, E%lu, P%lu, T%u, B%u, "), int(powerloss.recovery), powerloss.Z_t, powerloss.E_t, powerloss.pos_t, powerloss.T0_t, powerloss.B_t);
+  SERIAL_ECHO(tmp_d);
+  SERIAL_ECHO(powerloss.print_dir);
+  SERIAL_CHAR('/');
+  SERIAL_ECHOLN(powerloss.P_file_name);
+  SERIAL_ECHOLNPAIR("filament_runout_enabled = ", int(filament_runout_enabled));
+}
+
+void powerloss_detected() {
+  if (powerloss.P_file_name[0] && powerloss.recovery == Rec_Idle && print_job_timer.isRunning()) {
+     //SERIAL_ECHOLNPGM("Down");
+    // enqueuecommand("M929");
+
+    powerloss.Z_t = current_position[Z_AXIS] * 10;
+    powerloss.E_t = current_position[E_AXIS];
+    powerloss.pos_t = card.getStatus();
+    powerloss.T0_t = thermalManager.degTargetHotend(0) + 0.5;
+    powerloss.B_t = thermalManager.degTargetBed() + 0.5;
+    powerloss.recovery =
+      #if ENABLED(BLTOUCH)
+        Rec_Idle
+      #else
+        Rec_Outage
+      #endif
+    ;
+    //settings.save();
+    (void)settings.poweroff_save();
+    settings.load();
+
+    powerloss_report();
+  }
+}
+
 //#define POWER_LOSS_RECOVERY_TEST
 
 #if ENABLED(POWER_LOSS_RECOVERY_TEST)
@@ -11093,17 +11129,6 @@ inline void gcode_M355() {
   //
   // TEST Power Loss Save
   //
-
-  inline void powerloss_report(const char * const prefix) {
-    serialprintPGM(prefix);
-    char tmp_d[32];
-    sprintf_P(tmp_d, PSTR(": S%u, Z%u, E%lu, P%lu, T%u, B%u, "), int(powerloss.recovery), powerloss.Z_t, powerloss.E_t, powerloss.pos_t, powerloss.T0_t, powerloss.B_t);
-    SERIAL_ECHO(tmp_d);
-    SERIAL_ECHO(powerloss.print_dir);
-    SERIAL_CHAR('/');
-    SERIAL_ECHOLN(powerloss.P_file_name);
-    SERIAL_ECHOLNPAIR("filament_runout_enabled = ", int(filament_runout_enabled));
-  }
 
   /**
    * M929: Save simulated power-loss data

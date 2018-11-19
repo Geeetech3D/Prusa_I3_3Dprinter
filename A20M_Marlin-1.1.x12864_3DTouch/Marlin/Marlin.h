@@ -576,6 +576,8 @@ typedef struct {
 
 extern powerloss_t powerloss;
 
+void powerloss_detected();
+
 // Filament Runout Sensors
 extern bool filament_runout_enabled;
 
