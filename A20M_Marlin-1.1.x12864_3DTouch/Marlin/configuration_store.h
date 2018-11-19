@@ -32,10 +32,12 @@ class MarlinSettings {
 
     static bool poweroff_save();
     static bool poweroff_load();
-      static void reset();
-      static bool save();
-     static bool Fixed_parameter_save() ;
-     static bool Fixed_parameter_load() ;
+
+    static void reset();
+    static bool save();
+    static bool fixed_parameter_save();
+    static bool fixed_parameter_load();
+
     #if ENABLED(EEPROM_SETTINGS)
       static bool load();
 

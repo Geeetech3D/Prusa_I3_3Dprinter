@@ -793,8 +793,6 @@ float hardware_version=0.1;
 
     // Filament Runout Sensors
     EEPROM_READ(filament_runout_enabled);
-    if(filament_runout_enabled != false)
-		filament_runout_enabled = true;
 
     if (working_crc == stored_crc) {
       #if ENABLED(EEPROM_CHITCHAT)
@@ -811,53 +809,51 @@ float hardware_version=0.1;
     }
   }
 
+  bool MarlinSettings::fixed_parameter_save() {//liu
+    uint16_t working_crc = 0;
+    EEPROM_START();
+    eeprom_index = EEPROM_OFFSET_SN_VER;
 
-  bool MarlinSettings::Fixed_parameter_save() {//liu
+    EEPROM_SKIP(working_crc); // Skip the checksum slot
+    working_crc = 0;
+    EEPROM_WRITE(hardware_version);//liu
 
-	uint16_t working_crc = 0;
-	EEPROM_START();
-	eeprom_index = EEPROM_OFFSET_SN_VER;
+    const uint16_t final_crc = working_crc;
+    const int eeprom_size = eeprom_index;
+    eeprom_index = EEPROM_OFFSET_SN_VER;
+    EEPROM_WRITE(final_crc);
 
-	EEPROM_SKIP(working_crc); // Skip the checksum slot
-	working_crc = 0;
-	EEPROM_WRITE(hardware_version);//liu hw ver
+    #if ENABLED(EEPROM_CHITCHAT)
+      SERIAL_ECHO_START();
+      SERIAL_ECHOPAIR("Fixed parameter (", eeprom_size - EEPROM_OFFSET_SN_VER);
+      SERIAL_ECHOPAIR(" bytes; crc ", (uint32_t)final_crc);
+      SERIAL_ECHOLNPGM(")");
+    #endif
+  }
 
-	const uint16_t final_crc = working_crc;
-	const int eeprom_size = eeprom_index;
-	eeprom_index = EEPROM_OFFSET_SN_VER;
-	EEPROM_WRITE(final_crc);
+  bool MarlinSettings::fixed_parameter_load() {
+    uint16_t working_crc = 0, stored_crc;
+    EEPROM_START();
+    eeprom_index = EEPROM_OFFSET_SN_VER;
+    EEPROM_READ(stored_crc);
+    working_crc = 0;
 
-	SERIAL_ECHO_START();
-	SERIAL_ECHOPAIR("Fixed parameter (", eeprom_size - EEPROM_OFFSET_SN_VER);
-	SERIAL_ECHOPAIR("Fixed parameter bytes; crc ", (uint32_t)final_crc);
-	SERIAL_ECHOLNPGM(")");
+    EEPROM_READ(hardware_version);//liu
+    NOLESS(hardware_version, 0.1);
+    SERIAL_ECHOLNPAIR("hardware version:", hardware_version);//liu
 
- }
- bool MarlinSettings::Fixed_parameter_load(){
-	uint16_t working_crc = 0;
-	uint16_t stored_crc;
-	EEPROM_START();
-	eeprom_index = EEPROM_OFFSET_SN_VER;
-	EEPROM_READ(stored_crc);
-	working_crc=0;
-	EEPROM_READ(hardware_version);//liu  hhardware_version
-	if(hardware_version< 0.1)
-	{
-		hardware_version = 0.1;
-	}
-	SERIAL_ECHOPAIR(" hardware version:", hardware_version);//liu
-	if (working_crc == stored_crc) {
-#if ENABLED(EEPROM_CHITCHAT)
-		SERIAL_ECHO_START();
-		SERIAL_ECHOPAIR("Fixed parameter (", eeprom_index - EEPROM_OFFSET_SN_VER);
-		SERIAL_ECHOPAIR(" bytes; crc ", (uint32_t)working_crc);
-		SERIAL_ECHOLNPGM(")");
-#endif
-	}
-	else{
-		SERIAL_ECHOPAIR(" \r\nFixed parameter bytes; crc error ", (uint32_t)working_crc);
-		SERIAL_ECHOPAIR(" \r\Fixed parameter nbytes; crc error ", (uint32_t)stored_crc);
-	}
+    if (working_crc == stored_crc) {
+      #if ENABLED(EEPROM_CHITCHAT)
+        SERIAL_ECHO_START();
+        SERIAL_ECHOPAIR("Fixed parameter (", eeprom_index - EEPROM_OFFSET_SN_VER);
+        SERIAL_ECHOPAIR(" bytes; crc ", (uint32_t)working_crc);
+        SERIAL_ECHOLNPGM(")");
+      #endif
+    }
+    else {
+      SERIAL_ECHOPAIR("Fixed parameter crc error: ", (uint32_t)working_crc);
+      SERIAL_ECHOLNPAIR(" != ", (uint32_t)stored_crc);
+    }
   }
 
   /**

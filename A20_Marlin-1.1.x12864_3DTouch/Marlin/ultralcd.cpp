@@ -843,7 +843,7 @@ void kill_screen(const char* lcd_msg) {
       #endif
       lcd_reset_status();
       //strncpy_P(lcd_status_message, powerloss.P_file_name, 13);//jone-181107
-       lcd_status_printf_P(0, PSTR("%s"), powerloss.P_file_name);
+      lcd_status_printf_P(0, PSTR("%s"), powerloss.P_file_name);
     }
 
     void lcd_sdcard_stop() {
@@ -3951,9 +3951,9 @@ void kill_screen(const char* lcd_msg) {
       START_SCREEN();
       STATIC_ITEM(BOARD_NAME, true, true);                           // MyPrinterController
       STATIC_ITEM(MSG_INFO_BAUDRATE ": " STRINGIFY(BAUDRATE), true); // Baud: 250000
-    // SERIAL_ECHOPAIR("hardware version:", hardware_version);	//liu..
-	  //STATIC_ITEM(MSG_FW_VER, false, true);
-	  STATIC_ITEM("" MSG_FW_VER, true);
+      //SERIAL_ECHOPAIR("hardware version:", hardware_version); //liu..
+      //STATIC_ITEM(MSG_FW_VER, false, true);
+      STATIC_ITEM("" MSG_FW_VER, true);
       STATIC_ITEM("    " MSG_HW_VER,false, false, ftostr12ns(hardware_version));//MSG_HW_VER liu
       STATIC_ITEM(MSG_INFO_PROTOCOL ": " PROTOCOL_VERSION, true);    // Protocol: 1.0
       #if POWER_SUPPLY == 0
