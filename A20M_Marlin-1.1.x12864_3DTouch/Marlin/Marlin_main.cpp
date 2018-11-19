@@ -10975,6 +10975,20 @@ inline void gcode_M355() {
 
 #if ENABLED(MIXING_EXTRUDER)
 
+  void powerloss_set_mix() {
+    #if ENABLED(GRADIENT_MIX)
+      if (mixer.gradient_flag) {
+        powerloss.Nozzle0_Value = 110;
+        powerloss.start_ps = mixer.start_pct;
+        powerloss.end_ps   = mixer.end_pct;
+        powerloss.start_zs = mixer.start_z;
+        powerloss.end_zs   = mixer.end_z;
+      }
+      else
+    #endif
+        powerloss.Nozzle0_Value = (uint16_t)RECIPROCAL(mixing_factor[0]) * 100;
+  }
+
   /**
    * M163: Set a single mix factor for a mixing extruder
    *       This is called "weight" by some systems.
@@ -10989,10 +11003,8 @@ inline void gcode_M355() {
       float mix_value = parser.floatval('P');
       NOLESS(mix_value, 0.0);
       mixing_factor[mix_index] = RECIPROCAL(mix_value);
-	if(mix_index == 0)
-	{
-		powerloss.Nozzle0_Value = (uint8_t)(mix_value*100);
-	}
+      if (mix_index == 0)
+        powerloss.Nozzle0_Value = (uint8_t)(mix_value * 100);
     }
   }
 
@@ -11058,15 +11070,7 @@ inline void gcode_M355() {
 
       if (mixer.start_pct == mixer.end_pct || mixer.start_z == mixer.end_z)
         gflag = false;
-	if(mixer.gradient_flag = true)
-	{
-		powerloss.Nozzle0_Value = 110;
-		powerloss.start_ps =mixer.start_pct;
-		powerloss.end_ps = mixer.end_pct;
-		powerloss.start_zs = mixer.start_z;
-		powerloss.end_zs = mixer.end_z;
 
-	}
       SERIAL_ECHOPGM("Gradient Mix ");
       if ((mixer.gradient_flag = gflag)) {
         SERIAL_ECHOPAIR("ON from Z", mixer.start_z);
@@ -11081,6 +11085,7 @@ inline void gcode_M355() {
         SERIAL_ECHOPGM("OFF");
       SERIAL_EOL();
 
+      powerloss_set_mix();
     }
 
   #endif

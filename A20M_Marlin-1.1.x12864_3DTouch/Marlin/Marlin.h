@@ -476,6 +476,12 @@ extern uint8_t active_extruder;
     extern mixer_t mixer;
   #endif
 
+  void powerloss_set_mix();
+
+#else
+
+  inline void powerloss_set_mix() {}
+
 #endif
 
 inline void set_current_from_destination() { COPY(current_position, destination); }

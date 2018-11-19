@@ -867,6 +867,7 @@ void kill_screen(const char* lcd_msg) {
 
     inline void _lcd_mixer_commit_gradient() {
       mixer.gradient_flag = (mixer.start_pct != mixer.end_pct && mixer.start_z < mixer.end_z);
+      powerloss_set_mix();
     }
 
     void lcd_mixer_gradient_z_start_edit() {
@@ -1017,16 +1018,6 @@ void kill_screen(const char* lcd_msg) {
       MENU_ITEM_ADDON_START(9);
         sprintf_P(tmp, PSTR("%4d.%d mm"), int(mixer.end_z), int(mixer.end_z * 10) % 10);
         LCDPRINT(tmp);
-	//jone
-	if(mixer.gradient_flag = true)
-	{
-		powerloss.Nozzle0_Value = 110;
-		powerloss.start_ps =mixer.start_pct;
-		powerloss.end_ps = mixer.end_pct;
-		powerloss.start_zs = mixer.start_z;
-		powerloss.end_zs = mixer.end_z;
-
-	}
       MENU_ITEM_ADDON_END();
 
       END_MENU();
@@ -1039,6 +1030,7 @@ void kill_screen(const char* lcd_msg) {
     inline void _lcd_mixer_update_mix() {
       mixing_factor[NOZZLE0] = RECIPROCAL(mixer.rate[NOZZLE0] * 0.01);
       mixing_factor[NOZZLE1] = RECIPROCAL(mixer.rate[NOZZLE1] * 0.01);
+      powerloss_set_mix();
     }
 
     inline void _lcd_mixer_toggle_mix() {
@@ -1062,7 +1054,6 @@ void kill_screen(const char* lcd_msg) {
 
       if (lcd_clicked) {
         mixer.gradient_flag = false;
-	 powerloss.Nozzle0_Value = mixer.rate[NOZZLE0];
         _lcd_mixer_update_mix();
         lcd_goto_previous_menu();
       }
