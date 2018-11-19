@@ -86,7 +86,7 @@
     #define SDSS   40 //use SD card on Panelolu2 (Teensyduino pin mapping)
   #endif // LCD_I2C_PANELOLU2
   //not connected to a pin
-  #define SDCARDDETECT -1    
+  #define SDCARDDETECT -1
 #endif // ULTRA_LCD && NEWPANEL
 
 #if defined(VIKI2) || defined(miniVIKI)
@@ -95,17 +95,17 @@
  #define DOGLCD_A0  42 //Non-FastIO
  #define DOGLCD_CS  43 //Non-FastIO
  #define LCD_SCREEN_ROT_180
- 
+
  //The encoder and click button (FastIO Pins)
- #define BTN_EN1 26 
+ #define BTN_EN1 26
  #define BTN_EN2 27
  #define BTN_ENC 47  //the click switch
 
  #define SDSS 45
- #define SDCARDDETECT -1 // FastIO (Manual says 72 I'm not certain cause I can't test) 
+ #define SDCARDDETECT -1 // FastIO (Manual says 72 I'm not certain cause I can't test)
 
  #ifdef TEMP_STAT_LEDS
   #define STAT_LED_RED      12 //Non-FastIO
   #define STAT_LED_BLUE     10 //Non-FastIO
- #endif  
+ #endif
 #endif

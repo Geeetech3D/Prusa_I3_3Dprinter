@@ -1,6 +1,6 @@
 // BitMap for splashscreen
 // Generated with: http://www.digole.com/tools/PicturetoC_Hex_converter.php
-// Please note that using the high-res version takes 402Bytes of PROGMEM. 
+// Please note that using the high-res version takes 402Bytes of PROGMEM.
 //#define START_BMPHIGH
 
 #ifdef START_BMPHIGH
@@ -8,7 +8,7 @@
   #define START_BMPHEIGHT      38
   #define START_BMPBYTEWIDTH   14
   #define START_BMPBYTES      532 // START_BMPWIDTH * START_BMPHEIGHT / 8
-  
+
   const unsigned char start_bmp[START_BMPBYTES] PROGMEM = {
      0x01,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff
     ,0x0f,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff
@@ -49,11 +49,11 @@
     ,0x0f,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xf0
     ,0x01,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0x80 };
 #else
-  	#ifdef GEEETECH_STARTUP_BMP 
+  	#ifdef GEEETECH_STARTUP_BMP
     #define START_BMPWIDTH      128
     #define START_BMPHEIGHT     64
     #define START_BMPBYTEWIDTH  16
-    #define START_BMPBYTES      1024 // START_BMPWIDTH * START_BMPHEIGHT / 8	   
+    #define START_BMPBYTES      1024 // START_BMPWIDTH * START_BMPHEIGHT / 8
     const unsigned char start_bmp[START_BMPBYTES] PROGMEM = {
       0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
       0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
@@ -187,7 +187,7 @@
 
 
 		#else
-  #define START_BMPWIDTH 	    56 
+  #define START_BMPWIDTH 	    56
   #define START_BMPHEIGHT 	  19
   #define START_BMPBYTEWIDTH  7
   #define START_BMPBYTES      133 // START_BMPWIDTH * START_BMPHEIGHT / 8
@@ -215,10 +215,10 @@
 	#endif
 #endif
 
-// Here comes a compile-time operation to match the extruder symbols 
+// Here comes a compile-time operation to match the extruder symbols
 // on the info screen to the set number of extruders in configuration.h
-// 
-// When only one extruder is selected, the "1" on the symbol will not 
+//
+// When only one extruder is selected, the "1" on the symbol will not
 // be displayed.
 
 #if EXTRUDERS == 1
@@ -371,6 +371,6 @@
 	0x1E,0x00,0x00,0x0F,0x00,0x00,0x0F,0x00,0x01,0xFF,0xFF,0x80,0x7F,0xFF,0xE0,
 	0x0C,0x00,0x00,0x06,0x00,0x00,0x06,0x00,0x01,0xFF,0xFF,0x80,0x00,0x00,0x00
 	};
-#endif // Extruders 
+#endif // Extruders
 
 

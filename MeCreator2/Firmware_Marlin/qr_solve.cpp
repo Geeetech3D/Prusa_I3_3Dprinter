@@ -327,7 +327,7 @@ void daxpy ( int n, double da, double dx[], int incx, double dy[], int incy )
 
   Licensing:
 
-    This code is distributed under the GNU LGPL license. 
+    This code is distributed under the GNU LGPL license.
 
   Modified:
 
@@ -345,8 +345,8 @@ void daxpy ( int n, double da, double dx[], int incx, double dy[], int incy )
 
     Charles Lawson, Richard Hanson, David Kincaid, Fred Krogh,
     Basic Linear Algebra Subprograms for Fortran Usage,
-    Algorithm 539, 
-    ACM Transactions on Mathematical Software, 
+    Algorithm 539,
+    ACM Transactions on Mathematical Software,
     Volume 5, Number 3, September 1979, pages 308-323.
 
   Parameters:
@@ -448,7 +448,7 @@ double ddot ( int n, double dx[], int incx, double dy[], int incy )
 
   Licensing:
 
-    This code is distributed under the GNU LGPL license. 
+    This code is distributed under the GNU LGPL license.
 
   Modified:
 
@@ -466,8 +466,8 @@ double ddot ( int n, double dx[], int incx, double dy[], int incy )
 
     Charles Lawson, Richard Hanson, David Kincaid, Fred Krogh,
     Basic Linear Algebra Subprograms for Fortran Usage,
-    Algorithm 539, 
-    ACM Transactions on Mathematical Software, 
+    Algorithm 539,
+    ACM Transactions on Mathematical Software,
     Volume 5, Number 3, September 1979, pages 308-323.
 
   Parameters:
@@ -543,10 +543,10 @@ double ddot ( int n, double dx[], int incx, double dy[], int incy )
 
     for ( i = m; i < n; i = i + 5 )
     {
-      dtemp = dtemp + dx[i  ] * dy[i  ] 
-                    + dx[i+1] * dy[i+1] 
-                    + dx[i+2] * dy[i+2] 
-                    + dx[i+3] * dy[i+3] 
+      dtemp = dtemp + dx[i  ] * dy[i  ]
+                    + dx[i+1] * dy[i+1]
+                    + dx[i+2] * dy[i+2]
+                    + dx[i+3] * dy[i+3]
                     + dx[i+4] * dy[i+4];
     }
   }
@@ -568,7 +568,7 @@ double dnrm2 ( int n, double x[], int incx )
 
   Licensing:
 
-    This code is distributed under the GNU LGPL license. 
+    This code is distributed under the GNU LGPL license.
 
   Modified:
 
@@ -648,7 +648,7 @@ double dnrm2 ( int n, double x[], int incx )
 }
 /******************************************************************************/
 
-void dqrank ( double a[], int lda, int m, int n, double tol, int *kr, 
+void dqrank ( double a[], int lda, int m, int n, double tol, int *kr,
   int jpvt[], double qraux[] )
 
 /******************************************************************************/
@@ -673,7 +673,7 @@ void dqrank ( double a[], int lda, int m, int n, double tol, int *kr,
 
   Licensing:
 
-    This code is distributed under the GNU LGPL license. 
+    This code is distributed under the GNU LGPL license.
 
   Modified:
 
@@ -757,7 +757,7 @@ void dqrank ( double a[], int lda, int m, int n, double tol, int *kr,
 }
 /******************************************************************************/
 
-void dqrdc ( double a[], int lda, int n, int p, double qraux[], int jpvt[], 
+void dqrdc ( double a[], int lda, int n, int p, double qraux[], int jpvt[],
   double work[], int job )
 
 /******************************************************************************/
@@ -775,7 +775,7 @@ void dqrdc ( double a[], int lda, int n, int p, double qraux[], int jpvt[],
 
   Licensing:
 
-    This code is distributed under the GNU LGPL license. 
+    This code is distributed under the GNU LGPL license.
 
   Modified:
 
@@ -969,7 +969,7 @@ void dqrdc ( double a[], int lda, int n, int p, double qraux[], int jpvt[],
 */
         for ( j = l + 1; j <= p; j++ )
         {
-          t = -ddot ( n-l+1, a+l-1+(l-1)*lda, 1, a+l-1+(j-1)*lda, 1 ) 
+          t = -ddot ( n-l+1, a+l-1+(l-1)*lda, 1, a+l-1+(j-1)*lda, 1 )
             / a[l-1+(l-1)*lda];
           daxpy ( n-l+1, t, a+l-1+(l-1)*lda, 1, a+l-1+(j-1)*lda, 1 );
 
@@ -1006,7 +1006,7 @@ void dqrdc ( double a[], int lda, int n, int p, double qraux[], int jpvt[],
 }
 /******************************************************************************/
 
-int dqrls ( double a[], int lda, int m, int n, double tol, int *kr, double b[], 
+int dqrls ( double a[], int lda, int m, int n, double tol, int *kr, double b[],
   double x[], double rsd[], int jpvt[], double qraux[], int itask )
 
 /******************************************************************************/
@@ -1042,7 +1042,7 @@ int dqrls ( double a[], int lda, int m, int n, double tol, int *kr, double b[],
 
   Licensing:
 
-    This code is distributed under the GNU LGPL license. 
+    This code is distributed under the GNU LGPL license.
 
   Modified:
 
@@ -1160,7 +1160,7 @@ int dqrls ( double a[], int lda, int m, int n, double tol, int *kr, double b[],
 }
 /******************************************************************************/
 
-void dqrlss ( double a[], int lda, int m, int n, int kr, double b[], double x[], 
+void dqrlss ( double a[], int lda, int m, int n, int kr, double b[], double x[],
   double rsd[], int jpvt[], double qraux[] )
 
 /******************************************************************************/
@@ -1190,7 +1190,7 @@ void dqrlss ( double a[], int lda, int m, int n, int kr, double b[], double x[],
 
   Licensing:
 
-    This code is distributed under the GNU LGPL license. 
+    This code is distributed under the GNU LGPL license.
 
   Modified:
 
@@ -1278,7 +1278,7 @@ void dqrlss ( double a[], int lda, int m, int n, int kr, double b[], double x[],
 }
 /******************************************************************************/
 
-int dqrsl ( double a[], int lda, int n, int k, double qraux[], double y[], 
+int dqrsl ( double a[], int lda, int n, int k, double qraux[], double y[],
   double qy[], double qty[], double b[], double rsd[], double ab[], int job )
 
 /******************************************************************************/
@@ -1344,7 +1344,7 @@ int dqrsl ( double a[], int lda, int n, int k, double qraux[], double y[],
 
   Licensing:
 
-    This code is distributed under the GNU LGPL license. 
+    This code is distributed under the GNU LGPL license.
 
   Modified:
 
@@ -1617,14 +1617,14 @@ int dqrsl ( double a[], int lda, int n, int k, double qraux[], double y[],
 
         if ( cr )
         {
-          t = -ddot ( n-j+1, a+j-1+(j-1)*lda, 1, rsd+j-1, 1 ) 
+          t = -ddot ( n-j+1, a+j-1+(j-1)*lda, 1, rsd+j-1, 1 )
             / a[j-1+(j-1)*lda];
           daxpy ( n-j+1, t, a+j-1+(j-1)*lda, 1, rsd+j-1, 1 );
         }
 
         if ( cab )
         {
-          t = -ddot ( n-j+1, a+j-1+(j-1)*lda, 1, ab+j-1, 1 ) 
+          t = -ddot ( n-j+1, a+j-1+(j-1)*lda, 1, ab+j-1, 1 )
             / a[j-1+(j-1)*lda];
           daxpy ( n-j+1, t, a+j-1+(j-1)*lda, 1, ab+j-1, 1 );
         }
@@ -1649,7 +1649,7 @@ void dscal ( int n, double sa, double x[], int incx )
 
   Licensing:
 
-    This code is distributed under the GNU LGPL license. 
+    This code is distributed under the GNU LGPL license.
 
   Modified:
 
@@ -1739,7 +1739,7 @@ void dswap ( int n, double x[], int incx, double y[], int incy )
 
   Licensing:
 
-    This code is distributed under the GNU LGPL license. 
+    This code is distributed under the GNU LGPL license.
 
   Modified:
 
@@ -1757,8 +1757,8 @@ void dswap ( int n, double x[], int incx, double y[], int incy )
 
     Charles Lawson, Richard Hanson, David Kincaid, Fred Krogh,
     Basic Linear Algebra Subprograms for Fortran Usage,
-    Algorithm 539, 
-    ACM Transactions on Mathematical Software, 
+    Algorithm 539,
+    ACM Transactions on Mathematical Software,
     Volume 5, Number 3, September 1979, pages 308-323.
 
   Parameters:
@@ -1920,7 +1920,7 @@ double *qr_solve ( int m, int n, double a[], double b[] )
 
   free ( a_qr );
   free ( jpvt );
-  free ( qraux ); 
+  free ( qraux );
   free ( r );
 
   return x;

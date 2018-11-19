@@ -208,7 +208,7 @@
     #endif
     #ifdef U8GLIB_SSD1306
       #undef HAS_LCD_CONTRAST
-    #endif  
+    #endif
   #endif
 
 #else // CONFIGURATION_LCD
@@ -293,11 +293,11 @@
 
    /**
     * Sled Options
-    */ 
+    */
   #ifdef Z_PROBE_SLED
     #define Z_SAFE_HOMING
   #endif
-  
+
   /**
    * MAX_STEP_FREQUENCY differs for TOSHIBA
    */

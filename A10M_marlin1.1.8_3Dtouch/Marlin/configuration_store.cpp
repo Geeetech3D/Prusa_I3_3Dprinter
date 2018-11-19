@@ -817,21 +817,21 @@ float hardware_version=0.1;
 	uint16_t working_crc = 0;
 	EEPROM_START();
 	eeprom_index = EEPROM_OFFSET_SN_VER;
-   
+
 	EEPROM_SKIP(working_crc); // Skip the checksum slot
-	working_crc = 0; 
+	working_crc = 0;
 	EEPROM_WRITE(hardware_version);//liu hw ver
-	
+
 	const uint16_t final_crc = working_crc;
 	const int eeprom_size = eeprom_index;
 	eeprom_index = EEPROM_OFFSET_SN_VER;
 	EEPROM_WRITE(final_crc);
-      
+
 	SERIAL_ECHO_START();
 	SERIAL_ECHOPAIR("Fixed parameter (", eeprom_size - EEPROM_OFFSET_SN_VER);
 	SERIAL_ECHOPAIR("Fixed parameter bytes; crc ", (uint32_t)final_crc);
 	SERIAL_ECHOLNPGM(")");
-	
+
  }
  bool MarlinSettings::Fixed_parameter_load(){
 	uint16_t working_crc = 0;
@@ -843,7 +843,7 @@ float hardware_version=0.1;
 	EEPROM_READ(hardware_version);//liu  hhardware_version
 	if(hardware_version< 0.1)
 	{
-		hardware_version = 0.1;	
+		hardware_version = 0.1;
 	}
 	SERIAL_ECHOPAIR(" hardware version:", hardware_version);//liu
 	if (working_crc == stored_crc) {

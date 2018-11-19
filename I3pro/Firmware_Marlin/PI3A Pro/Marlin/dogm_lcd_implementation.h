@@ -197,7 +197,7 @@ static void lcd_implementation_init() {
 	  digitalWrite(LCD_PIN_BL, HIGH);
   #endif
 
-  u8g.setContrast(lcd_contrast);	
+  u8g.setContrast(lcd_contrast);
 	// FIXME: remove this workaround
   // Uncomment this if you have the first generation (V1.10) of STBs board
   // pinMode(17, OUTPUT);	// Enable LCD backlight
@@ -210,7 +210,7 @@ static void lcd_implementation_init() {
   #elif defined(LCD_SCREEN_ROT_270)
     u8g.setRot270();	// Rotate screen by 270°
   #endif
-	
+
   // Show splashscreen
   int offx = (u8g.getWidth() - START_BMPWIDTH) / 2;
   #ifdef START_BMPHIGH
@@ -277,7 +277,7 @@ static void lcd_implementation_status_screen() {
 
   // Symbols menu graphics, animated fan
   u8g.drawBitmapP(9,1,STATUS_SCREENBYTEWIDTH,STATUS_SCREENHEIGHT, (blink % 2) && fanSpeed ? status_screen0_bmp : status_screen1_bmp);
- 
+
   #ifdef SDSUPPORT
     // SD Card Symbol
     u8g.drawBox(42, 42 - TALL_FONT_CORRECTION, 8, 7);
@@ -290,7 +290,7 @@ static void lcd_implementation_status_screen() {
 
     // SD Card Progress bar and clock
     lcd_setFont(FONT_STATUSMENU);
- 
+
     if (IS_SD_PRINTING) {
       // Progress bar solid part
       u8g.drawBox(55, 50, (unsigned int)(71.f * card.percentDone() / 100.f), 2 - TALL_FONT_CORRECTION);
@@ -367,7 +367,7 @@ static void lcd_implementation_status_screen() {
   else
     lcd_printPGM(PSTR("---.--"));
   u8g.setColorIndex(1); // black on white
- 
+
   // Feedrate
   lcd_setFont(FONT_MENU);
   u8g.setPrintPos(3,49);

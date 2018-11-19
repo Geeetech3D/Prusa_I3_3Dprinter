@@ -194,7 +194,7 @@
 #endif
 
 #ifdef DISABLE_XMIN_ENDSTOP
-  #undef X_MIN_PIN 
+  #undef X_MIN_PIN
   #define X_MIN_PIN          -1
 #endif
 
@@ -213,7 +213,7 @@
 #endif
 
 #ifdef DISABLE_ZMIN_ENDSTOP
-  #undef Z_MIN_PIN 
+  #undef Z_MIN_PIN
   #define Z_MIN_PIN          -1
 #endif
 

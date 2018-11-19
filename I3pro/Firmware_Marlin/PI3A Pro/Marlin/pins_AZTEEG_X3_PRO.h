@@ -15,7 +15,7 @@
 #define EXTRUDER_3_AUTO_FAN_PIN   5
 //
 //This section is to swap the MIN and MAX pins because the X3 Pro comes with only
-//MIN endstops soldered onto the board. Delta code wants the homing endstops to be 
+//MIN endstops soldered onto the board. Delta code wants the homing endstops to be
 //the MAX so I swapped them here.
 //
  #ifdef DELTA
@@ -73,7 +73,7 @@
 
 //
 //These Servo pins are for when they are defined. Tested for usage with bed leveling
-//on a Delta with 1 servo. Running through the Z servo endstop in code. 
+//on a Delta with 1 servo. Running through the Z servo endstop in code.
 //Physical wire attachment was done on EXT1 on the GND, 5V, and D47 pins.
 //
  #undef SERVO0_PIN
@@ -102,15 +102,15 @@
   #define DOGLCD_A0        44
   #define DOGLCD_CS        45
   #define LCD_SCREEN_ROT_180
-  
+
  //The encoder and click button
   #define BTN_EN1          22
   #define BTN_EN2           7
   #define BTN_ENC          39  //the click switch
- 
+
   #define SDSS             53
   #define SDCARDDETECT     49
-  
+
   #define KILL_PIN         31
  #endif
 

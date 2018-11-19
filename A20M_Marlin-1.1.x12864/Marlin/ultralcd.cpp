@@ -1025,7 +1025,7 @@ void kill_screen(const char* lcd_msg) {
 		powerloss.end_ps = mixer.end_pct;
 		powerloss.start_zs = mixer.start_z;
 		powerloss.end_zs = mixer.end_z;
-		
+
 	}
       MENU_ITEM_ADDON_END();
 

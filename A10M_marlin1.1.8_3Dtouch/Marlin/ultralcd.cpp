@@ -1025,7 +1025,7 @@ void kill_screen(const char* lcd_msg) {
 		powerloss.end_ps = mixer.end_pct;
 		powerloss.start_zs = mixer.start_z;
 		powerloss.end_zs = mixer.end_z;
-		
+
 	}
       MENU_ITEM_ADDON_END();
 
@@ -4186,7 +4186,7 @@ void kill_screen(const char* lcd_msg) {
       START_SCREEN();
       STATIC_ITEM(BOARD_NAME, true, true);                           // MyPrinterController
       STATIC_ITEM(MSG_INFO_BAUDRATE ": " STRINGIFY(BAUDRATE), true); // Baud: 250000
-	  
+
     // SERIAL_ECHOPAIR("hardware version:", hardware_version);	//liu..
 	  //STATIC_ITEM(MSG_FW_VER, false, true);
 	  STATIC_ITEM("" MSG_FW_VER, true);

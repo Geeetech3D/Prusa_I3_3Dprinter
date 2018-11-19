@@ -80,6 +80,6 @@
     #define SDSS   40 //use SD card on Panelolu2 (Teensyduino pin mapping)
   #endif // LCD_I2C_PANELOLU2
   //not connected to a pin
-  #define SDCARDDETECT -1    
+  #define SDCARDDETECT -1
 #endif // ULTRA_LCD && NEWPANEL
 

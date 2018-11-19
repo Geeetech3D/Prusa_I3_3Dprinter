@@ -38,7 +38,7 @@ struct vector_3
 	vector_3 get_normal();
 
 	void debug(char* title);
-	
+
 	void apply_rotation(matrix_3x3 matrix);
 };
 

@@ -11050,17 +11050,17 @@ inline void gcode_M999() {
   FlushSerialRequestResend();
 }
 inline void gcode_M2000(){
-	
+
 }
 inline void gcode_M2009(){
 	if (parser.seen('V')) hardware_version = parser.value_celsius();
 	//SERIAL_ECHOPAIR("HV...:", hardware_version);//liu
 	(void)settings.Fixed_parameter_save();
 	SERIAL_ECHOLNPGM("HV_set_ok");
-	
+
 }
 
-		
+
 
 #if ENABLED(SWITCHING_EXTRUDER)
   #if EXTRUDERS > 3
@@ -12467,10 +12467,10 @@ void process_parsed_command() {
       case 999: // M999: Restart after being Stopped
         gcode_M999();
         break;
-	case 2000: //  
+	case 2000: //
         gcode_M2000();
         break;
-      case 2009: //  
+      case 2009: //
         gcode_M2009();
         break;
     }
@@ -14415,7 +14415,7 @@ void setup() {
   // This also updates variables in the planner, elsewhere
   (void)settings.load();
   (void)settings.Fixed_parameter_load();
-  
+
 
   #if HAS_M206_COMMAND
     // Initialize current position based on home_offset
@@ -14677,7 +14677,7 @@ void loop() {
         sprintf_P(tmp_y, PSTR("M109 T0 S%u"), powerloss.T0_t);
         //SERIAL_ECHOLN(tmp_y);
         enqueue_and_echo_command(tmp_y);
-        
+
         sprintf_P(tmp_y, PSTR("M106  S255"));
         enqueue_and_echo_command(tmp_y);
 
@@ -14688,7 +14688,7 @@ void loop() {
         sprintf_P(tmp_y,PSTR("G28 Y"));
         //SERIAL_ECHOLN(tmp_y);
         enqueue_and_echo_command(tmp_y);
-		
+
 	sprintf_P(tmp_y, PSTR("G0 F1000 Z%u.%u"), powerloss.Z_t / 10, powerloss.Z_t % 10);//jone
        enqueue_and_echo_command(tmp_y);
 

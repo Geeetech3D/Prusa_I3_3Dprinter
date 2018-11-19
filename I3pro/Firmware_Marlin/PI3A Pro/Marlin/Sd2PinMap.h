@@ -314,12 +314,12 @@ static const pin_map_t digitalPinMap[] = {
 };
 #elif defined(__AVR_ATmega1281__)
 // Waspmote
- 
+
 // Two Wire (aka I2C) ports
 uint8_t const SDA_PIN = 41;
 uint8_t const SCL_PIN = 40;
- 
- 
+
+
 #undef MOSI_PIN
 #undef MISO_PIN
 // SPI port
@@ -327,7 +327,7 @@ uint8_t const SS_PIN = 16;    // B0
 uint8_t const MOSI_PIN = 11;  // B2
 uint8_t const MISO_PIN = 12;  // B3
 uint8_t const SCK_PIN = 10;   // B1
- 
+
 static const pin_map_t digitalPinMap[] = {
     {&DDRE, &PINE, &PORTE, 0}, // E0 0
     {&DDRE, &PINE, &PORTE, 1}, // E1 1

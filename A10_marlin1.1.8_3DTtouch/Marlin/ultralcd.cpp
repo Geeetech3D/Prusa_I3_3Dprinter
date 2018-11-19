@@ -3951,7 +3951,7 @@ void kill_screen(const char* lcd_msg) {
       START_SCREEN();
       STATIC_ITEM(BOARD_NAME, true, true);                           // MyPrinterController
       STATIC_ITEM(MSG_INFO_BAUDRATE ": " STRINGIFY(BAUDRATE), true); // Baud: 250000
-	  
+
     // SERIAL_ECHOPAIR("hardware version:", hardware_version);	//liu..
 	  //STATIC_ITEM(MSG_FW_VER, false, true);
 	  STATIC_ITEM("" MSG_FW_VER, true);
