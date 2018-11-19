@@ -11066,6 +11066,50 @@ void powerloss_detected() {
   }
 }
 
+inline void powerloss_resume_1() {
+  sprintf_P(tmp_y, PSTR("M190 S%u"), powerloss.B_t);
+  //SERIAL_ECHOLN(tmp_y);
+  enqueue_and_echo_command(tmp_y);
+
+  sprintf_P(tmp_y, PSTR("M109 T0 S%u"), powerloss.T0_t);
+  //SERIAL_ECHOLN(tmp_y);
+  enqueue_and_echo_command(tmp_y);
+
+  sprintf_P(tmp_y, PSTR("M106  S255"));
+  enqueue_and_echo_command(tmp_y);
+
+  sprintf_P(tmp_y, PSTR("G28 X"));
+  //SERIAL_ECHOLN(tmp_y);
+  enqueue_and_echo_command(tmp_y);
+
+  sprintf_P(tmp_y,PSTR("G28 Y"));
+  //SERIAL_ECHOLN(tmp_y);
+  enqueue_and_echo_command(tmp_y);
+
+  sprintf_P(tmp_y, PSTR("G0 F1000 Z%u.%u"), powerloss.Z_t / 10, powerloss.Z_t % 10);//jone
+  enqueue_and_echo_command(tmp_y);
+
+  axis_homed[Z_AXIS] = axis_known_position[Z_AXIS] = true;
+  powerloss.recovery = Rec_Recovering2;
+}
+
+inline void powerloss_resume_2() {
+  if (strlen(powerloss.print_dir) > 1)
+    sprintf_P(tmp_y, PSTR("M32 S%lu !/%s/%s"), powerloss.pos_t, powerloss.print_dir, powerloss.P_file_name);
+  else
+    sprintf_P(tmp_y, PSTR("M32 S%lu !%s"), powerloss.pos_t, powerloss.P_file_name);
+
+  //SERIAL_ECHOLNPAIR("Gco : ", tmp_y);
+
+  //ZERO(powerloss.print_dir);
+  powerloss.recovery = Rec_Idle;
+  (void)settings.poweroff_save();
+
+  enqueue_and_echo_command(tmp_y);
+  //SERIAL_ECHOLN(tmp_y);
+  break;
+}
+
 //#define POWER_LOSS_RECOVERY_TEST
 
 #if ENABLED(POWER_LOSS_RECOVERY_TEST)
@@ -14769,47 +14813,8 @@ void loop() {
   if (commands_in_queue == 0) {
     switch (powerloss.recovery) {
       default: break;
-      case Rec_Recovering1:
-        sprintf_P(tmp_y, PSTR("M190 S%u"), powerloss.B_t);
-        //SERIAL_ECHOLN(tmp_y);
-        enqueue_and_echo_command(tmp_y);
-
-        sprintf_P(tmp_y, PSTR("M109 T0 S%u"), powerloss.T0_t);
-        //SERIAL_ECHOLN(tmp_y);
-        enqueue_and_echo_command(tmp_y);
-
-        sprintf_P(tmp_y, PSTR("M106  S255"));
-        enqueue_and_echo_command(tmp_y);
-
-        sprintf_P(tmp_y, PSTR("G28 X"));
-        //SERIAL_ECHOLN(tmp_y);
-        enqueue_and_echo_command(tmp_y);
-
-        sprintf_P(tmp_y,PSTR("G28 Y"));
-        //SERIAL_ECHOLN(tmp_y);
-        enqueue_and_echo_command(tmp_y);
-
-	sprintf_P(tmp_y, PSTR("G0 F1000 Z%u.%u"), powerloss.Z_t / 10, powerloss.Z_t % 10);//jone
-       enqueue_and_echo_command(tmp_y);
-
-        axis_homed[Z_AXIS] = axis_known_position[Z_AXIS] = true;
-        powerloss.recovery = Rec_Recovering2;
-        break;
-      case Rec_Recovering2:
-        if (strlen(powerloss.print_dir) > 1)
-          sprintf_P(tmp_y, PSTR("M32 S%lu !/%s/%s"), powerloss.pos_t, powerloss.print_dir, powerloss.P_file_name);
-        else
-          sprintf_P(tmp_y, PSTR("M32 S%lu !%s"), powerloss.pos_t, powerloss.P_file_name);
-
-        //SERIAL_ECHOLNPAIR("Gco : ", tmp_y);
-
-        //ZERO(powerloss.print_dir);
-        powerloss.recovery = Rec_Idle;
-        (void)settings.poweroff_save();
-
-        enqueue_and_echo_command(tmp_y);
-        //SERIAL_ECHOLN(tmp_y);
-        break;
+      case Rec_Recovering1: powerloss_resume_1(); break;
+      case Rec_Recovering2: powerloss_resume_2(); break;
     }
   }
 
