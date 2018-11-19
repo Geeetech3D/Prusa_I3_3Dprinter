@@ -565,13 +565,17 @@ enum RecState : uint8_t {
 };
 
 typedef struct {
-  char P_file_name[13], print_dir[13];
-  uint16_t Z_t, T0_t, B_t;
-  uint32_t pos_t, E_t;
-  RecState recovery; // 0:idle, 1,2:recovering, 3:power outage, 4: filament out
-  uint16_t  Nozzle0_Value;
-  uint8_t start_ps,end_ps; //  void gradient_change(const int8_t start_p, const int8_t end_p, const float start_z, const float end_z)
-  float start_zs,end_zs;
+  char      P_file_name[13], print_dir[13];
+  uint16_t  Z_t, T0_t, B_t;
+  uint32_t  pos_t, E_t;
+  RecState  recovery;
+  #if ENABLED(MIXING_EXTRUDER)
+    uint16_t  Nozzle0_Value;    // mixing
+    #if ENABLED(GRADIENT_MIX)
+      uint8_t start_ps, end_ps; // gradient
+      float   start_zs, end_zs;
+    #endif
+  #endif
 } powerloss_t;
 
 extern powerloss_t powerloss;

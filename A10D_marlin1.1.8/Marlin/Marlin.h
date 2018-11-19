@@ -549,10 +549,10 @@ enum RecState : uint8_t {
 };
 
 typedef struct {
-  char P_file_name[13], print_dir[13];
+  char     P_file_name[13], print_dir[13];
   uint16_t Z_t, T0_t, B_t;
   uint32_t pos_t, E_t;
-  RecState recovery; // 0:idle, 1,2:recovering, 3:power outage, 4: filament out
+  RecState recovery;
 } powerloss_t;
 
 extern powerloss_t powerloss;
