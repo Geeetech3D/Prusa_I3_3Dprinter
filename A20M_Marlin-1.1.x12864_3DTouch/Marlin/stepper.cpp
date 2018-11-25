@@ -54,7 +54,7 @@
 #include "cardreader.h"
 #include "speed_lookuptable.h"
 #include "configuration_store.h"
-#include "Buzzer.h"
+#include "buzzer.h"
 
 extern Buzzer buzzer;
 
