@@ -856,7 +856,7 @@ float hardware_version=0.1;
 	}
 	else{
 		SERIAL_ECHOPAIR(" \r\nFixed parameter bytes; crc error ", (uint32_t)working_crc);
-		SERIAL_ECHOPAIR(" \r\Fixed parameter nbytes; crc error ", (uint32_t)stored_crc);
+		SERIAL_ECHOPAIR(" \r\nFixed parameter nbytes; crc error ", (uint32_t)stored_crc);
 	}
   }
 
