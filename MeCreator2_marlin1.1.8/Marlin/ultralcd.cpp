@@ -3683,6 +3683,9 @@ void kill_screen(const char* lcd_msg) {
     START_MENU();
     MENU_BACK(MSG_CONTROL);
 
+    // Filament Runout Sensors
+    MENU_ITEM_EDIT(bool, MSG_RUNOUT_SENSORS, &filament_runout_enabled);
+
     #if ENABLED(LIN_ADVANCE)
       MENU_ITEM_EDIT(float3, MSG_ADVANCE_K, &planner.extruder_advance_k, 0, 999);
     #endif
@@ -4521,7 +4524,7 @@ void kill_screen(const char* lcd_msg) {
 
   #endif // SDSUPPORT
 
-  void menu_action_setting_edit_bool(const char* pstr, bool* ptr) { UNUSED(pstr); *ptr ^= true; lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; }
+  void menu_action_setting_edit_bool(const char* pstr, bool* ptr) { UNUSED(pstr); *ptr = !*ptr; lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; }
   void menu_action_setting_edit_callback_bool(const char* pstr, bool* ptr, screenFunc_t callback) {
     menu_action_setting_edit_bool(pstr, ptr);
     (*callback)();
