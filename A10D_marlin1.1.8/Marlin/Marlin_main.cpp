@@ -11062,7 +11062,7 @@ void powerloss_detected() {
     (void)settings.poweroff_save();
     settings.load();
 
-    powerloss_report();
+    powerloss_report(PSTR("DETECTED"));
   }
 }
 
@@ -11085,7 +11085,7 @@ void powerloss_detected() {
     powerloss.recovery = Rec_Outage;
     filament_runout_enabled = parser.boolval('S');
     (void)settings.poweroff_save();
-    powerloss_report(PSTR("  SAVED"));
+    powerloss_report(PSTR("   SAVED"));
   }
 
   inline void gcode_M930() {
@@ -11106,10 +11106,10 @@ void powerloss_detected() {
   inline void gcode_M931() {
     ZERO(powerloss);
     filament_runout_enabled = false;
-    powerloss_report(PSTR("CLEARED"));
+    powerloss_report(PSTR(" CLEARED"));
 
     (void)settings.poweroff_load();
-    powerloss_report(PSTR(" LOADED"));
+    powerloss_report(PSTR("  LOADED"));
   }
 
 #endif // POWER_LOSS_RECOVERY_TEST

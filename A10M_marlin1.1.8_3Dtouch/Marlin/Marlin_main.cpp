@@ -11118,7 +11118,7 @@ void powerloss_detected() {
     (void)settings.poweroff_save();
     settings.load();
 
-    powerloss_report();
+    powerloss_report(PSTR("DETECTED"));
   }
 }
 
@@ -11176,7 +11176,6 @@ inline void powerloss_resume_2() {
 
   enqueue_and_echo_command(tmp_y);
   //SERIAL_ECHOLN(tmp_y);
-  break;
 }
 
 //#define POWER_LOSS_RECOVERY_TEST
@@ -11205,7 +11204,7 @@ inline void powerloss_resume_2() {
     powerloss.recovery = Rec_Outage;
     filament_runout_enabled = parser.boolval('S');
     (void)settings.poweroff_save();
-    powerloss_report(PSTR("  SAVED"));
+    powerloss_report(PSTR("   SAVED"));
   }
 
   /**
@@ -11232,10 +11231,10 @@ inline void powerloss_resume_2() {
   inline void gcode_M931() {
     ZERO(powerloss);
     filament_runout_enabled = false;
-    powerloss_report(PSTR("CLEARED"));
+    powerloss_report(PSTR(" CLEARED"));
 
     (void)settings.poweroff_load();
-    powerloss_report(PSTR(" LOADED"));
+    powerloss_report(PSTR("  LOADED"));
   }
 
 #endif // POWER_LOSS_RECOVERY_TEST
