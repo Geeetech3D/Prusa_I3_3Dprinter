@@ -3999,6 +3999,15 @@ inline void gcode_G28(const bool always_home_all) {
     set_bed_leveling_enabled(false);
   #endif
 
+
+  #if ENABLED(BLTOUCH)
+     // we must ensure that the probe is stowed...
+     bltouch_command(BLTOUCH_RESET);
+     set_bltouch_deployed(true);
+     bltouch_command(BLTOUCH_STOW);
+     set_bltouch_deployed(false);
+  #endif
+
   #if ENABLED(CNC_WORKSPACE_PLANES)
     workspace_plane = PLANE_XY;
   #endif
