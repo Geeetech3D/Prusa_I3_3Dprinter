@@ -1037,6 +1037,7 @@ void kill_screen(const char* lcd_msg) {
       mixer.rate[NOZZLE0] = mixer.rate[NOZZLE0] == 100 ? 0 : 100;
       mixer.rate[NOZZLE1] = 100 - mixer.rate[NOZZLE0];
       _lcd_mixer_update_mix();
+      lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
     }
 
     void lcd_mixer_mix_edit() {
