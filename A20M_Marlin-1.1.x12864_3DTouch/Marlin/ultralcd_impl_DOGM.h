@@ -692,8 +692,8 @@ static void lcd_implementation_status_screen() {//liu...
       u8g.setPrintPos(3, XYZ_BASELINE);
 
       const int mix_pct = int(RECIPROCAL(mixing_factor[NOZZLE0]) * 100.0f);
-      const char * const fmt = mixer.gradient_flag ? PSTR("Mx^%d;%d%% ") : PSTR("Mx %d;%d%% ");
-      sprintf_P(mixer_messages, fmt, mix_pct, 100 - mix_pct);
+      lcd_print(mixer.gradient_flag ? PSTR("Gr") : PSTR("Mx"));
+      sprintf_P(mixer_messages, PSTR(" %d;%d%% "), mix_pct, 100 - mix_pct);
       lcd_print(mixer_messages);
 
       u8g.setPrintPos(2 * XYZ_SPACING + X_LABEL_POS, XYZ_BASELINE);
