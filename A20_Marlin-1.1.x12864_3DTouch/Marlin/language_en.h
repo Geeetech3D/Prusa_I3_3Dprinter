@@ -928,10 +928,10 @@
   #define MSG_INFO_PSU                        _UxGT("PSU")
 #endif
 #ifndef MSG_HW_VER
-  #define MSG_HW_VER                        _UxGT("HW Ver: V")
+  #define MSG_HW_VER                        _UxGT("HW Version: V")
 #endif
 #ifndef MSG_FW_VER
-  #define MSG_FW_VER                        _UxGT("FW Ver: V1.1")
+  #define MSG_FW_VER                        _UxGT("FW Version: V1.1.8")
 #endif
 #ifndef MSG_DRIVE_STRENGTH
   #define MSG_DRIVE_STRENGTH                  _UxGT("Drive Strength")

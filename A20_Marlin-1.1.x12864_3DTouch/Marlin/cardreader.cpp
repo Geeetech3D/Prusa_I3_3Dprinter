@@ -888,7 +888,7 @@ uint16_t CardReader::get_num_Files() {
 void CardReader::printingHasFinished() {
   stepper.synchronize();
   file.close();
-  enqueue_and_echo_commands_P(PSTR("G28 XY"));
+  enqueue_and_echo_commands_P(PSTR("G28 X"));
   if (file_subcall_ctr > 0) { // Heading up to a parent file that called current as a procedure.
     file_subcall_ctr--;
     openFile(proc_filenames[file_subcall_ctr], true, true);

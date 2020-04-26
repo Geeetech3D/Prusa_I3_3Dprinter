@@ -373,7 +373,7 @@ float hardware_version=0.1;
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
       const float zfh = planner.z_fade_height;
     #else
-      const float zfh = 10.0;
+      const float zfh = 0.3; //MOD
     #endif
     EEPROM_WRITE(zfh);
 
@@ -856,7 +856,7 @@ float hardware_version=0.1;
 	}
 	else{
 		SERIAL_ECHOPAIR(" \r\nFixed parameter bytes; crc error ", (uint32_t)working_crc);
-		SERIAL_ECHOPAIR(" \r\Fixed parameter nbytes; crc error ", (uint32_t)stored_crc);
+		SERIAL_ECHOPAIR(" \r\nFixed parameter nbytes; crc error ", (uint32_t)stored_crc);
 	}
   }
 
@@ -1529,7 +1529,7 @@ void MarlinSettings::reset() {
   //
 
   #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-    new_z_fade_height = 0.0;
+    new_z_fade_height = 0.0;//TODO
   #endif
 
   #if HAS_LEVELING

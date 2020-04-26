@@ -35,7 +35,7 @@
   /**
    * Marlin release version identifier
    */
-  #define SHORT_BUILD_VERSION "1.1.8"
+  #define SHORT_BUILD_VERSION " Marlin 1.1.8"
 
   /**
    * Verbose version identifier which should contain a reference to the location
@@ -48,7 +48,7 @@
    * here we define this default string as the date where the latest release
    * version was tagged.
    */
-  #define STRING_DISTRIBUTION_DATE "2017-12-25 12:00"
+  #define STRING_DISTRIBUTION_DATE "26/04/2020"
 
   /**
    * Required minimum Configuration.h and Configuration_adv.h file versions.
@@ -70,7 +70,7 @@
   /**
    * Defines a generic printer name to be output to the LCD after booting Marlin.
    */
-  #define MACHINE_NAME "3D Printer"
+  #define MACHINE_NAME "GeeeTech A20"
 
   /**
    * The SOURCE_CODE_URL is the location where users will find the Marlin Source
@@ -83,7 +83,7 @@
   /**
    * Default generic printer UUID.
    */
-  #define DEFAULT_MACHINE_UUID "cede2a2f-41a2-4748-9b12-c55c62f367ff"
+  #define DEFAULT_MACHINE_UUID "3b0ca43a-c27c-414a-9782-99bdb0e4b5ff"
 
   /**
    * The WEBSITE_URL is the location where users can get more information such as
@@ -91,4 +91,7 @@
    */
   #define WEBSITE_URL "http://marlinfw.org"
 
+#define  USB_DEVICE_VENDOR_ID           0x1A86
+#define  USB_DEVICE_PRODUCT_ID          0x7523
+#define  USB_DEVICE_MANUFACTURE_NAME    wch.cn
 #endif // USE_AUTOMATIC_VERSIONING

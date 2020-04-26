@@ -30,7 +30,7 @@
 #endif
 
 #ifndef BOARD_NAME
-  #define BOARD_NAME "GT2560 V3.0"
+  #define BOARD_NAME "GT2560 V3.1"
 #endif
 
 //
@@ -42,18 +42,18 @@
 // Limit Switches
 //
 #define X_MIN_PIN          24   //22
-#define X_MAX_PIN          22   //24
+//#define X_MAX_PIN          22   //24
 #define Y_MIN_PIN          28   //26
-#define Y_MAX_PIN          26   //28
+//#define Y_MAX_PIN          26   //28
 #define Z_MIN_PIN          30
-#define Z_MAX_PIN          32
+//#define Z_MAX_PIN          32
 
 #ifndef FIL_RUNOUT_PIN
   #define FIL_RUNOUT_PIN   66
 #endif
-#ifndef FIL_RUNOUT2_PIN
-  #define FIL_RUNOUT2_PIN  67
-#endif
+//#ifndef FIL_RUNOUT2_PIN
+//  #define FIL_RUNOUT2_PIN  67
+//#endif
 
 // Detect power-loss
 #define CONTINUITY_PIN     69
@@ -78,24 +78,24 @@
 #define E0_DIR_PIN         44   //45
 #define E0_ENABLE_PIN      12   //41
 
-#define E1_STEP_PIN        49
-#define E1_DIR_PIN         47
-#define E1_ENABLE_PIN      48
+//#define E1_STEP_PIN        49
+//#define E1_DIR_PIN         47
+//#define E1_ENABLE_PIN      48
 
 //
 // Temperature Sensors
 //
 #define TEMP_0_PIN         11   // Analog Input (8)
-#define TEMP_1_PIN          9   // Analog Input
-#define TEMP_2_PIN         -1   // Analog Input
+//#define TEMP_1_PIN          9   // Analog Input
+//#define TEMP_2_PIN         -1   // Analog Input
 #define TEMP_BED_PIN       10   // Analog Input
 
 //
 // Heaters / Fans
 //
 #define HEATER_0_PIN       10   //2
-#define HEATER_1_PIN        3
-#define HEATER_2_PIN       -1
+//#define HEATER_1_PIN        3
+//#define HEATER_2_PIN       -1
 #define HEATER_BED_PIN      4
 
 #define FAN_PIN             9
@@ -105,7 +105,7 @@
 //
 #define LED_PIN             6
 #define PS_ON_PIN          12
-#define KILL_PIN           -1
+//#define KILL_PIN           -1
 #define SUICIDE_PIN        54   // PIN that has to be turned on right after start, to keep power flowing.
 
 #if ENABLED(LIGHT_SUPPORT)
@@ -118,7 +118,7 @@
 //
 #define SDSS               53
 #define SD_DETECT_PIN      38
-#define SDPOWER            -1
+//#define SDPOWER            -1
 
 //
 // LCD / Controller
