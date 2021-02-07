@@ -74,7 +74,7 @@
 // User-specified version info of this build to display in [Pronterface, etc] terminal window during
 // startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
 // build by the user have been successfully uploaded into firmware.
-#define STRING_CONFIG_H_AUTHOR "(none, default config)" // Who made the changes.
+#define STRING_CONFIG_H_AUTHOR "(BorseUS)" // Who made the changes.
 #define SHOW_BOOTSCREEN
 #define STRING_SPLASH_LINE1 SHORT_BUILD_VERSION // will be shown during bootup in line 1
 #define STRING_SPLASH_LINE2 WEBSITE_URL         // will be shown during bootup in line 2
@@ -90,7 +90,7 @@
 // boot image unmodified. For an example have a look at the bq Hephestos 2
 // example configuration folder.
 //
-//#define SHOW_CUSTOM_BOOTSCREEN
+#define SHOW_CUSTOM_BOOTSCREEN
 // @section machine
 
 /**
@@ -124,11 +124,11 @@
 
 // Optional custom name for your RepStrap or other custom machine
 // Displayed in the LCD "Ready" message
-#define CUSTOM_MACHINE_NAME "A20"
+#define CUSTOM_MACHINE_NAME "GEEETech A20"
 
 // Define this to set a unique identifier for this printer, (Used by some programs to differentiate between machines)
 // You can use an online service to generate a random UUID. (eg http://www.uuidgenerator.net/version4)
-//#define MACHINE_UUID "00000000-0000-0000-0000-000000000000"
+#define MACHINE_UUID "3b0ca43a-c27c-414a-9782-99bdb0e4b5ff"
 
 // @section extruder
 
@@ -353,32 +353,10 @@
                                   // is more than PID_FUNCTIONAL_RANGE then the PID will be shut off and the heater will be set to min/max.
 
   // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
-
-  // MeCreator2
-  //#define  DEFAULT_Kp 226.93  //11.93
-  //#define  DEFAULT_Ki 0.43  //0.59
-  //#define  DEFAULT_Kd 854.89  //59.89
-
   // A10M [@thinkyhead]
   #define  DEFAULT_Kp 45.80
   #define  DEFAULT_Ki 3.61
   #define  DEFAULT_Kd 145.39
-
-  // Ultimaker
-  //#define  DEFAULT_Kp 22.2
-  //#define  DEFAULT_Ki 1.08
-  //#define  DEFAULT_Kd 114
-
-  // MakerGear
-  //#define  DEFAULT_Kp 7.0
-  //#define  DEFAULT_Ki 0.1
-  //#define  DEFAULT_Kd 12
-
-  // Mendel Parts V9 on 12V
-  //#define  DEFAULT_Kp 63.0
-  //#define  DEFAULT_Ki 2.25
-  //#define  DEFAULT_Kd 440
-
 #endif // PIDTEMP
 
 //===========================================================================
@@ -411,20 +389,6 @@
   #define  DEFAULT_bedKp 182.46   // 175.68 189.95
   #define  DEFAULT_bedKi 35.92    //  34.59  37.40
   #define  DEFAULT_bedKd 231.70   // 223.07 241.19
-
-
-
-  //120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
-  //from FOPDT model - kp=.39 Tp=405 Tdead=66, Tc set to 79.2, aggressive factor of .15 (vs .1, 1, 10)
-  //#define  DEFAULT_bedKp 10.00
-  //#define  DEFAULT_bedKi .023
-  //#define  DEFAULT_bedKd 305.4
-
-  //120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
-  //from pidautotune
-  //#define  DEFAULT_bedKp 97.1
-  //#define  DEFAULT_bedKi 1.41
-  //#define  DEFAULT_bedKd 1675.16
 
   // FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
 #endif // PIDTEMPBED
@@ -519,7 +483,7 @@
 
 // Enable this feature if all enabled endstop pins are interrupt-capable.
 // This will remove the need to poll the interrupt pins, saving many CPU cycles.
-//#define ENDSTOP_INTERRUPTS_FEATURE
+//#define ENDSTOP_INTERRUPTS_FEATURE //TODO
 
 //=============================================================================
 //============================== Movement Settings ============================
@@ -546,14 +510,14 @@
  * Override with M92
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
  */
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80.3, 80.8, 400, 93 }   //Orig { 80, 80, 4000, 500 } 93*2 = DRV8825 1/32 Stepps
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 95.5 }   //Orig { 80, 80, 4000, 500 } 93*2 = DRV8825 1/32 Stepps
 
 /**
  * Default Max Feed Rate (mm/s)
  * Override with M203
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
  */
-#define DEFAULT_MAX_FEEDRATE          { 400, 400, 400, 45 } //Orig { 300, 300, 5, 25 } //1.0.3 { 300, 300,20, 25 }
+#define DEFAULT_MAX_FEEDRATE          { 600, 600, 60, 60 } //Orig { 300, 300, 5, 25 } //1.0.3 { 300, 300,20, 25 }
 
 /**
  * Default Max Acceleration (change/s) change = mm/s
@@ -561,7 +525,7 @@
  * Override with M201
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
  */
-#define DEFAULT_MAX_ACCELERATION       { 5000, 5000, 50, 5000 } //1.0.3 { 3000, 3000, 100, 10000 }
+#define DEFAULT_MAX_ACCELERATION       { 5000, 5000, 100, 10000 } //1.0.3 { 3000, 3000, 100, 10000 }
 
 /**
  * Default Acceleration (change/s) change = mm/s
@@ -585,8 +549,8 @@
  */
 #define DEFAULT_XJERK                 20.0
 #define DEFAULT_YJERK                 20.0
-#define DEFAULT_ZJERK                  0.4
-#define DEFAULT_EJERK                  5.0
+#define DEFAULT_ZJERK                  0.5
+#define DEFAULT_EJERK                  7.0
 
 //===========================================================================
 //============================= Z Probe Options =============================
@@ -700,9 +664,9 @@
  *      O-- FRONT --+
  *    (0,0)
  */
-#define X_PROBE_OFFSET_FROM_EXTRUDER -37  // X offset: -left  +right  [of the nozzle]
-#define Y_PROBE_OFFSET_FROM_EXTRUDER -0  // Y offset: -front +behind [the nozzle]
-#define Z_PROBE_OFFSET_FROM_EXTRUDER -0.50 // Z offset: -below +above  [the nozzle]
+#define X_PROBE_OFFSET_FROM_EXTRUDER -41  // X offset: -left  +right  [of the nozzle]
+#define Y_PROBE_OFFSET_FROM_EXTRUDER 2 // Y offset: -front +behind [the nozzle]
+#define Z_PROBE_OFFSET_FROM_EXTRUDER -1.86 // Z offset: -below +above  [the nozzle]
 
 // X and Y axis travel speed (mm/m) between probes
 #define XY_PROBE_SPEED 8000
@@ -716,7 +680,7 @@
 // The number of probes to perform at each point.
 //   Set to 2 for a fast/slow probe, using the second probe result.
 //   Set to 3 or more for slow probes, averaging the results.
-#define MULTIPLE_PROBING 2
+#define MULTIPLE_PROBING 3
 
 /**
  * Z probes require clearance when deploying, stowing, and moving between
@@ -740,7 +704,7 @@
 #define Z_PROBE_OFFSET_RANGE_MAX 20
 
 // Enable the M48 repeatability test to test probe accuracy
-//#define Z_MIN_PROBE_REPEATABILITY_TEST
+#define Z_MIN_PROBE_REPEATABILITY_TEST
 
 // For Inverting Stepper Enable Pins (Active Low) use 0, Non Inverting (Active High) use 1
 // :{ 0:'Low', 1:'High' }
@@ -785,7 +749,7 @@
 
 //#define NO_MOTION_BEFORE_HOMING  // Inhibit movement until all axes have been homed
 
-#define Z_HOMING_HEIGHT 4    // (in mm) Minimal z height before homing (G28) for Z clearance above the bed, clamps, ...
+#define Z_HOMING_HEIGHT 5    // (in mm) Minimal z height before homing (G28) for Z clearance above the bed, clamps, ...
                              // Be sure you have this distance over your Z_MAX_POS in case.
 
 // Direction of endstops when homing; 1=MAX, -1=MIN
@@ -797,8 +761,8 @@
 // @section machine
 
 // The size of the print bed
-#define X_BED_SIZE 250
-#define Y_BED_SIZE 250
+#define X_BED_SIZE 255
+#define Y_BED_SIZE 255
 
 // Travel limits (mm) after homing, corresponding to endstop positions.
 #define X_MIN_POS -10
@@ -903,7 +867,7 @@
   // Gradually reduce leveling correction until a set height is reached,
   // at which point movement will be level to the machine's XY plane.
   // The height can be set with M420 Z<height>
-  #define ENABLE_LEVELING_FADE_HEIGHT
+  #define ENABLE_LEVELING_FADE_HEIGHT //TODO
 
   // For Cartesian machines, instead of dividing moves on mesh boundaries,
   // split up moves into short segments like a Delta. This follows the
@@ -914,7 +878,7 @@
   /**
    * Enable the G26 Mesh Validation Pattern tool.
    */
-  #define G26_MESH_VALIDATION   // Enable G26 mesh validation
+  //#define G26_MESH_VALIDATION   // Enable G26 mesh validation
   #if ENABLED(G26_MESH_VALIDATION)
     #define MESH_TEST_NOZZLE_SIZE     0.4   // (mm) Diameter of primary nozzle.
     #define MESH_TEST_LAYER_HEIGHT    0.2   // (mm) Default layer height for the G26 Mesh Validation Tool.
@@ -927,13 +891,13 @@
 #if ENABLED(AUTO_BED_LEVELING_LINEAR) || ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
   // Set the number of grid points per dimension.
-  #define GRID_MAX_POINTS_X 3
+  #define GRID_MAX_POINTS_X 4
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
   // Set the boundaries for probing (where the probe can reach).
-  #define LEFT_PROBE_BED_POSITION 30
-  #define RIGHT_PROBE_BED_POSITION 200
-  #define FRONT_PROBE_BED_POSITION 20
+  #define LEFT_PROBE_BED_POSITION 10
+  #define RIGHT_PROBE_BED_POSITION 214
+  #define FRONT_PROBE_BED_POSITION 10
   #define BACK_PROBE_BED_POSITION 245
 
   // The Z probe minimum outer margin (to validate G29 parameters).
@@ -1162,12 +1126,12 @@
 // @section temperature
 
 // Preheat Constants
-#define PREHEAT_1_TEMP_HOTEND 190
-#define PREHEAT_1_TEMP_BED     60
+#define PREHEAT_1_TEMP_HOTEND 210
+#define PREHEAT_1_TEMP_BED     55
 #define PREHEAT_1_FAN_SPEED     0 // Value from 0 to 255
 
 #define PREHEAT_2_TEMP_HOTEND 240
-#define PREHEAT_2_TEMP_BED     90
+#define PREHEAT_2_TEMP_BED     70
 #define PREHEAT_2_FAN_SPEED     0 // Value from 0 to 255
 
 /**
@@ -1185,9 +1149,9 @@
 
 #if ENABLED(NOZZLE_PARK_FEATURE)
   // Specify a park position as { X, Y, Z }
-  #define NOZZLE_PARK_POINT { 3, 3, 10 }
-  #define NOZZLE_PARK_XY_FEEDRATE 100   // X and Y axes feedrate in mm/s (also used for delta printers Z axis)
-  #define NOZZLE_PARK_Z_FEEDRATE 5      // Z axis feedrate in mm/s (not used for delta printers)
+  #define NOZZLE_PARK_POINT { 0, 0, 10 }
+  #define NOZZLE_PARK_XY_FEEDRATE 120   // X and Y axes feedrate in mm/s (also used for delta printers Z axis)
+  #define NOZZLE_PARK_Z_FEEDRATE 7      // Z axis feedrate in mm/s (not used for delta printers)
 #endif
 
 /**
@@ -1300,7 +1264,7 @@
  *
  * :{ 'en':'English', 'an':'Aragonese', 'bg':'Bulgarian', 'ca':'Catalan', 'cn':'Chinese', 'cz':'Czech', 'cz_utf8':'Czech (UTF8)', 'de':'German', 'el':'Greek', 'el-gr':'Greek (Greece)', 'es':'Spanish', 'eu':'Basque-Euskera', 'fi':'Finnish', 'fr':'French', 'fr_utf8':'French (UTF8)', 'gl':'Galician', 'hr':'Croatian', 'it':'Italian', 'kana':'Japanese', 'kana_utf8':'Japanese (UTF8)', 'nl':'Dutch', 'pl':'Polish', 'pt':'Portuguese', 'pt-br':'Portuguese (Brazilian)', 'pt-br_utf8':'Portuguese (Brazilian UTF8)', 'pt_utf8':'Portuguese (UTF8)', 'ru':'Russian', 'sk_utf8':'Slovak (UTF8)', 'tr':'Turkish', 'uk':'Ukrainian', 'zh_CN':'Chinese (Simplified)', 'zh_TW':'Chinese (Taiwan)', test':'TEST' }
  */
-#define LCD_LANGUAGE en
+#define LCD_LANGUAGE it
 
 /**
  * LCD Character Set
@@ -1324,7 +1288,7 @@
  *
  * :['JAPANESE', 'WESTERN', 'CYRILLIC']
  */
-#define DISPLAY_CHARSET_HD44780 JAPANESE
+#define DISPLAY_CHARSET_HD44780 WESTERN
 
 /**
  * LCD TYPE
@@ -1371,13 +1335,13 @@
 // This option overrides the default number of encoder pulses needed to
 // produce one step. Should be increased for high-resolution encoders.
 //
-//#define ENCODER_PULSES_PER_STEP 2
+#define ENCODER_PULSES_PER_STEP 2
 
 //
 // Use this option to override the number of step signals required to
 // move between next/prev menu items.
 //
-//#define ENCODER_STEPS_PER_MENU_ITEM 5
+#define ENCODER_STEPS_PER_MENU_ITEM 5
 
 /**
  * Encoder Direction Options
@@ -1409,7 +1373,7 @@
 //
 // Add individual axis homing items (Home X, Home Y, and Home Z) to the LCD menu.
 //
-//#define INDIVIDUAL_AXIS_HOMING_MENU
+#define INDIVIDUAL_AXIS_HOMING_MENU
 
 //
 // SPEAKER/BUZZER
@@ -1417,7 +1381,7 @@
 // If you have a speaker that can produce tones, enable it here.
 // By default Marlin assumes you have a buzzer with a fixed frequency.
 //
-//#define SPEAKER
+#define SPEAKER
 
 //
 // The duration and frequency for the UI feedback sound.
@@ -1444,7 +1408,6 @@
 //
 // ULTIPANEL as seen on Thingiverse.
 //
-//#define ULTIPANEL
 #define ULTIPANEL
 #define NEWPANEL
 //
@@ -1784,7 +1747,7 @@
 // Delay (in milliseconds) before the next move will start, to give the servo time to reach its target angle.
 // 300ms is a good value but you can try less delay.
 // If the servo can't reach the requested position, increase it.
-#define SERVO_DELAY { 300 }
+#define SERVO_DELAY {300}
 
 // Servo deactivation
 //
