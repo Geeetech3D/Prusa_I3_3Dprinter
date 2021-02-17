@@ -29,10 +29,10 @@
 
 #if defined(BTN_ENC) && BTN_ENC > -1
   // encoder click is directly connected
-  #define BLEN_C 2 
-  #define EN_C BIT(BLEN_C) 
-#endif 
-  
+  #define BLEN_C 2
+  #define EN_C BIT(BLEN_C)
+#endif
+
 //
 // Setup other button mappings of each panel
 //
@@ -82,7 +82,7 @@
     #define BLEN_REPRAPWORLD_KEYPAD_MIDDLE 5
     #define BLEN_REPRAPWORLD_KEYPAD_DOWN 3
     #define BLEN_REPRAPWORLD_KEYPAD_LEFT 7
-    
+
     #define REPRAPWORLD_BTN_OFFSET 0 // bit offset into buttons for shift register values
 
     #define EN_REPRAPWORLD_KEYPAD_F3 BIT((BLEN_REPRAPWORLD_KEYPAD_F3+REPRAPWORLD_BTN_OFFSET))
@@ -119,7 +119,7 @@
   #define B_DW BIT(BL_DW)
   #define B_RI BIT(BL_RI)
   #define B_ST BIT(BL_ST)
-  
+
   #define LCD_CLICKED (buttons&(B_MI|B_ST))
 #endif
 
@@ -761,7 +761,7 @@ static void lcd_implementation_drawmenu_sddirectory(bool sel, uint8_t row, const
       uint8_t slow_buttons;
       // Reading these buttons this is likely to be too slow to call inside interrupt context
       // so they are called during normal lcd_update
-      slow_buttons = lcd.readButtons() << B_I2C_BTN_OFFSET; 
+      slow_buttons = lcd.readButtons() << B_I2C_BTN_OFFSET;
       #ifdef LCD_I2C_VIKI
         if ((slow_buttons & (B_MI|B_RI)) && millis() < next_button_update_ms) // LCD clicked
           slow_buttons &= ~(B_MI|B_RI); // Disable LCD clicked buttons if screen is updated

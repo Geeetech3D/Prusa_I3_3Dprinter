@@ -11030,6 +11030,159 @@ inline void gcode_M355() {
 
 #endif // MIXING_EXTRUDER
 
+inline void powerloss_report(const char * const prefix) {
+  serialprintPGM(prefix);
+  char tmp_d[32];
+  sprintf_P(tmp_d, PSTR(": S%u, Z%u, E%lu, P%lu, T%u, B%u, "), int(powerloss.recovery), powerloss.Z_t, powerloss.E_t, powerloss.pos_t, powerloss.T0_t, powerloss.B_t);
+  SERIAL_ECHO(tmp_d);
+  SERIAL_ECHO(powerloss.print_dir);
+  SERIAL_CHAR('/');
+  SERIAL_ECHOLN(powerloss.P_file_name);
+  SERIAL_ECHOLNPAIR("filament_runout_enabled = ", int(filament_runout_enabled));
+}
+
+void powerloss_detected() {
+  if (powerloss.P_file_name[0] && powerloss.recovery == Rec_Idle && print_job_timer.isRunning()) {
+     //SERIAL_ECHOLNPGM("Down");
+    // enqueuecommand("M929");
+
+    powerloss.Z_t = current_position[Z_AXIS] * 10;
+    powerloss.E_t = current_position[E_AXIS];
+    powerloss.pos_t = card.getStatus();
+    powerloss.T0_t = thermalManager.degTargetHotend(0) + 0.5;
+    powerloss.B_t = thermalManager.degTargetBed() + 0.5;
+    powerloss.recovery =
+      #if ENABLED(BLTOUCH)
+        Rec_Idle
+      #else
+        Rec_Outage
+      #endif
+    ;
+    //settings.save();
+    (void)settings.poweroff_save();
+    settings.load();
+
+    powerloss_report(PSTR("DETECTED"));
+  }
+}
+
+inline void powerloss_resume_1() {
+  sprintf_P(tmp_y, PSTR("M190 S%u"), powerloss.B_t);
+  //SERIAL_ECHOLN(tmp_y);
+  enqueue_and_echo_command(tmp_y);
+
+  sprintf_P(tmp_y, PSTR("M109 T0 S%u"), powerloss.T0_t);
+  //SERIAL_ECHOLN(tmp_y);
+  enqueue_and_echo_command(tmp_y);
+
+  sprintf_P(tmp_y, PSTR("M106  S255"));
+  enqueue_and_echo_command(tmp_y);
+
+  sprintf_P(tmp_y, PSTR("G28 X"));
+  //SERIAL_ECHOLN(tmp_y);
+  enqueue_and_echo_command(tmp_y);
+
+  sprintf_P(tmp_y,PSTR("G28 Y"));
+  //SERIAL_ECHOLN(tmp_y);
+  enqueue_and_echo_command(tmp_y);
+
+  sprintf_P(tmp_y, PSTR("G0 F1000 Z%u.%u"), powerloss.Z_t / 10, powerloss.Z_t % 10);//jone
+  enqueue_and_echo_command(tmp_y);
+
+  const uint16_t mix0 = powerloss.Nozzle0_Value;
+  if (mix0 < 101) {
+    mixing_factor[NOZZLE0] = RECIPROCAL(mix0 * 0.01);
+    mixing_factor[NOZZLE1] = RECIPROCAL((100 - mix0) * 0.01);
+  }
+  else {
+    mixer.gradient_flag = true;
+    mixer.start_pct     = powerloss.start_ps;
+    mixer.end_pct       = powerloss.end_ps;
+    mixer.start_z       = powerloss.start_zs;
+    mixer.end_z         = powerloss.end_zs;
+  }
+
+  axis_homed[Z_AXIS] = axis_known_position[Z_AXIS] = true;
+  powerloss.recovery = Rec_Recovering2;
+}
+
+inline void powerloss_resume_2() {
+  if (strlen(powerloss.print_dir) > 1)
+    sprintf_P(tmp_y, PSTR("M32 S%lu !/%s/%s"), powerloss.pos_t, powerloss.print_dir, powerloss.P_file_name);
+  else
+    sprintf_P(tmp_y, PSTR("M32 S%lu !%s"), powerloss.pos_t, powerloss.P_file_name);
+
+  //SERIAL_ECHOLNPAIR("Gco : ", tmp_y);
+
+  //ZERO(powerloss.print_dir);
+  powerloss.recovery = Rec_Idle;
+  (void)settings.poweroff_save();
+
+  enqueue_and_echo_command(tmp_y);
+  //SERIAL_ECHOLN(tmp_y);
+}
+
+//#define POWER_LOSS_RECOVERY_TEST
+
+#if ENABLED(POWER_LOSS_RECOVERY_TEST)
+
+  //
+  // TEST Power Loss Save
+  //
+
+  /**
+   * M929: Save simulated power-loss data
+   */
+  inline void gcode_M929() {
+    if (IS_SD_PRINTING) {
+      powerloss.pos_t = card.getStatus();
+    else {
+      strcpy_P(powerloss.P_file_name, PSTR("TESTFILE.GCO"));
+      strcpy_P(powerloss.print_dir, PSTR("FILEPATH"));
+    }
+
+    powerloss.Z_t = current_position[Z_AXIS] * 10;
+    powerloss.T0_t = 200 + 0.5;
+    powerloss.B_t = 60 + 0.5;
+    powerloss.E_t = current_position[E_AXIS];
+    powerloss.recovery = Rec_Outage;
+    filament_runout_enabled = parser.boolval('S');
+    (void)settings.poweroff_save();
+    powerloss_report(PSTR("   SAVED"));
+  }
+
+  /**
+   * M930: Simulate power-loss recovery
+   */
+  inline void gcode_M930() {
+    powerloss.recovery = Rec_Recovering1;
+
+    (void)settings.poweroff_load();
+
+    sprintf_P(tmp_n, PSTR("G92 Z%u.%u"), powerloss.Z_t / 10, powerloss.Z_t % 10);
+    enqueue_and_echo_command(tmp_n);
+
+    sprintf_P(tmp_n, PSTR("G92 E%u"), powerloss.E_t);
+    enqueue_and_echo_command(tmp_n);
+
+    sprintf_P(tmp_n, PSTR("M104 S%u"), powerloss.T0_t);
+    enqueue_and_echo_command(tmp_n);
+  }
+
+  /**
+   * M931: Load and report power-loss data
+   */
+  inline void gcode_M931() {
+    ZERO(powerloss);
+    filament_runout_enabled = false;
+    powerloss_report(PSTR(" CLEARED"));
+
+    (void)settings.poweroff_load();
+    powerloss_report(PSTR("  LOADED"));
+  }
+
+#endif // POWER_LOSS_RECOVERY_TEST
+
 /**
  * M999: Restart after being stopped
  *
@@ -11049,18 +11202,16 @@ inline void gcode_M999() {
   // gcode_LastN = Stopped_gcode_LastN;
   FlushSerialRequestResend();
 }
-inline void gcode_M2000(){
-	
-}
-inline void gcode_M2009(){
-	if (parser.seen('V')) hardware_version = parser.value_celsius();
-	//SERIAL_ECHOPAIR("HV...:", hardware_version);//liu
-	(void)settings.Fixed_parameter_save();
-	SERIAL_ECHOLNPGM("HV_set_ok");
-	
+
+inline void gcode_M2000() {
 }
 
-		
+inline void gcode_M2009() {
+  if (parser.seen('V')) hardware_version = parser.value_celsius();
+  //SERIAL_ECHOPAIR("HV...:", hardware_version);//liu
+  (void)settings.fixed_parameter_save();
+  SERIAL_ECHOLNPGM("HV_set_ok");
+}
 
 #if ENABLED(SWITCHING_EXTRUDER)
   #if EXTRUDERS > 3
@@ -11835,6 +11986,13 @@ void process_parsed_command() {
 
         case 928: // M928: Start SD write
           gcode_M928(); break;
+
+        #if ENABLED(POWER_LOSS_RECOVERY_TEST)
+          case 929: gcode_M929(); break; // M929: TEST Power Loss Save
+          case 930: gcode_M930(); break; // M930: Simulate Power Loss Recovery
+          case 931: gcode_M931(); break; // M931: TEST Power Loss Load
+        #endif
+
       #endif // SDSUPPORT
 
       case 31: // M31: Report time since the start of SD print or last M109
@@ -12467,10 +12625,11 @@ void process_parsed_command() {
       case 999: // M999: Restart after being Stopped
         gcode_M999();
         break;
-	case 2000: //  
+
+      case 2000: //
         gcode_M2000();
         break;
-      case 2009: //  
+      case 2009: //
         gcode_M2009();
         break;
     }
@@ -14415,8 +14574,8 @@ void setup() {
   // Load data from EEPROM if available (or use defaults)
   // This also updates variables in the planner, elsewhere
   (void)settings.load();
-  (void)settings.Fixed_parameter_load();
-  
+  (void)settings.fixed_parameter_load();
+
 
   #if HAS_M206_COMMAND
     // Initialize current position based on home_offset
@@ -14586,15 +14745,12 @@ void setup() {
   #endif
 
   // A10 Custom pins
- // #if PIN_EXISTS(CONTINUITY)
+  #if PIN_EXISTS(CONTINUITY)
     SET_INPUT(CONTINUITY_PIN);
- // #endif
-//  #if PIN_EXISTS(FIL_RUNOUT_PIN)
+  #endif
+  #if PIN_EXISTS(FIL_RUNOUT)
     SET_INPUT(FIL_RUNOUT_PIN);
- // #endif
- // #if PIN_EXISTS(FIL_RUNOUT2_PIN)
- //   SET_INPUT(FIL_RUNOUT2_PIN);
- // #endif
+  #endif
 
   if (powerloss.recovery == Rec_Outage) {
     lcd_goto_resume_menu();
@@ -14670,49 +14826,8 @@ void loop() {
   if (commands_in_queue == 0) {
     switch (powerloss.recovery) {
       default: break;
-      case Rec_Recovering1:
-        sprintf_P(tmp_y, PSTR("M190 S%u"), powerloss.B_t);
-        //SERIAL_ECHOLN(tmp_y);
-        enqueue_and_echo_command(tmp_y);
-
-        sprintf_P(tmp_y, PSTR("M109 T0 S%u"), powerloss.T0_t);
-        //SERIAL_ECHOLN(tmp_y);
-        enqueue_and_echo_command(tmp_y);
-        
-        sprintf_P(tmp_y, PSTR("M106  S255"));
-        enqueue_and_echo_command(tmp_y);
-
-        sprintf_P(tmp_y, PSTR("G28 X"));
-        //SERIAL_ECHOLN(tmp_y);
-        enqueue_and_echo_command(tmp_y);
-
-        sprintf_P(tmp_y,PSTR("G28 Y"));
-        //SERIAL_ECHOLN(tmp_y);
-        enqueue_and_echo_command(tmp_y);
-		
-	sprintf_P(tmp_y, PSTR("G0 F1000 Z%u.%u"), powerloss.Z_t / 10, powerloss.Z_t % 10);//jone
-       enqueue_and_echo_command(tmp_y);
-
-        axis_homed[Z_AXIS] = axis_known_position[Z_AXIS] = true;
-        powerloss.recovery = Rec_Recovering2;
-        break;
-      case Rec_Recovering2:
-        if (strlen(powerloss.print_dir) > 1)
-          sprintf_P(tmp_y, PSTR("M32 S%lu !/%s/%s"), powerloss.pos_t, powerloss.print_dir, powerloss.P_file_name);
-        else
-          sprintf_P(tmp_y, PSTR("M32 S%lu !%s"), powerloss.pos_t, powerloss.P_file_name);
-
-	
-
-        //SERIAL_ECHOLNPAIR("Gco : ", tmp_y);
-
-        //ZERO(powerloss.print_dir);
-        powerloss.recovery = Rec_Idle;
-        (void)settings.poweroff_save();
-
-        enqueue_and_echo_command(tmp_y);
-        //SERIAL_ECHOLN(tmp_y);
-        break;
+      case Rec_Recovering1: powerloss_resume_1(); break;
+      case Rec_Recovering2: powerloss_resume_2(); break;
     }
   }
 
@@ -14723,12 +14838,11 @@ void loop() {
     //  SERIAL_ECHOLN(tmp_y);
     //  enqueue_and_echo_command(tmp_y);
     ///////
-    if(current_position[Z_AXIS]>=5)
-	{
-		sprintf_P(tmp_y, PSTR("G28 X"));
-		//SERIAL_ECHOLN(tmp_y);
-		enqueue_and_echo_command(tmp_y);
-	}
+    if (current_position[Z_AXIS] >= 5) {
+      sprintf_P(tmp_y, PSTR("G28 X"));
+      //SERIAL_ECHOLN(tmp_y);
+      enqueue_and_echo_command(tmp_y);
+    }
     powerloss.recovery = Rec_Idle;
   }
   endstops.report_state();

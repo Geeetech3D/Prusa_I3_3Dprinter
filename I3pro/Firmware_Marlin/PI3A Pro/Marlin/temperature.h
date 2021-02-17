@@ -19,7 +19,7 @@
 */
 
 #ifndef TEMPERATURE_H
-#define TEMPERATURE_H 
+#define TEMPERATURE_H
 
 #include "Marlin.h"
 #include "planner.h"
@@ -32,16 +32,16 @@ void tp_init();  //initialize the heating
 void manage_heater(); //it is critical that this is called periodically.
 
 #ifdef FILAMENT_SENSOR
-// For converting raw Filament Width to milimeters 
- float analog2widthFil(); 
- 
-// For converting raw Filament Width to an extrusion ratio 
+// For converting raw Filament Width to milimeters
+ float analog2widthFil();
+
+// For converting raw Filament Width to an extrusion ratio
  int widthFil_to_size_ratio();
 #endif
 
 // low level conversion routines
 // do not use these routines and variables outside of temperature.cpp
-extern int target_temperature[4];  
+extern int target_temperature[4];
 extern float current_temperature[4];
 #ifdef SHOW_TEMP_ADC_VALUES
   extern int current_temperature_raw[4];
@@ -65,7 +65,7 @@ extern float current_temperature_bed;
   #else
     extern float Kp, Ki, Kd, Kc; // one param per extruder - saves 20 or 36 bytes of ram (inc array pointer)
     #define PID_PARAM(param, e) param // use macro to point directly to value
-  #endif // PID_PARAMS_PER_EXTRUDER	
+  #endif // PID_PARAMS_PER_EXTRUDER
   float scalePID_i(float i);
   float scalePID_d(float d);
   float unscalePID_i(float i);
@@ -76,11 +76,11 @@ extern float current_temperature_bed;
 #ifdef PIDTEMPBED
   extern float bedKp,bedKi,bedKd;
 #endif
-  
+
 #ifdef BABYSTEPPING
   extern volatile int babystepsTodo[3];
 #endif
-  
+
 //high level conversion routines, for use outside of temperature.cpp
 //inline so that there is no performance decrease.
 //deg=degreeCelsius

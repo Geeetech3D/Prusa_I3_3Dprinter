@@ -1,19 +1,19 @@
 /*
   temperature.cpp - temperature control
   Part of Marlin
-  
+
  Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
- 
+
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
@@ -58,20 +58,20 @@ float current_temperature_bed = 0.0;
   float bedKi=(DEFAULT_bedKi*PID_dT);
   float bedKd=(DEFAULT_bedKd/PID_dT);
 #endif //PIDTEMPBED
-  
+
 #ifdef FAN_SOFT_PWM
   unsigned char fanSpeedSoftPwm;
 #endif
 
 unsigned char soft_pwm_bed;
-  
+
 #ifdef BABYSTEPPING
   volatile int babystepsTodo[3] = { 0 };
 #endif
 
 #ifdef FILAMENT_SENSOR
   int current_raw_filwidth = 0;  //Holds measured filament diameter - one extruder only
-#endif  
+#endif
 
 #if defined(THERMAL_PROTECTION_HOTENDS) || defined(THERMAL_PROTECTION_BED)
   enum TRState { TRReset, TRInactive, TRFirstHeating, TRStable, TRRunaway };
@@ -126,7 +126,7 @@ static volatile bool temp_meas_ready = false;
 #endif
 #if HAS_AUTO_FAN
   static millis_t next_auto_fan_check_ms;
-#endif  
+#endif
 
 #ifdef PIDTEMP
   #ifdef PID_PARAMS_PER_EXTRUDER
@@ -217,7 +217,7 @@ void PID_autotune(float temp, int extruder, int ncycles)
     SERIAL_ECHOLN(MSG_PID_BAD_EXTRUDER_NUM);
     return;
   }
-  
+
   SERIAL_ECHOLN(MSG_PID_AUTOTUNE_START);
 
   disable_all_heaters(); // switch off all heaters.
@@ -312,7 +312,7 @@ void PID_autotune(float temp, int extruder, int ncycles)
           cycles++;
           min = temp;
         }
-      } 
+      }
     }
     #define MAX_OVERSHOOT_PID_AUTOTUNE 20
     if (input > temp + MAX_OVERSHOOT_PID_AUTOTUNE) {
@@ -384,13 +384,13 @@ void checkExtruderAutoFans()
 {
   uint8_t fanState = 0;
 
-  // which fan pins need to be turned on?      
+  // which fan pins need to be turned on?
   #if HAS_AUTO_FAN_0
-    if (current_temperature[0] > EXTRUDER_AUTO_FAN_TEMPERATURE) 
+    if (current_temperature[0] > EXTRUDER_AUTO_FAN_TEMPERATURE)
       fanState |= 1;
   #endif
   #if HAS_AUTO_FAN_1
-    if (current_temperature[1] > EXTRUDER_AUTO_FAN_TEMPERATURE) 
+    if (current_temperature[1] > EXTRUDER_AUTO_FAN_TEMPERATURE)
     {
       if (EXTRUDER_1_AUTO_FAN_PIN == EXTRUDER_0_AUTO_FAN_PIN)
         fanState |= 1;
@@ -399,38 +399,38 @@ void checkExtruderAutoFans()
     }
   #endif
   #if HAS_AUTO_FAN_2
-    if (current_temperature[2] > EXTRUDER_AUTO_FAN_TEMPERATURE) 
+    if (current_temperature[2] > EXTRUDER_AUTO_FAN_TEMPERATURE)
     {
-      if (EXTRUDER_2_AUTO_FAN_PIN == EXTRUDER_0_AUTO_FAN_PIN) 
+      if (EXTRUDER_2_AUTO_FAN_PIN == EXTRUDER_0_AUTO_FAN_PIN)
         fanState |= 1;
-      else if (EXTRUDER_2_AUTO_FAN_PIN == EXTRUDER_1_AUTO_FAN_PIN) 
+      else if (EXTRUDER_2_AUTO_FAN_PIN == EXTRUDER_1_AUTO_FAN_PIN)
         fanState |= 2;
       else
         fanState |= 4;
     }
   #endif
   #if HAS_AUTO_FAN_3
-    if (current_temperature[3] > EXTRUDER_AUTO_FAN_TEMPERATURE) 
+    if (current_temperature[3] > EXTRUDER_AUTO_FAN_TEMPERATURE)
     {
-      if (EXTRUDER_3_AUTO_FAN_PIN == EXTRUDER_0_AUTO_FAN_PIN) 
+      if (EXTRUDER_3_AUTO_FAN_PIN == EXTRUDER_0_AUTO_FAN_PIN)
         fanState |= 1;
-      else if (EXTRUDER_3_AUTO_FAN_PIN == EXTRUDER_1_AUTO_FAN_PIN) 
+      else if (EXTRUDER_3_AUTO_FAN_PIN == EXTRUDER_1_AUTO_FAN_PIN)
         fanState |= 2;
-      else if (EXTRUDER_3_AUTO_FAN_PIN == EXTRUDER_2_AUTO_FAN_PIN) 
+      else if (EXTRUDER_3_AUTO_FAN_PIN == EXTRUDER_2_AUTO_FAN_PIN)
         fanState |= 4;
       else
         fanState |= 8;
     }
   #endif
-  
+
   // update extruder auto fan states
   #if HAS_AUTO_FAN_0
     setExtruderAutoFanState(EXTRUDER_0_AUTO_FAN_PIN, (fanState & 1) != 0);
-  #endif 
+  #endif
   #if HAS_AUTO_FAN_1
     if (EXTRUDER_1_AUTO_FAN_PIN != EXTRUDER_0_AUTO_FAN_PIN)
       setExtruderAutoFanState(EXTRUDER_1_AUTO_FAN_PIN, (fanState & 2) != 0);
-  #endif 
+  #endif
   #if HAS_AUTO_FAN_2
     if (EXTRUDER_2_AUTO_FAN_PIN != EXTRUDER_0_AUTO_FAN_PIN
         && EXTRUDER_2_AUTO_FAN_PIN != EXTRUDER_1_AUTO_FAN_PIN)
@@ -649,14 +649,14 @@ void manage_heater() {
       checkExtruderAutoFans();
       next_auto_fan_check_ms = ms + 2500;
     }
-  #endif       
+  #endif
 
   // Control the extruder rate based on the width sensor
   #ifdef FILAMENT_SENSOR
     if (filament_sensor) {
       meas_shift_index = delay_index1 - meas_delay_cm;
       if (meas_shift_index < 0) meas_shift_index += MAX_MEASUREMENT_DELAY + 1;  //loop around buffer if needed
-      
+
       // Get the delayed info and add 100 to reconstitute to a percent of
       // the nominal filament diameter then square it to get an area
       meas_shift_index = constrain(meas_shift_index, 0, MAX_MEASUREMENT_DELAY);
@@ -672,7 +672,7 @@ void manage_heater() {
   #endif
 
   #if TEMP_SENSOR_BED != 0
-  
+
     #ifdef THERMAL_PROTECTION_BED
       thermal_runaway_protection(&thermal_runaway_bed_state_machine, &thermal_runaway_bed_timer, current_temperature_bed, target_temperature_bed, -1, THERMAL_PROTECTION_BED_PERIOD, THERMAL_PROTECTION_BED_HYSTERESIS);
     #endif
@@ -722,7 +722,7 @@ static float analog2temp(int raw, uint8_t e) {
       SERIAL_ERRORLNPGM(MSG_INVALID_EXTRUDER_NUM);
       kill(PSTR(MSG_KILLED));
       return 0.0;
-    } 
+    }
 
   #ifdef HEATER_0_USES_MAX6675
     if (e == 0) return 0.25 * raw;
@@ -735,8 +735,8 @@ static float analog2temp(int raw, uint8_t e) {
 
     for (i = 1; i < heater_ttbllen_map[e]; i++) {
       if (PGM_RD_W((*tt)[i][0]) > raw) {
-        celsius = PGM_RD_W((*tt)[i-1][1]) + 
-          (raw - PGM_RD_W((*tt)[i-1][0])) * 
+        celsius = PGM_RD_W((*tt)[i-1][1]) +
+          (raw - PGM_RD_W((*tt)[i-1][0])) *
           (float)(PGM_RD_W((*tt)[i][1]) - PGM_RD_W((*tt)[i-1][1])) /
           (float)(PGM_RD_W((*tt)[i][0]) - PGM_RD_W((*tt)[i-1][0]));
         break;
@@ -760,8 +760,8 @@ static float analog2tempBed(int raw) {
 
     for (i = 1; i < BEDTEMPTABLE_LEN; i++) {
       if (PGM_RD_W(BEDTEMPTABLE[i][0]) > raw) {
-        celsius  = PGM_RD_W(BEDTEMPTABLE[i-1][1]) + 
-          (raw - PGM_RD_W(BEDTEMPTABLE[i-1][0])) * 
+        celsius  = PGM_RD_W(BEDTEMPTABLE[i-1][1]) +
+          (raw - PGM_RD_W(BEDTEMPTABLE[i-1][0])) *
           (float)(PGM_RD_W(BEDTEMPTABLE[i][1]) - PGM_RD_W(BEDTEMPTABLE[i-1][1])) /
           (float)(PGM_RD_W(BEDTEMPTABLE[i][0]) - PGM_RD_W(BEDTEMPTABLE[i-1][0]));
         break;
@@ -818,7 +818,7 @@ static void updateTemperaturesFromRawValues() {
     if (temp < MEASURED_LOWER_LIMIT) temp = filament_width_nominal;  //assume sensor cut out
     else if (temp > MEASURED_UPPER_LIMIT) temp = MEASURED_UPPER_LIMIT;
     return filament_width_nominal / temp * 100;
-  } 
+  }
 
 #endif
 
@@ -833,10 +833,10 @@ void tp_init() {
     MCUCR=BIT(JTD);
     MCUCR=BIT(JTD);
   #endif
-  
-  // Finish init of mult extruder arrays 
+
+  // Finish init of mult extruder arrays
   for (int e = 0; e < EXTRUDERS; e++) {
-    // populate with the first value 
+    // populate with the first value
     maxttemp[e] = maxttemp[0];
     #ifdef PIDTEMP
       temp_iState_min[e] = 0.0;
@@ -862,7 +862,7 @@ void tp_init() {
   #endif
   #if HAS_HEATER_BED
     SET_OUTPUT(HEATER_BED_PIN);
-  #endif  
+  #endif
   #if HAS_FAN
     SET_OUTPUT(FAN_PIN);
     #ifdef FAST_PWM_FAN
@@ -883,7 +883,7 @@ void tp_init() {
       pinMode(SS_PIN, OUTPUT);
       digitalWrite(SS_PIN, HIGH);
     #endif
-    
+
     OUT_WRITE(MAX6675_SS,HIGH);
 
   #endif //HEATER_0_USES_MAX6675
@@ -918,12 +918,12 @@ void tp_init() {
   #if HAS_FILAMENT_SENSOR
     ANALOG_SELECT(FILWIDTH_PIN);
   #endif
-  
+
   // Use timer0 for temperature measurement
   // Interleave temperature interrupt with millies interrupt
   OCR0B = 128;
-  TIMSK0 |= BIT(OCIE0B);  
-  
+  TIMSK0 |= BIT(OCIE0B);
+
   // Wait for temperature measurement to settle
   delay(250);
 
@@ -1118,7 +1118,7 @@ void disable_all_heaters() {
 
     if (ms < next_max6675_ms)
       return max6675_temp;
-    
+
     next_max6675_ms = ms + MAX6675_HEAT_INTERVAL;
 
     max6675_temp = 0;
@@ -1230,7 +1230,7 @@ ISR(TIMER0_COMPB_vect) {
       static unsigned char state_timer_heater_ ## n = 0
   #else
     #define ISR_STATICS(n) static unsigned char soft_pwm_ ## n
-  #endif 
+  #endif
 
   // Statics per heater
   ISR_STATICS(0);
@@ -1250,7 +1250,7 @@ ISR(TIMER0_COMPB_vect) {
   #if HAS_FILAMENT_SENSOR
     static unsigned long raw_filwidth_value = 0;
   #endif
-  
+
   #ifndef SLOW_PWM_HEATERS
     /**
      * standard PWM modulation
@@ -1303,10 +1303,10 @@ ISR(TIMER0_COMPB_vect) {
     #ifdef FAN_SOFT_PWM
       if (soft_pwm_fan < pwm_count) WRITE_FAN(0);
     #endif
-    
+
     pwm_count += BIT(SOFT_PWM_SCALE);
     pwm_count &= 0x7f;
-  
+
   #else // SLOW_PWM_HEATERS
     /*
      * SLOW PWM HEATERS
@@ -1392,9 +1392,9 @@ ISR(TIMER0_COMPB_vect) {
     if ((pwm_count % 64) == 0) {
       slow_pwm_count++;
       slow_pwm_count &= 0x7f;
-    
+
       // EXTRUDER 0
-      if (state_timer_heater_0 > 0) state_timer_heater_0--; 
+      if (state_timer_heater_0 > 0) state_timer_heater_0--;
       #if EXTRUDERS > 1    // EXTRUDER 1
         if (state_timer_heater_1 > 0) state_timer_heater_1--;
         #if EXTRUDERS > 2    // EXTRUDER 2
@@ -1408,7 +1408,7 @@ ISR(TIMER0_COMPB_vect) {
         if (state_timer_heater_BED > 0) state_timer_heater_BED--;
       #endif
     } // (pwm_count % 64) == 0
-  
+
   #endif // SLOW_PWM_HEATERS
 
   #define SET_ADMUX_ADCSRA(pin) ADMUX = BIT(REFS0) | (pin & 0x07); ADCSRA |= BIT(ADSC)
@@ -1587,7 +1587,7 @@ ISR(TIMER0_COMPB_vect) {
   #ifdef BABYSTEPPING
     for (uint8_t axis = X_AXIS; axis <= Z_AXIS; axis++) {
       int curTodo = babystepsTodo[axis]; //get rid of volatile for performance
-     
+
       if (curTodo > 0) {
         babystep(axis,/*fwd*/true);
         babystepsTodo[axis]--; //fewer to do next time

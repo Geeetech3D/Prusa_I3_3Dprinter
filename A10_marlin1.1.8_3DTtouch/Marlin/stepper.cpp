@@ -380,7 +380,7 @@ ISR(TIMER1_COMPA_vect) {
   static bool test; // = false
   //if (READ(FIL_RUNOUT_PIN) && powerloss.P_file_name[0] && powerloss.recovery == Rec_Idle && print_job_timer.isRunning()) {
   if (filament_runout_enabled) {
-    if(READ(FIL_RUNOUT_PIN)
+    if (READ(FIL_RUNOUT_PIN)
       && ((powerloss.P_file_name[0] && powerloss.recovery == Rec_Idle && print_job_timer.isRunning()) || !test)
     ) {
       test = true;
@@ -399,31 +399,9 @@ ISR(TIMER1_COMPA_vect) {
   //
   // Power Outage
   //
-  if (!READ(CONTINUITY_PIN) && powerloss.P_file_name[0] && powerloss.recovery == Rec_Idle && print_job_timer.isRunning()) {
-    //SERIAL_ECHOLNPGM("Down");
-    // enqueuecommand("M929");
-
-    powerloss.Z_t = current_position[Z_AXIS] * 10;
-    powerloss.E_t = current_position[E_AXIS];
-    powerloss.pos_t = card.getStatus();
-    powerloss.T0_t = thermalManager.degTargetHotend(0) + 0.5;
-    powerloss.B_t = thermalManager.degTargetBed() + 0.5;
-    powerloss.recovery =
-      #if ENABLED(BLTOUCH)
-        Rec_Idle
-      #else
-        Rec_Outage
-      #endif
-    ;
-    //settings.save();
-    (void)settings.poweroff_save();
-    settings.load();
-
-    char tmp_d[32];
-    sprintf_P(tmp_d, PSTR("Z%u,E%lu,P%lu,T%u,B%u,"), powerloss.Z_t, powerloss.E_t, powerloss.pos_t, powerloss.T0_t, powerloss.B_t);
-    SERIAL_ECHO(tmp_d);
-    SERIAL_ECHOLN(powerloss.P_file_name);
-  }
+  #if PIN_EXISTS(CONTINUITY)
+    if (!READ(CONTINUITY_PIN)) powerloss_detected();
+  #endif
 
   #if ENABLED(LIN_ADVANCE)
     Stepper::advance_isr_scheduler();

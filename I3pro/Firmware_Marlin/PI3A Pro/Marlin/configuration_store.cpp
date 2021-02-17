@@ -715,7 +715,7 @@ void Config_PrintSettings(bool forReplay) {
       CONFIG_ECHO_START;
     }
     SERIAL_ECHOPAIR("  M666 Z", z_endstop_adj);
-    SERIAL_EOL;  
+    SERIAL_EOL;
   #endif // DELTA
 
   #ifdef ULTIPANEL
@@ -752,7 +752,7 @@ void Config_PrintSettings(bool forReplay) {
             SERIAL_ECHOPAIR(" D", unscalePID_d(PID_PARAM(Kd, i)));
             #ifdef PID_ADD_EXTRUSION_RATE
               SERIAL_ECHOPAIR(" C", PID_PARAM(Kc, i));
-            #endif      
+            #endif
             SERIAL_EOL;
           }
         }
@@ -766,7 +766,7 @@ void Config_PrintSettings(bool forReplay) {
         SERIAL_ECHOPAIR(" D", unscalePID_d(PID_PARAM(Kd, 0)));
         #ifdef PID_ADD_EXTRUSION_RATE
           SERIAL_ECHOPAIR(" C", PID_PARAM(Kc, 0));
-        #endif      
+        #endif
         SERIAL_EOL;
       }
     #endif // PIDTEMP

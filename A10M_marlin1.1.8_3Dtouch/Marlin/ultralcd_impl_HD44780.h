@@ -799,8 +799,8 @@ static void lcd_implementation_status_screen() {
       #else
 
         const int mix_pct = int(RECIPROCAL(mixing_factor[NOZZLE0]) * 100.0f);
-        const char * const fmt = mixer.gradient_flag ? PSTR("Mx^%d;%d%% ") : PSTR("Mx %d;%d%% ");
-        sprintf_P(mixer_messages, fmt, mix_pct, 100 - mix_pct);
+        lcd.print(mixer.gradient_flag ? PSTR("Gr") : PSTR("Mx"));
+        sprintf_P(mixer_messages, PSTR(" %d;%d%% "), mix_pct, 100 - mix_pct);
         lcd.print(mixer_messages);
 
         // Before homing the axis letters are blinking 'X' <-> '?'.

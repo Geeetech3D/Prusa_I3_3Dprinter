@@ -209,17 +209,17 @@ float raw_Ki, raw_Kd;
   }
 }
 
-void lcd_resume_menu_ok(void) 
+void lcd_resume_menu_ok(void)
 {
   char tmp_n[64+10];
   recovery=0;
 //  Config_StoreSettings();
   //Config_RetrieveSettings();
   lcd_goto_menu(lcd_status_screen);
- // enquecommand("M930"); 
+ // enquecommand("M930");
   SERIAL_ECHOLN(P_file_name);
   recovery=1;
-  
+
   sprintf_P(tmp_n,PSTR("G92 Z%u.%u"),Z_t/10,Z_t%10);
   SERIAL_ECHOLN(tmp_n);
   enquecommand(tmp_n);
@@ -234,23 +234,23 @@ void lcd_resume_menu_ok(void)
   enquecommand(tmp_n);
   //////////////
 }
-void lcd_resume_menu_cancel(void) 
+void lcd_resume_menu_cancel(void)
 {
    recovery=0;
    //Config_StoreSettings();
    //Config_RetrieveSettings();
    lcd_goto_menu(lcd_status_screen, 0, false);
-   
- 
+
+
 }
-void lcd_resume_menu0(void) 
+void lcd_resume_menu0(void)
 {
   START_MENU();
   //////////
    MENU_ITEM(submenu, "", lcd_resume_menu0);
   lcd.setCursor(0,0);
   lcd.print("Resume print ?  ");
-  
+
   MENU_ITEM(submenu, "", lcd_resume_menu_ok);
   lcd.setCursor(1,1);
   lcd.print("Yes  ");
@@ -264,15 +264,15 @@ void lcd_resume_menu0(void)
 
 
 
-void lcd_resume_menu(void) 
+void lcd_resume_menu(void)
 {
-   
+
  lcd_goto_menu(lcd_resume_menu0);
 }
 /* Main status screen. It's up to the implementation specific part to show what is needed. As this is very display dependent */
 static void lcd_status_screen()
 {
- 
+
   #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
     uint16_t mil = millis();
     #ifndef PROGRESS_MSG_ONCE
@@ -415,14 +415,14 @@ static void lcd_about_menu()
   else
   {
 	  lcd.print("HW Ver:");
-	  lcd.setCursor(8,1);	   
+	  lcd.setCursor(8,1);
 	  lcd.print(uuid_hw);
   }
-	
-  //////////////	
+
+  //////////////
 	lcd.setCursor(1,2);
 	lcd.print("SW Ver:" VERSION_STRING);
-	 
+
 	//LCD_MESSAGEPGM("3243233");//uuid_sn
 	 lcd.setCursor(1, 3);
  //   lcd_printPGM(PSTR("SD"));
@@ -430,12 +430,12 @@ static void lcd_about_menu()
 		lcd.print("No SN");
 	else
 	{
-		
+
 		lcd.print("SN:");
 		lcd.setCursor(4,4);
     	lcd.print(uuid_sn);
 	}
-	
+
     END_MENU();
 }
 
@@ -480,13 +480,13 @@ static void lcd_main_menu()
     }
 #endif
 #ifdef LIGHT_SUPPORT
-	if(light_level>0) 
-	{	
+	if(light_level>0)
+	{
 	  light_level = 0;
 	  MENU_ITEM(function, MSG_LIGHT_OFF, light_ctrl);
 	  light_level = LIGHT_LEVEL;
 	}
-	else 
+	else
 	{
 	  light_level = LIGHT_LEVEL;
 	  MENU_ITEM(function, MSG_LIGHT_ON, light_ctrl);
@@ -1669,7 +1669,7 @@ char *ftostr43(const float &x)
 char *ftostr12ns(const float &x)
 {
   long xx=x*100;
-  
+
   xx=abs(xx);
   conv[0]=(xx/100)%10+'0';
   conv[1]='.';

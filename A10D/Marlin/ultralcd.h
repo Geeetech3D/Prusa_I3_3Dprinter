@@ -43,13 +43,13 @@
   extern int absPreheatHotendTemp;
   extern int absPreheatHPBTemp;
   extern int absPreheatFanSpeed;
-  
+
   extern bool cancel_heatup;
-  
+
   #ifdef FILAMENT_LCD_DISPLAY
         extern unsigned long message_millis;
   #endif
-    
+
   void lcd_buzz(long duration,uint16_t freq);
   bool lcd_clicked();
 
@@ -90,7 +90,7 @@
     #define B_ST (1<<BL_ST)
     #define EN_B (1<<BLEN_B)
     #define EN_A (1<<BLEN_A)
-    
+
     #define LCD_CLICKED ((buttons&B_MI)||(buttons&B_ST))
   #endif//NEWPANEL
 
@@ -103,8 +103,8 @@
   FORCE_INLINE void lcd_buzz(long duration,uint16_t freq) {}
   FORCE_INLINE bool lcd_detected(void) { return true; }
 
-  #define LCD_MESSAGEPGM(x) 
-  #define LCD_ALERTMESSAGEPGM(x) 
+  #define LCD_MESSAGEPGM(x)
+  #define LCD_ALERTMESSAGEPGM(x)
 
 #endif //ULTRA_LCD
 
@@ -119,7 +119,7 @@ char *ftostr31ns(const float &x); // float to string without sign character
 char *ftostr31(const float &x);
 char *ftostr32(const float &x);
 char *ftostr43(const float &x);
-char *ftostr12ns(const float &x); 
+char *ftostr12ns(const float &x);
 char *ftostr32sp(const float &x); // remove zero-padding from ftostr32
 char *ftostr5(const float &x);
 char *ftostr51(const float &x);

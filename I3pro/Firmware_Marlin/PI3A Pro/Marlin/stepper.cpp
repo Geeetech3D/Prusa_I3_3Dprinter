@@ -50,8 +50,8 @@ static unsigned char out_bits = 0;        // The next stepping-bits to be output
 static unsigned int cleaning_buffer_counter;
 
 #ifdef Z_DUAL_ENDSTOPS
-  static bool performing_homing = false, 
-              locked_z_motor = false, 
+  static bool performing_homing = false,
+              locked_z_motor = false,
               locked_z2_motor = false;
 #endif
 
@@ -344,7 +344,7 @@ FORCE_INLINE unsigned short calc_timer(unsigned short step_rate) {
 
 // set the stepper direction of each axis
 void set_stepper_direction() {
-  
+
   // Set the direction bits (X_AXIS=A_AXIS and Y_AXIS=B_AXIS for COREXY)
   if (TEST(out_bits, X_AXIS)) {
     X_APPLY_DIR(INVERT_X_DIR,0);
@@ -363,7 +363,7 @@ void set_stepper_direction() {
     Y_APPLY_DIR(!INVERT_Y_DIR,0);
     count_direction[Y_AXIS] = 1;
   }
-  
+
   if (TEST(out_bits, Z_AXIS)) {
     Z_APPLY_DIR(INVERT_Z_DIR,0);
     count_direction[Z_AXIS] = -1;
@@ -372,7 +372,7 @@ void set_stepper_direction() {
     Z_APPLY_DIR(!INVERT_Z_DIR,0);
     count_direction[Z_AXIS] = 1;
   }
-  
+
   #ifndef ADVANCE
     if (TEST(out_bits, E_AXIS)) {
       REV_E_DIR();
@@ -393,7 +393,7 @@ FORCE_INLINE void trapezoid_generator_reset() {
     out_bits = current_block->direction_bits;
     set_stepper_direction();
   }
-  
+
   #ifdef ADVANCE
     advance = current_block->initial_advance;
     final_advance = current_block->final_advance;
@@ -469,7 +469,7 @@ ISR(TIMER1_COMPA_vect) {
 
     // Check endstops
     if (check_endstops) {
-      
+
       #ifdef Z_DUAL_ENDSTOPS
         uint16_t
       #else
@@ -497,7 +497,7 @@ ISR(TIMER1_COMPA_vect) {
           _ENDSTOP_HIT(AXIS); \
           step_events_completed = current_block->step_event_count; \
         }
-      
+
       #ifdef COREXY
         // Head direction in -X axis for CoreXY bots.
         // If DeltaX == -DeltaY, the movement is only in Y axis
@@ -612,10 +612,10 @@ ISR(TIMER1_COMPA_vect) {
 
           #endif // !Z_DUAL_ENDSTOPS
         #endif // Z_MAX_PIN
-        
+
         #ifdef Z_PROBE_ENDSTOP
           UPDATE_ENDSTOP(Z, PROBE);
-          
+
           if (TEST_ENDSTOP(Z_PROBE))
           {
             endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
@@ -1040,7 +1040,7 @@ void st_init() {
 
   enable_endstops(true); // Start with endstops active. After homing they can be disabled
   sei();
-  
+
   set_stepper_direction(); // Init directions to out_bits = 0
 }
 
@@ -1124,7 +1124,7 @@ void quickStop() {
       case Y_AXIS:
         BABYSTEP_AXIS(y, Y, false);
         break;
- 
+
       case Z_AXIS: {
 
         #ifndef DELTA
@@ -1145,13 +1145,13 @@ void quickStop() {
           X_DIR_WRITE(INVERT_X_DIR^z_direction);
           Y_DIR_WRITE(INVERT_Y_DIR^z_direction);
           Z_DIR_WRITE(INVERT_Z_DIR^z_direction);
-          //perform step 
+          //perform step
           X_STEP_WRITE(!INVERT_X_STEP_PIN);
           Y_STEP_WRITE(!INVERT_Y_STEP_PIN);
           Z_STEP_WRITE(!INVERT_Z_STEP_PIN);
           delayMicroseconds(2);
-          X_STEP_WRITE(INVERT_X_STEP_PIN); 
-          Y_STEP_WRITE(INVERT_Y_STEP_PIN); 
+          X_STEP_WRITE(INVERT_X_STEP_PIN);
+          Y_STEP_WRITE(INVERT_Y_STEP_PIN);
           Z_STEP_WRITE(INVERT_Z_STEP_PIN);
           //get old pin state back.
           X_DIR_WRITE(old_x_dir_pin);
@@ -1161,7 +1161,7 @@ void quickStop() {
         #endif
 
       } break;
- 
+
       default: break;
     }
   }

@@ -351,16 +351,16 @@ static void lcd_about_menu()
   else
   {
 	  lcd.print("HW Ver:");
-	  lcd.setCursor(8,1);	   
+	  lcd.setCursor(8,1);
 	  lcd.print(uuid_hw);
   }
-	
-  //////////////	
+
+  //////////////
 	lcd.setCursor(1,2);
     lcd.print("SW Ver:");
-    lcd.setCursor(8,2);	 
+    lcd.setCursor(8,2);
 	lcd.print(VERSION_STRING);
-	 
+
 	//LCD_MESSAGEPGM("3243233");//uuid_sn
 	 lcd.setCursor(1, 3);
  //   lcd_printPGM(PSTR("SD"));
@@ -368,12 +368,12 @@ static void lcd_about_menu()
 		lcd.print("No SN");
 	else
 	{
-		
+
 		lcd.print("SN:");
 		lcd.setCursor(4,4);
     	lcd.print(uuid_sn);
 	}
-	
+
     END_MENU();
 }
 
@@ -1583,7 +1583,7 @@ char *ftostr43(const float &x)
 char *ftostr12ns(const float &x)
 {
   long xx=x*100;
-  
+
   xx=abs(xx);
   conv[0]=(xx/100)%10+'0';
   conv[1]='.';
