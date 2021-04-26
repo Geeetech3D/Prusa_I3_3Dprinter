@@ -547,7 +547,7 @@
  * Override with M92
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
  */
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80.3, 80.8, 400, 340 }   //Orig { 80, 80, 4000, 500 } 93*2 = DRV8825 1/32 Stepps
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80.3, 80.8, 400, 99.66 }   //Orig { 80, 80, 4000, 500 } 93*2 = DRV8825 1/32 Stepps
 
 /**
  * Default Max Feed Rate (mm/s)
@@ -776,8 +776,8 @@
 // @section extruder
 
 // For direct drive extruder v9 set to true, for geared extruder set to false.
-#define INVERT_E0_DIR false
-#define INVERT_E1_DIR false
+#define INVERT_E0_DIR true
+#define INVERT_E1_DIR true
 #define INVERT_E2_DIR false
 #define INVERT_E3_DIR false
 #define INVERT_E4_DIR false
@@ -928,7 +928,7 @@
 #if ENABLED(AUTO_BED_LEVELING_LINEAR) || ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
   // Set the number of grid points per dimension.
-  #define GRID_MAX_POINTS_X 3
+  #define GRID_MAX_POINTS_X 5
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
   // Set the boundaries for probing (where the probe can reach).
