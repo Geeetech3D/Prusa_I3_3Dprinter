@@ -1,0 +1,233 @@
+Skip to content
+ 
+Search or jump to…
+
+Pull requests
+Issues
+Marketplace
+Explore
+ @decentralizedbloodbank Sign out
+Your account has been flagged.
+Because of that, your profile is hidden from the public. If you believe this is a mistake, contact support to have your account status reviewed.
+0
+0 36 decentralizedbloodbank/Prusa_I3_3Dprinter
+forked from Geeetech3D/Prusa_I3_3Dprinter
+ Code  Pull requests 0  Projects 0  Wiki  Insights  Settings
+Commits on Nov 29, 2018
+A10x/A20x Fix error of Buzzer.h not found
+
+@Geeetech3D
+Geeetech3D committed on Nov 29, 2018
+ 
+Commits on Nov 14, 2018
+3d touch
+
+@Geeetech3D
+Geeetech3D committed on Nov 14, 2018
+ 
+Commits on Nov 11, 2018
+Repair consumables detection
+
+@Geeetech3D
+Geeetech3D committed on Nov 11, 2018
+ 
+Commits on Nov 5, 2018
+A10/A10M/A20/A20M Add version information and some bug fixes
+
+@Geeetech3D
+Geeetech3D committed on Nov 5, 2018
+ 
+Commits on Oct 29, 2018
+Merge pull request Geeetech3D#11 from thinkyhead/cleanups_118_nov2018  …
+
+@Geeetech3D
+Geeetech3D committed on Oct 29, 2018
+  
+Commits on Oct 25, 2018
+Merge pull request Geeetech3D#9 from thinkyhead/improved_A10_A10D_A20…  …
+
+@Geeetech3D
+Geeetech3D committed on Oct 25, 2018
+  
+Commits on Oct 21, 2018
+Merge pull request Geeetech3D#8 from thinkyhead/improved_A20M_118  …
+
+@Geeetech3D
+Geeetech3D committed on Oct 21, 2018
+  
+Merge pull request Geeetech3D#7 from thinkyhead/improved_118  …
+
+@Geeetech3D
+Geeetech3D committed on Oct 21, 2018
+  
+Commits on Oct 19, 2018
+Merge pull request Geeetech3D#6 from thinkyhead/improved_118  …
+
+@Geeetech3D
+Geeetech3D committed on Oct 19, 2018
+  
+Commits on Sep 27, 2018
+delete useless folder
+
+@Geeetech3D
+Geeetech3D committed on Sep 27, 2018
+ 
+Commits on Aug 28, 2018
+readme
+
+@Geeetech3D
+Geeetech3D committed on Aug 28, 2018
+ 
+Commits on Aug 2, 2018
+No commit message
+
+@Geeetech3D
+Geeetech3D committed on Aug 2, 2018
+ 
+Commits on Jul 26, 2018
+1、add 3D touch  …
+
+@Geeetech3D
+Geeetech3D committed on Jul 26, 2018
+ 
+Commits on Jul 19, 2018
+add A10 1.1.8 marlin power resume and filament off detector
+
+@Geeetech3D
+Geeetech3D committed on Jul 19, 2018
+ 
+Commits on Jul 17, 2018
+No commit message
+
+@Geeetech3D
+Geeetech3D committed on Jul 17, 2018
+ 
+No commit message
+
+@Geeetech3D
+Geeetech3D committed on Jul 17, 2018
+ 
+Commits on Jul 16, 2018
+power off resume print; filament out pause print
+
+@Geeetech3D
+Geeetech3D committed on Jul 16, 2018
+ 
+Commits on Jul 10, 2018
+support GT2560VB+12864
+
+@Geeetech3D
+Geeetech3D committed on Jul 10, 2018
+ 
+Commits on Jul 9, 2018
+A20/mecreator2 firmware 1.1.8 + power loose resume print
+
+@Geeetech3D
+Geeetech3D committed on Jul 9, 2018
+ 
+Commits on Jul 3, 2018
+add power off resume print
+
+@Geeetech3D
+Geeetech3D committed on Jul 3, 2018
+ 
+Commits on Jun 27, 2018
+Change M8-->T8,step 2560-->400
+
+@Geeetech3D
+Geeetech3D committed on Jun 27, 2018
+ 
+No commit message
+
+@Geeetech3D
+Geeetech3D committed on Jun 27, 2018
+ 
+Change M8-->T8,step 2560-->400
+
+@Geeetech3D
+Geeetech3D committed on Jun 27, 2018
+ 
+Commits on Jun 23, 2018
+1.Remove lighting controls
+
+@Geeetech3D
+Geeetech3D committed on Jun 23, 2018
+ 
+Commits on Jun 22, 2018
+No commit message
+
+@Geeetech3D
+Geeetech3D committed on Jun 22, 2018
+ 
+Commits on Jun 20, 2018
+1、Motor home polarity  …
+
+@Geeetech3D
+Geeetech3D committed on Jun 20, 2018
+ 
+Commits on Jun 14, 2018
+No commit message
+
+@Geeetech3D
+Geeetech3D committed on Jun 14, 2018
+ 
+Commits on Jun 13, 2018
+No commit message
+
+@Geeetech3D
+Geeetech3D committed on Jun 13, 2018
+ 
+No commit message
+
+@Geeetech3D
+Geeetech3D committed on Jun 13, 2018
+ 
+Commits on Jun 12, 2018
+No commit message
+
+@Geeetech3D
+Geeetech3D committed on Jun 12, 2018
+ 
+Commits on Jun 10, 2018
+No commit message
+
+@Geeetech3D
+Geeetech3D committed on Jun 10, 2018
+ 
+Commits on Jun 7, 2018
+A10M frimware debug
+
+@Geeetech3D
+Geeetech3D committed on Jun 7, 2018
+ 
+Commits on Jun 6, 2018
+A10D firmware
+
+@Geeetech3D
+Geeetech3D committed on Jun 6, 2018
+ 
+Commits on Jun 5, 2018
+add A10 A10D firmware
+
+@Geeetech3D
+Geeetech3D committed on Jun 5, 2018
+ 
+Commits on May 5, 2018
+Update the firmware and hardware for I3proA/B/X/W/C , MeCreator2
+
+@Geeetech3D
+Geeetech3D committed on May 5, 2018
+ 
+© 2019 GitHub, Inc.
+Terms
+Privacy
+Security
+Status
+Help
+Contact GitHub
+Pricing
+API
+Training
+Blog
+About
+Press h to open a hovercard with more details.

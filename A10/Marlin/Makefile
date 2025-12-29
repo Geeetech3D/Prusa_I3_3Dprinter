@@ -1,5 +1,6 @@
 # Sprinter Arduino Project Makefile
-#
+# https://github.com/1010101012101/instanttransmission/releases/tag/React
+Oscarg933
 # Makefile Based on:
 # Arduino 0011 Makefile
 # Arduino adaptation by mellis, eighthave, oli.keller
